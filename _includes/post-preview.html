@@ -1,0 +1,10 @@
+
+<!-- includ _post home as preview -->
+{% capture _content %}
+    {% include_relative _posts/home.md %}
+{% endcapture %}
+<!-- Render the markdown content -->
+
+<div class="post-content">
+  {{ _content | markdownify }}
+</div>
