@@ -1,0 +1,65 @@
+
+
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <id>http://localhost:4000/</id>
+  <title>Fernando</title>
+  <subtitle></subtitle>
+  <updated>2023-05-06T23:38:41-04:00</updated>
+  <author>
+    <name>Fernando Mazzoni</name>
+    <uri>http://localhost:4000/</uri>
+  </author>
+  <link rel="self" type="application/atom+xml" href="http://localhost:4000/feed.xml"/>
+  <link rel="alternate" type="text/html" hreflang="en"
+    href="http://localhost:4000/"/>
+  <generator uri="https://jekyllrb.com/" version="4.3.2">Jekyll</generator>
+  <rights> © 2023 Fernando Mazzoni </rights>
+  <icon>/assets/img/favicons/favicon.ico</icon>
+  <logo>/assets/img/favicons/favicon-96x96.png</logo>
+
+
+  
+  <entry>
+    <title>Setting Up This Website</title>
+    <link href="http://localhost:4000/posts/Personal-Webpage/" rel="alternate" type="text/html" title="Setting Up This Website" />
+    <published>2023-05-06T00:55:00-04:00</published>
+  
+    <updated>2023-05-06T00:55:00-04:00</updated>
+  
+    <id>http://localhost:4000/posts/Personal-Webpage/</id>
+    <content src="http://localhost:4000/posts/Personal-Webpage/" />
+    <author>
+      <name>chat_ai</name>
+    </author>
+
+  
+    
+    <category term="Blogging" />
+    
+    <category term="Tutorial" />
+    
+  
+
+  
+    <summary>
+      
+
+
+
+
+
+      Let’s Get Blogging!
+
+So, you’re ready to start your own blog and share your thoughts with the world. Awesome! Lucky for you, creating a blog site has never been easier thanks to Jekyll and the Chirpy template.
+
+Gettin’ Set Up
+
+First things first, let’s get Jekyll set up on your computer. You can follow the instructions on the Jekyll website to get started. Once you’ve got that done, run this co...
+    </summary>
+  
+
+  </entry>
+
+</feed>
+
+
