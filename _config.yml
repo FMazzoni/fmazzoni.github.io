@@ -30,23 +30,22 @@ description: >-                        # used by seo meta and the atom feed
 url: "https://fmazzoni.github.io"
 
 github:
-  username: github_username # change to your github username
+  username: FMazzoni # change to your github username
 
-twitter:
-  username: twitter_username # change to your twitter username
+linkedin:
+  username: fernando-mazzoni-166443187 # change to your linkedin username
 
 social:
   # Change to your full name.
   # It will be displayed as the default author of the posts and the copyright owner in the Footer
   name: Fernando Mazzoni
-  email: example@domain.com             # change to your email address
+  email: test@domain.com             # change to your email address
   links:
     # The first element serves as the copyright owner's link
-    - https://twitter.com/username      # change to your twitter homepage
-    - https://github.com/username       # change to your github homepage
+    - https://github.com/FMazzoni       # change to your github homepage
     # Uncomment below to add more social links
     # - https://www.facebook.com/username
-    # - https://www.linkedin.com/in/username
+    - https://www.linkedin.com/in/fernando-mazzoni-166443187
 
 google_site_verification:               # fill in to your verification string
 
@@ -159,7 +158,7 @@ defaults:
       layout: page
       permalink: /:title/
   - scope:
-      path: assets/img/favicons
+      path: assets/img/favicons_test
     values:
       swcache: true
   - scope:
