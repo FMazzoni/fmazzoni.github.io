@@ -10,8 +10,7 @@ pin: False
 
 # Introduction:
 
-MathJax is a powerful JavaScript library that allows you to render mathematical equations in a web browser. It uses the $\LaTeX$ syntax for writing equations, which is a standard for writing mathematical equations. MathJax can be used to display equations in a web page, or it can be used to render equations in a web browser. In this article, we will show you how to display equations in a web page. The raw file for this article can be found [here](https://raw.githubusercontent.com/FMazzoni/fmazzoni.github.io/main/_posts/2023-06-12-Using-Mathjax.md "here").
-
+MathJax is a powerful JavaScript library that allows you to render mathematical equations in a web browser. It uses the $\LaTeX$ syntax for writing equations, which is a standard for writing mathematical equations. MathJax can be used to display equations in a web page, or it can be used to render equations in a web browser. In this article, we will show you how to display equations in a web page. The raw file for this article can be found [here](https://raw.githubusercontent.com/FMazzoni/fmazzoni.github.io/main/_posts/2023-06-12-Using-Mathjax.md "here"). You can find more information on the differences between MathJax and $\LaTeX$ [here](https://docs.mathjax.org/en/latest/input/tex/differences.html "here"). You can find more on the supported $\LaTeX$ extensions [here](https://docs.mathjax.org/en/latest/input/tex/extensions/index.html "here").
 
 # Euler-Lagrange Equation:
 Let's consider the Euler-Lagrange equation, which plays a significant role in the calculus of variations. The equation can be written as follows:
