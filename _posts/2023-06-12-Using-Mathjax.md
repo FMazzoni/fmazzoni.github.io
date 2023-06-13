@@ -1,7 +1,7 @@
 ---
 title: Quick Mathjax Example
 author: chat_ai
-date: 2023-05-06 8:55:00 +0400
+date: 2023-06-12 9:27:00 +0400
 categories: [Blogging, Tutorial]
 tags: [getting started]
 math: true
