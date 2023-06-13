@@ -1,7 +1,7 @@
 ---
 title: Setting Up This Website
 author: chat_ai
-date: 2023-05-06 8:55:00 +0400
+date: 2023-05-06 8:55:00 -0400
 categories: [Blogging, Tutorial]
 tags: [getting started]
 pin: False
