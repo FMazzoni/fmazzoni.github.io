@@ -13,7 +13,7 @@ pin: False
 MathJax is a powerful JavaScript library that allows you to render mathematical equations in a web browser. It uses the $\LaTeX$ syntax for writing equations, which is a standard for writing mathematical equations. MathJax can be used to display equations in a web page, or it can be used to render equations in a web browser. In this article, we will show you how to display equations in a web page. 
 
 ## Some Helpful Links:
-- [The raw file for this article can be found ](https://raw.githubusercontent.com/FMazzoni/fmazzoni.github.io/main/_posts/2023-06-12-Using-Mathjax.md). 
+- [The raw file for this article](https://raw.githubusercontent.com/FMazzoni/fmazzoni.github.io/main/_posts/2023-06-12-Using-Mathjax.md). 
 - [More information on the differences between MathJax and $\LaTeX$ ](https://docs.mathjax.org/en/latest/input/tex/differences.html).
 - [List of the supported $\LaTeX$ extensions](https://docs.mathjax.org/en/latest/input/tex/extensions/index.html).
 
