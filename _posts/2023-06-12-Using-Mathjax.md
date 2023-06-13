@@ -1,5 +1,5 @@
 ---
-title: Quick Mathjax Example
+title: Quick Math Example
 author: chat_ai
 date: 2023-06-12 9:27:00 -0400
 categories: [Blogging, Tutorial]
@@ -10,11 +10,11 @@ pin: False
 
 # Introduction:
 
-MathJax is a powerful JavaScript library that allows you to render mathematical equations in a web browser. It supports a wide range of mathematical symbols, notations, and formulas, making it an excellent tool for displaying mathematical content on websites or in documents. In this article, we will provide a quick example of using MathJax to display LaTeX math equations with Markdown.
+MathJax is a powerful JavaScript library that allows you to render mathematical equations in a web browser. It uses the $\LaTeX$ syntax for writing equations, which is a standard for writing mathematical equations. MathJax can be used to display equations in a web page, or it can be used to render equations in a web browser. In this article, we will show you how to display equations in a web page. The raw file for this article can be found [here](https://raw.githubusercontent.com/FMazzoni/fmazzoni.github.io/main/_posts/2023-06-12-Using-Mathjax.md "here").
 
 
 # Euler-Lagrange Equation:
-To demonstrate the capabilities of MathJax, let's consider the Euler-Lagrange equation, which plays a significant role in the calculus of variations. The equation can be written as follows:
+Let's consider the Euler-Lagrange equation, which plays a significant role in the calculus of variations. The equation can be written as follows:
 $$ \frac{ \partial \mathcal{L} }{ \partial q_i } - \frac{ d }{ dt } \left( \frac{ \partial \mathcal{L} }{ \partial \dot{q}_i } \right) = 0 $$
 
 Where $q_i$ is the $i$-th coordinate of the system and $\dot{q}_i$ is the $i$-th component of the velocity vector of the system.
@@ -22,11 +22,11 @@ The equation can be used to find the path of a particle that minimizes the actio
 
 $$S = \int_{t_1}^{t_2} \mathcal{L} dt$$
 
-where \mathcal{L} is the Lagrangian of the system. The Lagrangian is defined as follows:
+where $\mathcal{L}$ is the Lagrangian of the system. The Lagrangian is defined as follows:
 
 $$\mathcal{L} = T - V$$
 
-where T is the kinetic energy of the system and V is the potential energy of the system. The Euler-Lagrange equation can be used to find the path of a particle that minimizes the action integral S.
+where $T$ is the kinetic energy of the system and $V$ is the potential energy of the system. The Euler-Lagrange equation can be used to find the path of a particle that minimizes the action integral $S$.
 
 
 # Maxwell's Equations:
