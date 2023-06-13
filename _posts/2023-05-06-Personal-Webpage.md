@@ -8,11 +8,11 @@ pin: False
 ---
 
 
-# Let's Get Blogging!
+## Let's Get Blogging!
 
 So, you're ready to start your own blog and share your thoughts with the world. Awesome! Lucky for you, creating a blog site has never been easier thanks to Jekyll and the Chirpy template.
 
-## Gettin' Set Up
+### Gettin' Set Up
 
 First things first, let's get Jekyll set up on your computer. You can follow the instructions on the [Jekyll website](https://jekyllrb.com/docs/installation/) to get started. Once you've got that done, run this command to create a new Jekyll site:
 
@@ -26,14 +26,14 @@ Now, let's get our hands on the Chirpy template. Head on over to the [Chirpy tem
 
 Once you've got that downloaded, unzip the contents and copy them into the root directory of your Jekyll site (`myblog`). This will get the Chirpy template set up and ready to use.
 
-## Configuration Time
+### Configuration Time
 
 Now that we've got the template set up, let's configure our site to use it. Open up the `_config.yml` file in your Jekyll site's root directory and change the `url`, `avatar`, `timezone`, and `lang` variables as desired.
 
 
 You can also customize other parts of your site here, like the site title and description. Make it yours!
 
-## Blog Postin' Time
+### Blog Postin' Time
 
 Alright, now that our site is set up and configured, let's create our first blog post. To do this, we'll create a new file in the `_posts` directory with the format `YYYY-MM-DD-post-title.md`. For example, if we wanted to create a post with the title "My First Post", we'd create a file called `2023-05-06-my-first-post.md`.
 
@@ -52,7 +52,7 @@ Stay tuned for more posts from me!
 
 You can create as many posts as you like using this format. Let your creativity flow!
 
-## Previewin' Time
+### Previewin' Time
 
 Now that we've got a blog post, let's see how it looks on our site. To preview your blog site, go to your Jekyll site's root directory (`myblog`) and run these commands:
 
@@ -68,12 +68,12 @@ bundle exec jekyll serve
 
 Which will start the Jekyll development server, and you should be able to access your blog site by going to `http://localhost:4000` in your web browser.
 
-## Time to Blog!
+### Time to Blog!
 
 And there you have it! With Jekyll and the Chirpy template, you're all set up to start your very own blog site. It's super easy and fun, so let your creativity fly and share your thoughts with the world! Happy blogging!
 
 
-## Using other Templates
+### Using other Templates
 
 If you're using a different Jekyll template for your blog, you can still use the steps we covered earlier to set up and deploy your site. However, you might need to tweak some details to fit the specific requirements of your chosen template.
 
