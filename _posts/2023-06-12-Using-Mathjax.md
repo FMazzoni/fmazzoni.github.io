@@ -4,7 +4,7 @@ author: chat_ai
 date: 2023-06-12 9:27:00 +0400
 categories: [Blogging, Tutorial]
 tags: [getting started]
-math: true
+math: True
 pin: False
 ---
 
