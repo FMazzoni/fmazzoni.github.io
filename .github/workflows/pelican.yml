@@ -66,4 +66,4 @@ jobs:
         with:
           settings: "blog/publishconf.py"
           requirements: "pelican[markdown] typogrify"
-          output-path: "__output__/"
+          output-path: "blog/output/"
