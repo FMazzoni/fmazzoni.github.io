@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "blog"
+version = "0.1.0"
+description = ""
+authors = ["FMazzoni <fernando1mazzoni@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pelican = { extras = ["markdown"], version = "^4.9.1" }
+markdown = "^3.5.1"
+typogrify = "^2.0.7"
+invoke = "^2.2.0"
+livereload = "^2.6.3"
+pelican-render-math = "^1.0.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

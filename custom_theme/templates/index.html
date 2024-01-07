@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- templates/base.html in the template you use-->
+
+<article>  
+{% block content_title %}
+<h1>All Posts:</h1>
+{% endblock %}
+
+{% for article in articles_page.object_list %}
+        <article class="summary-content" >
+                <header> <h1><a href="{{ SITEURL }}/{{ article.url }}" rel="bookmark" title="Permalink to {{ article.title|striptags }}">{{ article.title }}</a></h1> </header>
+                <section >{{ article.summary }}</section>
+                <footer>
+                    <em>
+                        <time datetime="{{ article.date.isoformat() }}"> {{ article.date.strftime('%b %d %y') }} </time>
+                    </em>
+                </footer>
+        </article>
+{% endfor %}
+</article>
+{% if articles_page.has_other_pages() %}
+    {% include 'pagination.html' %}
+{% endif %}
+
+{% endblock content %}
