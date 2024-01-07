@@ -12,5 +12,5 @@ jobs:
       id-token: "write"
     with:
       settings: "blog/publishconf.py"
-      requirements: "pelican[markdown] typogrify pelican-render-math"
+      requirements: "pelican[markdown] typogrify"
       output-path: "blog/output/"
