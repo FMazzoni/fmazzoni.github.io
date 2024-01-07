@@ -1,0 +1,71 @@
+/* style.css */
+
+  :root {
+    /* Sizes */
+    --max-body-width: 55rem;
+    --border-radius: 0.25rem;
+    --border-width: 1px;
+  
+    /* Light mode colors */
+    --light-border-color: #dbdbdb;
+    --light-border-hover-color: #b5b5b5;
+    --light-background-color: #fff;
+    --light-highlighted-background-color: #f5f5f5;
+    --light-text-color: #363636;
+    --light-danger-color: #f14668;
+    --light-danger-text-color: #fff;
+    --light-danger-hover-color: #f03a5f;
+    --light-success-color: #48c774;
+    --light-success-text-color: #fff;
+    --light-success-hover-color: #3ec46d;
+    --light-danger-text-background-color: #fde0e6;
+    --light-success-text-background-color: #effaf3;
+    --light-code-text-color: #f14668;
+    --light-code-background-color: #f5f5f5;
+    --light-link-color: #3273dc;
+    --light-link-visited-color: #b86bff;
+    --light-link-hover-color: #363636;
+    --light-link-active-color: #363636;
+  
+    /* Dark mode colors */
+    --dark-border-color: #5f6267;
+    --dark-border-hover-color: #bcbebd;
+    --dark-background-color: #202124;
+    --dark-highlighted-background-color: #292b2e;
+    --dark-text-color: #fff;
+    --dark-danger-color: #770018;
+    --dark-danger-text-color: #fff;
+    --dark-danger-hover-color: #6b0015;
+    --dark-success-color: #006624;
+    --dark-success-text-color: #fff;
+    --dark-success-hover-color: #006122;
+    --dark-danger-text-background-color: #770018;
+    --dark-success-text-background-color: #006624;
+    --dark-code-text-color: #f1a0b0;
+    --dark-code-background-color: #292b2e;
+    --dark-link-color: #9e2e4a;
+    --dark-link-visited-color: #9e2e4a;
+    --dark-link-hover-color: #9d4848;
+    --dark-link-active-color: #fff;
+  }
+  
+
+
+.summary-content {
+  font-size: 14px; /* Adjust the font size as needed */
+  line-height: 1.4;
+  padding: 10px;
+  background-color: #202124; /* Optional background color for a code block effect */
+  border: 1px solid #9e2e4a00; /* Optional border for a code block effect */
+  border-radius: 10px; /* Optional border-radius for a rounded corner effect */
+  margin-top: 5px; /* Optional margin for spacing */
+}
+
+.summary-content header {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.post-content header {
+  font-size: 20px; /* Adjust the font size as needed */
+}

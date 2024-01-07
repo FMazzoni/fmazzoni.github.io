@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+          <title>site - Setting Up This Website</title>
+        <meta charset="utf-8" />
+        <meta name="generator" content="Pelican" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/holiday.css@0.11.2" type="text/css" />
+        <link rel="stylesheet" href="/theme/css/pygment.css" type="text/css">
+        <link rel="stylesheet" href="/theme/css/style.css" type="text/css">
+
+
+
+
+    <meta name="tags" content="jekyll" />
+    <meta name="tags" content="github" />
+    <meta name="tags" content="markdown" />
+
+</head>
+
+<body>
+        <header>
+              <!-- <hgroup><h1><a href="/">site</a></h1></hgroup> -->
+        <nav><ul>
+          <li><a href="/">site</a></li>
+            <li><a href="/pages/about-me.html" >about me</a></li>
+            <li><a href="/category/maths.html" >maths</a></li>
+            <li><a href="/category/misc.html"  aria-current="page" >misc</a></li>
+        </ul></nav>
+        </header>
+        <main>
+<article class ="post-content">
+  <header>
+    <h1>
+      <a href="/setting-up-this-website.html" rel="bookmark"
+         title="Permalink to Setting Up This Website">Setting Up This Website</a></h1>
+ 
+  </header>
+  <h2>Let's Get Blogging!</h2>
+<p>So, you're ready to start your own blog and share your thoughts with the world. Awesome! Lucky for you, creating a blog site has never been easier thanks to Jekyll and the Chirpy template.</p>
+<h3>Gettin' Set Up</h3>
+<p>First things first, let's get Jekyll set up on your computer. You can follow the instructions on the <a href="https://jekyllrb.com/docs/installation/">Jekyll website</a> to get started. Once you've got that done, run this command to create a new Jekyll site:</p>
+<div class="highlight"><pre><span></span><code>jekyll new myblog
+</code></pre></div>
+
+<p>Nice! This will create a new Jekyll site in a directory called <code>myblog</code>.</p>
+<p>Now, let's get our hands on the Chirpy template. Head on over to the <a href="https://github.com/cotes2020/jekyll-theme-chirpy">Chirpy template repository on GitHub</a> and download the zip file by clicking the "Download ZIP" button.</p>
+<p>Once you've got that downloaded, unzip the contents and copy them into the root directory of your Jekyll site (<code>myblog</code>). This will get the Chirpy template set up and ready to use.</p>
+<h3>Configuration Time</h3>
+<p>Now that we've got the template set up, let's configure our site to use it. Open up the <code>_config.yml</code> file in your Jekyll site's root directory and change the <code>url</code>, <code>avatar</code>, <code>timezone</code>, and <code>lang</code> variables as desired.</p>
+<p>You can also customize other parts of your site here, like the site title and description. Make it yours!</p>
+<h3>Blog Postin' Time</h3>
+<p>Alright, now that our site is set up and configured, let's create our first blog post. To do this, we'll create a new file in the <code>_posts</code> directory with the format <code>YYYY-MM-DD-post-title.md</code>. For example, if we wanted to create a post with the title "My First Post", we'd create a file called <code>2023-05-06-my-first-post.md</code>.</p>
+<p>In this file, we can use Markdown to write our blog post. Here's an example:</p>
+<div class="highlight"><pre><span></span><code><span class="o">---</span>
+<span class="nv">layout</span>:<span class="w"> </span><span class="nv">post</span>
+<span class="nv">title</span>:<span class="w"> </span><span class="nv">My</span><span class="w"> </span><span class="nv">First</span><span class="w"> </span><span class="nv">Post</span>
+<span class="o">---</span>
+
+<span class="nv">Hey</span><span class="w"> </span><span class="nv">everyone</span>,<span class="w"> </span><span class="nv">it</span><span class="s1">&#39;s me! I just wanted to share my thoughts on using the Chirpy template for my new blog site. It&#39;</span><span class="nv">s</span><span class="w"> </span><span class="nv">super</span><span class="w"> </span><span class="nv">easy</span><span class="w"> </span><span class="nv">to</span><span class="w"> </span><span class="nv">use</span>,<span class="w"> </span><span class="nv">and</span><span class="w"> </span><span class="nv">I</span><span class="w"> </span><span class="nv">love</span><span class="w"> </span><span class="nv">how</span><span class="w"> </span><span class="nv">clean</span><span class="w"> </span><span class="nv">it</span><span class="w"> </span><span class="nv">looks</span><span class="o">!</span>
+
+<span class="nv">Stay</span><span class="w"> </span><span class="nv">tuned</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="nv">more</span><span class="w"> </span><span class="nv">posts</span><span class="w"> </span><span class="nv">from</span><span class="w"> </span><span class="nv">me</span><span class="o">!</span>
+</code></pre></div>
+
+<p>You can create as many posts as you like using this format. Let your creativity flow!</p>
+<h3>Previewin' Time</h3>
+<p>Now that we've got a blog post, let's see how it looks on our site. To preview your blog site, go to your Jekyll site's root directory (<code>myblog</code>) and run these commands:</p>
+<div class="highlight"><pre><span></span><code>bundle
+</code></pre></div>
+
+<p>To install any missing dependencies and</p>
+<div class="highlight"><pre><span></span><code><span class="nv">bundle</span><span class="w"> </span><span class="k">exec</span><span class="w"> </span><span class="nv">jekyll</span><span class="w"> </span><span class="nv">serve</span>
+</code></pre></div>
+
+<p>Which will start the Jekyll development server, and you should be able to access your blog site by going to <code>http://localhost:4000</code> in your web browser.</p>
+<h3>Time to Blog!</h3>
+<p>And there you have it! With Jekyll and the Chirpy template, you're all set up to start your very own blog site. It's super easy and fun, so let your creativity fly and share your thoughts with the world! Happy blogging!</p>
+<h3>Using other Templates</h3>
+<p>If you're using a different Jekyll template for your blog, you can still use the steps we covered earlier to set up and deploy your site. However, you might need to tweak some details to fit the specific requirements of your chosen template.</p>
+<p>Here are the general steps you'll need to follow:</p>
+<ol>
+<li>
+<p><strong>Create your Jekyll site.</strong> Your chosen template should provide instructions on how to create a new Jekyll site. Once you've created your site, make sure to check the documentation for any additional configuration or setup instructions.</p>
+</li>
+<li>
+<p><strong>Configure your Jekyll site.</strong> You'll need to modify the <code>_config.yml</code> file to customize your site's settings. Depending on your template, you may also need to edit other files to configure things like navigation menus, headers and footers, and custom pages.</p>
+</li>
+<li>
+<p><strong>Create your blog posts.</strong> Your chosen template may have specific instructions on how to create and organize blog posts. Typically, you'll create individual Markdown files for each post in the <code>_posts</code> directory.</p>
+</li>
+<li>
+<p><strong>Test your site locally.</strong> To see how your site looks and functions, run <code>bundle exec jekyll serve</code> in your terminal to start the Jekyll development server. You can then preview your site in your web browser at <code>http://localhost:4000/</code>.</p>
+</li>
+<li>
+<p><strong>Deploy your site to GitHub Pages.</strong> Follow the instructions we provided earlier to deploy your site to GitHub Pages.</p>
+</li>
+</ol>
+<p>Remember, these are just general steps, and you may need to tweak them depending on your specific template. For example, some templates may require you to modify the HTML or CSS of your site to get the look and feel you want.</p>
+<p>By following these steps and experimenting with your template's customization options, you'll be able to create a blog that reflects your unique style and personality.</p>
+<hr>
+<table>
+<thead>
+<tr>
+<th>Prompts</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Can you write a quick blog post on how to create a quick blog site using jekyll and the chirpy template</td>
+</tr>
+<tr>
+<td>Can you write this with but more personable and youthful</td>
+</tr>
+<tr>
+<td>Also have a section on how these instructions can be applied across other jekyll templates</td>
+</tr>
+<tr>
+<td>Can you update it with the more personable wording?</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Minor edits and adjustments were made</strong></p>
+<p>Please check out <a href="https://chirpy.cotes.page/posts/getting-started/">Chirpy's site</a> for full installation details.</p>
+<p>Check out <a href="https://github.com/cotes2020/jekyll-theme-chirpy/issues">Chirpy's GitHub</a> for any issues or questions you may have.</p>
+  <footer>
+    <p>        Published: <time datetime="2023-05-06T00:00:00-04:00"> May 06, 2023 </time>
+    </p>
+      By:
+          <a href="/author/chat_ai.html">chat_ai</a>
+    <p>
+        Category: <a href="/category/misc.html">misc</a>
+    </p>
+    <p>
+        Tags:
+            <a href="/tag/jekyll.html">jekyll</a>
+            <a href="/tag/github.html">github</a>
+            <a href="/tag/markdown.html">markdown</a>
+    </p>
+  </footer>
+  </article>
+        </main>
+        <footer>
+          
+            <a href="https://github.com/FMazzoni"><img src="/theme/images/GitHub.png" alt="GitHub" style="width:12px;height:12px;"> GitHub</a>
+     
+            <a href="https://www.linkedin.com/in/fernando-mazzoni-166443187"><img src="/theme/images/LinkedIn.png" alt="LinkedIn" style="width:12px;height:12px;"> LinkedIn</a>
+     
+          <p>© 2024 . All rights reserved.</p>
+        </footer>
+</body>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+</html>
