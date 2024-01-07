@@ -6,8 +6,6 @@ tags: pelican, publishing
 ---
 
 
-Following is a test of the pelican-render-math plugin.
-
 ## Writing math in markdown
 
 Inline math written with just `$a^2+b^2=c^2$` is awesome. $a^2+b^2=c^2$ is awesome.

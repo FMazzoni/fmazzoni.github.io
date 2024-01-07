@@ -2,7 +2,7 @@ import datetime
 import os
 
 AUTHOR = "Fernando"
-SITENAME = "site"
+SITENAME = "fmaz"
 # SITEURL = "https://fmazzoni.github.io"
 EMAIL = ""
 
