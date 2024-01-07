@@ -3,7 +3,7 @@ import os
 
 AUTHOR = "Fernando"
 SITENAME = "site"
-SITEURL = "https://fmazzoni.github.io"
+# SITEURL = "https://fmazzoni.github.io"
 EMAIL = ""
 
 PATH = "content"
