@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="{% block html_lang %}{{ DEFAULT_LANG }}{% endblock html_lang %}">
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <head>
         {% block head %}
         <title>{% block title %}{{ SITENAME|striptags }}{% endblock title %}</title>
@@ -74,7 +75,6 @@
           <p>© {{current_year}} {{ SITEURL }}. All rights reserved.</p>
         </footer>
 </body>
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
 
 </html>
