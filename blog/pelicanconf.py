@@ -49,9 +49,9 @@ JINJA_GLOBALS = {
     "current_year": datetime.datetime.utcnow().year,
 }
 
-# MATH_JAX = {
-#     "equation_numbering": "AMS",
-# }
+MATH_JAX = {
+    "equation_numbering": "AMS",
+}
 
 
 # Extra settings
