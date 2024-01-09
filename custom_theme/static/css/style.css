@@ -6,26 +6,7 @@
     --border-radius: 0.25rem;
     --border-width: 1px;
   
-    /* Light mode colors */
-    --light-border-color: #dbdbdb;
-    --light-border-hover-color: #b5b5b5;
-    --light-background-color: #fff;
-    --light-highlighted-background-color: #f5f5f5;
-    --light-text-color: #363636;
-    --light-danger-color: #f14668;
-    --light-danger-text-color: #fff;
-    --light-danger-hover-color: #f03a5f;
-    --light-success-color: #48c774;
-    --light-success-text-color: #fff;
-    --light-success-hover-color: #3ec46d;
-    --light-danger-text-background-color: #fde0e6;
-    --light-success-text-background-color: #effaf3;
-    --light-code-text-color: #f14668;
-    --light-code-background-color: #f5f5f5;
-    --light-link-color: #3273dc;
-    --light-link-visited-color: #b86bff;
-    --light-link-hover-color: #363636;
-    --light-link-active-color: #363636;
+
   
     /* Dark mode colors */
     --dark-border-color: #5f6267;
@@ -47,6 +28,28 @@
     --dark-link-visited-color: #9e2e4a;
     --dark-link-hover-color: #9d4848;
     --dark-link-active-color: #fff;
+
+
+        /* Force Light mode colors to be same as dark mode */
+        --light-border-color: #5f6267;
+        --light-border-hover-color: #bcbebd;
+        --light-background-color: #202124;
+        --light-highlighted-background-color: #292b2e;
+        --light-text-color: #fff;
+        --light-danger-color: #770018;
+        --light-danger-text-color: #fff;
+        --light-danger-hover-color: #6b0015;
+        --light-success-color: #006624;
+        --light-success-text-color: #fff;
+        --light-success-hover-color: #006122;
+        --light-danger-text-background-color: #770018;
+        --light-success-text-background-color: #006624;
+        --light-code-text-color: #f1a0b0;
+        --light-code-background-color: #292b2e;
+        --light-link-color: #9e2e4a;
+        --light-link-visited-color: #9e2e4a;
+        --light-link-hover-color: #9d4848;
+        --light-link-active-color: #fff;
   }
   
 
