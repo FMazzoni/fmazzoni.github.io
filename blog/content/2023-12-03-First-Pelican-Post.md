@@ -8,7 +8,7 @@ tags: pelican, publishing
 
 ## Writing math in markdown
 
-Inline math written with just `$a^2+b^2=c^2$` is awesome. $a^2+b^2=c^2$ is awesome.
+Inline math written with just `$a^2+b^2=c^2$` is awesome. $a^2+b^2=c^2$.
 
 As well as block math:
 
