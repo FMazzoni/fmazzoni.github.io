@@ -1,0 +1,41 @@
+:root {
+  /* Background colors */
+  --background-color: #2d3133;
+  --highlighted-background-color: #444;
+  --code-background-color: #444;
+
+  /* Text colors */
+  --text-color: #f5f5f5;
+  --danger-text-color: #ff4c4c;
+  --success-text-color: #4caf50;
+  --code-text-color: #f5f5f5;
+
+  /* Other colors */
+  --danger-color: #ff4c4c;
+  --danger-hover-color: #ff1a1a;
+  --success-color: #4caf50;
+  --success-hover-color: #46a049;
+  --link-color: #ee4b5e;
+  --link-visited-color: #ee4b5e;
+  --link-hover-color: #7ea8ec;
+  --link-active-color: #ee4b5e;
+}
+
+.summary-content {
+font-size: 14px;
+line-height: 1.4;
+padding: 10px;
+background-color: var(--background-color);
+border: 1px solid var(--highlighted-background-color);
+border-radius: 10px;
+margin-top: 5px;
+}
+
+.summary-content header {
+font-size: 20px;
+font-weight: bold;
+}
+
+.post-content header {
+font-size: 20px;
+}

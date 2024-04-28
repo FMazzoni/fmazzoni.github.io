@@ -1,5 +1,5 @@
 ---
-title: First Pelican Post
+title: Sample Post
 date: 2023-12-03
 category: misc
 tags: pelican, publishing

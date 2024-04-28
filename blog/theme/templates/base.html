@@ -16,6 +16,7 @@
         <link rel="stylesheet" href="{{ STYLESHEET_URL }}" type="text/css" />
         <link rel="stylesheet" href="{{ SITEURL }}/theme/css/pygment.css" type="text/css">
         <link rel="stylesheet" href="{{ SITEURL }}/theme/css/style.css" type="text/css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
         {% endif %}
         {% if FEED_ALL_ATOM %}
         <link href="{{ FEED_DOMAIN }}/{% if FEED_ALL_ATOM_URL %}{{ FEED_ALL_ATOM_URL }}{% else %}{{ FEED_ALL_ATOM }}{% endif %}" type="application/atom+xml" rel="alternate" title="{{ SITENAME|striptags }} Full Atom Feed" />
@@ -52,14 +53,14 @@
         {% for title, link in MENUITEMS %}
             <li><a href="{{ link }}">{{ title }}</a></li>
         {% endfor %}
-        {% if DISPLAY_PAGES_ON_MENU %}
-          {% for p in pages %}
-            <li><a href="{{ SITEURL }}/{{ p.url }}" {% if p==page %} aria-current="page" {% endif %}>{{ p.title }}</a></li>
-          {% endfor %}
-        {% endif %}
         {% if DISPLAY_CATEGORIES_ON_MENU %}
           {% for cat, null in categories %}
             <li><a href="{{ SITEURL }}/{{ cat.url }}" {% if cat==category %} aria-current="page" {% endif %}>{{ cat}}</a></li>
+          {% endfor %}
+        {% endif %}
+        {% if DISPLAY_PAGES_ON_MENU %}
+          {% for p in pages %}
+            <li><a href="{{ SITEURL }}/{{ p.url }}" {% if p==page %} aria-current="page" {% endif %}>{{ p.title }}</a></li>
           {% endfor %}
         {% endif %}
         </ul></nav>
@@ -69,10 +70,8 @@
         {% endblock %}
         </main>
         <footer>
-          
-          {% for social, link in SOCIAL %}
-            <a href="{{ link }}"><img src="{{ SITEURL }}/theme/images/{{ social }}.png" alt="{{ social }}" style="width:12px;height:12px;"> {{social}}</a>
-     
+          {% for social, link, favi in SOCIAL %}
+            <a href="{{ link }}"><i class="{{ favi }}"></i> {{ social }}</a>
           {% endfor %}
           <p>© {{current_year}} fmaz. All rights reserved.</p>
         </footer>

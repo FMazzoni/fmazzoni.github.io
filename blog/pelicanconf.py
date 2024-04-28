@@ -1,19 +1,19 @@
-import datetime
-import os
+from datetime import datetime, timezone
 
-AUTHOR = "Fernando"
-SITENAME = "fmaz"
+AUTHOR = "fmaz"
+SITENAME = "blog"
 # SITEURL = "https://fmazzoni.github.io"
 EMAIL = ""
 
-PATH = "content"
+PATH = "./content/"
+OUTPUT_PATH = "./output"
 
 TIMEZONE = "America/New_York"
 
 DEFAULT_LANG = "en"
 
 # print home directory
-THEME = "../custom_theme/"
+THEME = "./theme/"
 STYLESHEET_URL = "https://cdn.jsdelivr.net/npm/holiday.css@0.11.2"  # STYLESHEET_URL = "/theme/css/style.css"
 
 
@@ -33,8 +33,8 @@ LINKS = (
 
 # Social widget
 SOCIAL = (
-    ("GitHub", "https://github.com/FMazzoni"),
-    ("LinkedIn", "https://www.linkedin.com/in/fernando-mazzoni-166443187"),
+    ("GitHub", "https://github.com/FMazzoni", "fab fa-github"),
+    ("LinkedIn", "https://www.linkedin.com/in/fernando-mazzoni-166443187", "fab fa-linkedin"),
     # ("Another social link", "#"),
 )
 
@@ -45,8 +45,8 @@ DEFAULT_PAGINATION = 10
 
 
 JINJA_GLOBALS = {
-    "now": datetime.datetime.utcnow(),
-    "current_year": datetime.datetime.utcnow().year,
+    "now": datetime.now(timezone.utc),
+    "current_year": datetime.now(timezone.utc).year,
 }
 
 MATH_JAX = {
