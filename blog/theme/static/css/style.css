@@ -1,11 +1,11 @@
 :root {
   /* Background colors */
-  --background-color: #2d3133;
+  --background-color:  #1B262C;
   --highlighted-background-color: #444;
   --code-background-color: #444;
 
   /* Text colors */
-  --text-color: #f5f5f5;
+  --text-color: #d3d6db;
   --danger-text-color: #ff4c4c;
   --success-text-color: #4caf50;
   --code-text-color: #f5f5f5;
@@ -15,10 +15,11 @@
   --danger-hover-color: #ff1a1a;
   --success-color: #4caf50;
   --success-hover-color: #46a049;
-  --link-color: #ee4b5e;
-  --link-visited-color: #ee4b5e;
-  --link-hover-color: #7ea8ec;
-  --link-active-color: #ee4b5e;
+  --link-color: #0F4C75;
+  --link-visited-color:  #e0f1ff;
+  --link-hover-color: #0F4C75;
+  --link-active-color: #0F4C75;
+
 }
 
 .summary-content {
@@ -39,3 +40,5 @@ font-weight: bold;
 .post-content header {
 font-size: 20px;
 }
+
+
