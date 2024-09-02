@@ -8,7 +8,7 @@ template: page
 
 # Hello
 
-<img src = "https://media.licdn.com/dms/image/C4D03AQFpWJDU-wyAeA/profile-displayphoto-shrink_200_200/0/1621896975166?e=1720051200&v=beta&t=Y3K-f3uuq1lPyomQZvEXLDhPMbp-8T5R9vxja5SHT5k" width="170px" height="170px" style="border-radius: 80%; border:1px solid black; margin:10px;"  title="This is Fernando">
+<img src = "https://media.licdn.com/dms/image/v2/C4D03AQFpWJDU-wyAeA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1621896975166?e=1730937600&v=beta&t=idqVskxLppjUPhyOuMG3xQ7WGYZo51ybLsTgsm0FE_s" width="170px" height="170px" style="border-radius: 80%; border:1px solid black; margin:10px;"  title="This is Fernando">
 
 
 
