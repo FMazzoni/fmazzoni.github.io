@@ -18,7 +18,6 @@ I am a Geospatial Data Scientist at [Cyvl.ai](https://www.cyvl.ai/).
 
 > *I like to help streamline and empower cities by leveraging data-driven decision-making techniques that incorporate remote sensing, machine learning, and geospatial analysis through my work at  [Cyvl.ai](https://www.cyvl.ai/).*
 
-
 I also enjoy solving puzzle games, check out pythagorea if you haven’t yet!
 
 Here are some relevant links:

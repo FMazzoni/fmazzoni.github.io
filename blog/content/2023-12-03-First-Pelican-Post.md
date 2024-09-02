@@ -19,6 +19,7 @@ f(x) = \int_{-\infty}^\infty
 $$
 
 written with the below snippet surrounded by `$$`:
+
 ```latex
 f(x) = \int_{-\infty}^\infty
 \hat f(\xi) e^{2 \pi i \xi x}
@@ -36,20 +37,15 @@ Alternatively, you can use the `equation` environment, this will allow you to re
 which will render as
 
 \begin{equation}\label{gauss}
-\int_0^\infty e^{-x^2} dx=\frac{\sqrt{\pi}}{2} 
+\int_0^\infty e^{-x^2} dx=\frac{\sqrt{\pi}}{2}
 \end{equation}
 
 and now you can reference the equation later with `\ref{gauss}`. For example, the equation $\ref{gauss}$ is awesome.
-
-
 
 Changes to make it work:
 
 1. python -m pip install pelican-render-math
 2. python -m pip install typogrify
-
-
-
 
 ```mermaid
 
@@ -59,7 +55,6 @@ graph TD;
     B-->D;
     C-->D;
 ```
-
 
 Here are the github repos:
 [pelican-render-math](https://github.com/pelican-plugins/render-math)
