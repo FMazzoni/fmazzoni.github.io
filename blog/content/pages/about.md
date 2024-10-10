@@ -6,11 +6,7 @@ modified: 2024-04-28
 template: page
 ---
 
-# Hello
-
-<img src = "https://media.licdn.com/dms/image/v2/C4D03AQFpWJDU-wyAeA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1621896975166?e=1730937600&v=beta&t=idqVskxLppjUPhyOuMG3xQ7WGYZo51ybLsTgsm0FE_s" width="170px" height="170px" style="border-radius: 80%; border:1px solid black; margin:10px;"  title="This is Fernando">
-
-
+## Hello
 
 My name's Fernando,
 
@@ -22,5 +18,6 @@ I also enjoy solving puzzle games, check out pythagorea if you haven’t yet!
 
 Here are some relevant links:
 
-- [LinkedIn](https://www.linkedin.com/in/fernando-mazzoni-166443187/)
-- [GitHub](https://github.com/FMazzoni)
+<i class="fab fa-github"></i> [GitHub](https://github.com/FMazzoni)
+
+<i class="fab fa-linkedin"></i> [LinkedIn](https://www.linkedin.com/in/fernando-mazzoni-166443187/)
