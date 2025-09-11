@@ -14,12 +14,14 @@
 
 
 {% block content %}
-<article>
+<article class="page-content">
     {% import 'translations.html' as translations with context %}
     {{ translations.translations_for(page) }}
     {% set content = page %}
     {{ page.content }}
 
-    {% include 'footer.html'%}
+    {% if page.slug != 'about' %}
+        {% include 'footer.html'%}
+    {% endif %}
 </article>
 {% endblock %}
