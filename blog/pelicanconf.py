@@ -34,7 +34,11 @@ LINKS = (
 # Social widget
 SOCIAL = (
     ("GitHub", "https://github.com/FMazzoni", "fab fa-github"),
-    ("LinkedIn", "https://www.linkedin.com/in/fernando-mazzoni-166443187", "fab fa-linkedin"),
+    (
+        "LinkedIn",
+        "https://www.linkedin.com/in/fernando-mazzoni-166443187",
+        "fab fa-linkedin",
+    ),
     # ("Another social link", "#"),
 )
 
@@ -51,6 +55,16 @@ JINJA_GLOBALS = {
 
 MATH_JAX = {
     "equation_numbering": "AMS",
+}
+
+# Markdown configuration with fenced_code extension for proper language preservation
+MARKDOWN = {
+    "extension_configs": {
+        "markdown.extensions.fenced_code": {},
+        "markdown.extensions.extra": {},
+        "markdown.extensions.meta": {},
+    },
+    "output_format": "html5",
 }
 
 
