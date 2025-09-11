@@ -76,6 +76,36 @@
           {% endfor %}
         {% endif %}
         </ul></nav>
+        
+        <!-- Mobile menu toggle -->
+        <button class="mobile-menu-toggle" title="Toggle navigation menu" aria-label="Toggle navigation menu">
+          <div class="hamburger-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </button>
+        
+        <!-- Mobile navigation menu -->
+        <nav class="mobile-nav">
+          <ul>
+            <li><a href="{{ SITEURL }}/">{{ SITENAME }}</a></li>
+            {% for title, link in MENUITEMS %}
+                <li><a href="{{ link }}">{{ title }}</a></li>
+            {% endfor %}
+            {% if DISPLAY_CATEGORIES_ON_MENU %}
+              {% for cat, null in categories %}
+                <li><a href="{{ SITEURL }}/{{ cat.url }}" {% if cat==category %} aria-current="page" {% endif %}>{{ cat}}</a></li>
+              {% endfor %}
+            {% endif %}
+            {% if DISPLAY_PAGES_ON_MENU %}
+              {% for p in pages %}
+                <li><a href="{{ SITEURL }}/{{ p.url }}" {% if p==page %} aria-current="page" {% endif %}>{{ p.title }}</a></li>
+              {% endfor %}
+            {% endif %}
+          </ul>
+        </nav>
+        
         <button class="theme-toggle" title="Toggle theme" aria-label="Toggle dark/light mode"></button>
         </header>
         <main>
@@ -93,6 +123,7 @@
         <script src="{{ SITEURL }}/theme/js/language-badges.js"></script>
         <script src="{{ SITEURL }}/theme/js/mermaid-renderer.js"></script>
         <script src="{{ SITEURL }}/theme/js/safe-highlighting.js"></script>
+        <script src="{{ SITEURL }}/theme/js/mobile-navigation.js"></script>
         
         <!-- Initialize Prism.js -->
         <script>
