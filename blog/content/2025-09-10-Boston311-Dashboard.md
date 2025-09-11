@@ -2,57 +2,57 @@
 title: Boston 311 Dashboard
 date: 2025-09-10
 category: misc
-tags: python, geospatial, dashboard, analytics, performance, duckdb, panel, gpu-acceleration
-excerpt: "How I architected and built a production-ready geospatial analytics dashboard that processes 14+ years of Boston's 311 service data with GPU acceleration, modern Python tooling, and enterprise-grade performance optimizations."
+tags: python, geospatial, dashboard, duckdb, panel, lonboard
+excerpt: "A weekend project exploring Boston's 311 service data with DuckDB, Panel, and Lonboard - building an interactive geospatial dashboard to visualize civic service requests."
 ---
 
-# Building a High-Performance Geospatial Analytics Dashboard: Boston 311 Service Requests
 
-*From raw civic data to interactive insights: A deep dive into modern data engineering and visualization*
+## What I Built
 
----
+I found Boston's 311 service request data was publicly available and spent a weekend building a simple dashboard to explore it. The dataset has about 14 years worth of records (2011-2025), which turned out to be a decent challenge for interactive visualization.
 
-## The Challenge: Making Civic Data Accessible
+The result is a basic geospatial dashboard using DuckDB for data queries, Panel for the interface, and Lonboard for GPU-accelerated mapping. Nothing fancy, but it gets the job done. It's deployed on Hugging Face Spaces if you want to check it out.
 
-When I set out to build the Boston 311 Service Requests Dashboard, I wasn't just creating another data visualization. I was tackling a real-world problem: **how do you make 14+ years of civic service data—millions of records—instantly accessible and meaningful to both citizens and city planners?**
+<iframe
+ src="https://fmazzoni-boston311.hf.space"
+ frameborder="0"
+ width="850"
+ height="450"
+></iframe>
 
-The result is a GPU-accelerated geospatial dashboard that processes over 2 million service requests spanning 2011-2025, deployed on Hugging Face Spaces and built with modern Python best practices.
+## Technical Choices
 
-[![Live Dashboard](https://img.shields.io/badge/🚀_Live_Dashboard-Hugging_Face_Spaces-orange?style=for-the-badge)](https://huggingface.co/spaces/fmazzoni/boston311)
+### The Stack
 
-## The Technical Foundation: Architecture That Scales
+I picked a few tools that seemed like they'd work well together:
 
-### Modern Python Stack with Performance in Mind
+**DuckDB**: Good for analytical queries and has a spatial extension that handles geographic data without needing PostGIS.
 
-The technology choices weren't arbitrary—each component was selected to solve specific scalability and performance challenges:
+**Lonboard**: A mapping library built on deck.gl that uses WebGL for rendering lots of points smoothly.
 
-**🚀 DuckDB**: Chosen for analytics performance. DuckDB's columnar architecture provides fast query times on large datasets, essentially giving you data warehouse capabilities in-process.
+**Panel**: Dashboard framework that handles the interactive bits and state management reasonably well.
 
-**🎮 GPU-Accelerated Visualization**: Leveraging Lonboard (built on deck.gl) for WebGL-powered mapping. This handles dense point data much better than traditional mapping libraries.
+### Handling Spatial Data
 
-**⚡ Panel Framework**: Chosen over Streamlit/Dash for its solid performance characteristics and native support for complex state management needed for interactive dashboards.
-
-### Intelligent Data Processing
-
-The real engineering challenge was efficiently handling spatial data at scale. Each record contains WKB geometry that needs real-time conversion:
+The spatial data needed some processing since it comes as hex-encoded binary. DuckDB's spatial extension handles the conversion:
 
 ```python
-@pn.cache  # Framework-level caching prevents recomputation
+@pn.cache
 def init_duckdb(file_path: Path) -> duckdb.DuckDBPyConnection:
     con = duckdb.connect()
-    con.install_extension("spatial")  # PostGIS-level spatial operations
+    con.install_extension("spatial")
     con.load_extension("spatial")
     con.sql(f"CREATE TABLE requests AS SELECT * FROM '{file_path}'")
     return con
 ```
 
-This approach leverages DuckDB's spatial extension to handle millions of geographic records efficiently.
+The data extraction converts the hex-encoded geometry during preprocessing rather than at query time.
 
-## The Data Engineering Pipeline: From Raw to Ready
+## Data Processing Pipeline
 
-### Automated Data Extraction
+### Getting the Data
 
-Rather than manual CSV downloads, I built an intelligent web scraper that automatically discovers and processes new data:
+Instead of manually downloading CSVs, I built a scraper that automatically finds and processes new data from Boston's data portal:
 
 ```python
 def get_service_requests_urls() -> list[tuple[str, str]]:
@@ -63,91 +63,89 @@ def get_service_requests_urls() -> list[tuple[str, str]]:
     return re.findall(pattern, response.text)
 ```
 
-### Spatial Data Processing at Scale
+### Processing Spatial Data
 
-The real technical challenge was processing spatial data efficiently. Each record contains WKB (Well-Known Binary) geometry that needs conversion for visualization:
+The geometry data comes as hex-encoded binary that needs conversion:
 
-```python
-sql = """
+```sql
 SELECT 
     *,
     CASE 
         WHEN geom_4326 IS NOT NULL 
-        THEN ST_AsText(ST_GeomFromWKB(geom_4326))
+        THEN ST_GeomFromHEXEWKB(geom_4326)
         ELSE NULL 
     END as geometry
 FROM service_requests_raw
-WHERE geom_4326 IS NOT NULL  -- Filter invalid geometries early
-"""
+WHERE geom_4326 IS NOT NULL
 ```
 
-This preprocessing step, using DuckDB's spatial extension, transforms millions of binary geometry records into visualization-ready formats in minutes, not hours.
+This preprocessing step converts the hex-encoded geometry into a format that works with the mapping library.
 
-## Performance Engineering: The Details That Matter
+### CSV to Parquet Conversion
 
-### Intelligent Caching Strategy
+The scraper downloads CSV files for each year, but the dashboard actually uses Parquet files for better performance. The extraction script handles this conversion:
 
-The dashboard implements caching that improves user experience:
+1. **Download CSVs** from Boston's data portal (one file per year)
+2. **Process geometry** using DuckDB's spatial extension to convert hex-encoded data
+3. **Save as Parquet** for faster loading in the dashboard
+4. **Filter out invalid records** during the conversion process
 
-1. **Framework-level caching** with Panel's `@pn.cache` decorator
-2. **Database connection reuse** to avoid reconnection overhead  
-3. **Component caching** for stable elements like legends
+This means the Panel app works with pre-processed Parquet files rather than raw CSVs, which makes the initial data loading much faster.
 
-### Memory-Efficient Data Structures
+## Performance Notes
 
-Instead of loading all 2M+ records into memory, the dashboard uses:
+### Caching and Data Handling
 
-- **Lazy loading** based on user selections
-- **Columnar storage** with Parquet for optimal compression
-- **Streaming queries** that fetch only visible data
-- **Configurable limits** to prevent memory exhaustion
+The dashboard uses a few basic optimizations:
+
+- Panel's `@pn.cache` decorator for database operations
+- Parquet format for reasonably fast data loading
+- Hard limits to keep the UI responsive
 
 ```python
-# Smart data limits prevent UI freezing
+# Data limits in config.py (only required for the table view)
 MAX_DISPLAY_RECORDS = 100
 MAX_SELECTION_RECORDS = 1000
 ```
 
-## User Experience: Making Complexity Feel Simple
+Nothing too fancy, but it keeps things from getting too slow.
 
-### Dynamic Time Periods
+## How Panel Works Here
 
-Rather than static date pickers, I implemented intelligent time period suggestions:
+Panel turned out to be a good choice for this kind of dashboard. Here's how I used it:
 
-```python
-TIME_PERIODS = [
-    ("Last 30 Days", "30 days"),
-    ("Last 3 Months", "3 months"), 
-    ("Last Year", "1 year"),
-    ("All Time", None)
-]
-```
+### Reactive Parameters
 
-This UX decision reduces cognitive load—users think in relative terms ("recent issues") rather than absolute dates.
-
-### Color-Coded Intelligence
-
-The visualization uses stable, semantically meaningful colors that persist across sessions:
+Panel's `param` system handles the interactive filters. When a user changes a time period or neighborhood filter, it automatically triggers updates to the data and map:
 
 ```python
-def map_column_to_color(df, column: str) -> tuple:
-    """Maps categorical data to consistent, accessible colors"""
-    unique_values = df[column].unique()
-    color_palette = get_color_palette(len(unique_values))
-    return create_color_mapping(unique_values, color_palette)
+class StateViewer(pn.viewable.Viewer):
+    time_period = param.Selector(default="Year to Date", objects=TIME_PERIODS.keys())
+    neighborhood = param.Selector(default="All", objects=get_neighborhoods())
+    
+    @param.depends("time_period", "neighborhood", watch=True)
+    def _update_data(self):
+        # Automatically rebuilds SQL query when filters change
 ```
 
-This ensures that "Pothole" requests are always the same color, building user mental models.
+### Caching Integration
 
-## Deployment: Containerized Infrastructure
+Panel's `@pn.cache` decorator prevents expensive operations from running repeatedly. Database connections and data queries get cached automatically, so switching between filters is fast.
 
-### Containerized Deployment
+### Widget Integration
 
-The application includes a Dockerfile that handles:
+The dashboard uses Panel widgets for controls and integrates Lonboard (an ipywidgets-compatible mapping library) directly into the layout. Panel handles the communication between the Python backend and the web frontend.
 
-- Non-root user execution for security
-- Proper dependency management with UV (faster than pip)
-- System dependencies for geospatial libraries
+## Deployment
+
+### Docker Setup
+
+Pretty standard Docker setup for a Python app:
+
+- Uses Python 3.13 slim base image
+- UV for dependency management  
+- Installs geospatial system libraries (GDAL, PROJ, GEOS)
+- Runs as non-root user
 
 ```dockerfile
 FROM python:3.13-slim
@@ -157,87 +155,56 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 ```
 
-### Cloud-Native Configuration
+Configuration is just hardcoded values in a dataclass.
 
-Environment variables and configuration management follow 12-factor app principles:
+## What I Learned
 
-```python
-# Centralized configuration with environment overrides
-class Config:
-    MAP_HEIGHT = int(os.getenv("MAP_HEIGHT", "600"))
-    MAX_RECORDS = int(os.getenv("MAX_RECORDS", "1000"))
-    THEME = os.getenv("UI_THEME", "dark")
-```
+A few things I picked up during this weekend project:
 
-## The Results: What I Achieved
+- DuckDB is pretty fast for analytical queries on moderately large datasets
+- Lonboard/deck.gl handles lots of map points smoothly
+- Panel is decent for quick dashboard prototypes
+- Hex-encoded geometry data needs `ST_GeomFromHEXEWKB`, not the regular WKB functions
+- Hugging Face Spaces is convenient for deploying simple apps
 
-- **⚡ Fast queries** on large datasets with DuckDB
-- **🎮 Smooth map interactions** with GPU-accelerated rendering  
-- **📱 Responsive design** that works across devices
-- **🗺️ Spatial data processing** with millions of geographic records
-- **🚀 Live deployment** on Hugging Face Spaces
+## Code Organization
 
-## Technical Highlights for Engineering Teams
+I tried to keep things reasonably organized:
 
-### Code Quality & Maintainability
+- Split functionality into separate modules
+- Added type hints where they seemed useful
+- Used Ruff for linting
+- Basic error handling for the main user interactions
 
-- **Extensive type hints** throughout the codebase
-- **Modular architecture** with clear separation of concerns
-- **Error handling** with proper exception types
-- **Automated linting** with Ruff
+Nothing too sophisticated, but it's readable and the modules have clear purposes.
 
-### Testing & Reliability
+## Key Takeaways
 
-- **Input validation** at all user interaction points
-- **Graceful degradation** when data is unavailable  
-- **Configurable limits** prevent resource exhaustion
-- **Error handling** for missing or invalid data
+A few things that seemed to matter for this type of project:
 
-### Developer Experience
+1. **Keep it responsive**: Even basic optimizations like data limits and caching make a big difference for user experience.
 
-- **Hot reload** development with Panel's autoreload
-- **Clear documentation** in the README
-- **Easy local setup** with UV package manager
-- **Docker containerization** for deployment
+2. **Start simple**: DuckDB + Panel + Lonboard was a good combination that didn't require too much setup complexity.
 
-## The Engineering Philosophy
+3. **Modular helps**: Splitting the code into focused modules made it easier to debug and extend.
 
-This project demonstrates several key principles I bring to data engineering projects:
+## Future Ideas
 
-1. **Performance is a feature**: Users abandon slow dashboards. Every technical decision prioritized response time.
+If I were to extend this, some things that might be interesting:
 
-2. **Security by design**: SQL injection protection isn't an afterthought—it's built into the architecture.
+- Add more chart types (time series, histograms)
+- Better mobile responsiveness
+- Export functionality for filtered data
+- Maybe connect to the real-time 311 API if Boston has one
 
-3. **Scalability from day one**: The modular design allows easy feature additions without technical debt.
+## Final Thoughts
 
-4. **User experience drives technical decisions**: The technology serves the user, not the other way around.
+This was a fun weekend project that turned out reasonably well. DuckDB + Panel + Lonboard is a solid stack for geospatial dashboards, and the Boston 311 data is interesting to explore.
 
-## What's Next: Roadmap for Enhancement
-
-The current dashboard is functional and deployed, with several potential enhancements identified:
-
-- **Real-time data streaming** with WebSocket connections
-- **Predictive analytics** for service request forecasting  
-- **Advanced spatial analysis** with clustering algorithms
-- **Multi-city support** for comparative civic analytics
-- **API endpoints** for third-party integrations
-
-## Key Takeaways for Technical Leaders
-
-Building this dashboard taught me that **modern data applications require more than just visualization—they need thoughtful architecture, performance engineering, and user-centered design**.
-
-The combination of:
-
-- **Modern Python tooling** (UV, Ruff, Panel)
-- **High-performance databases** (DuckDB)
-- **GPU acceleration** (Lonboard/deck.gl)
-- **Security-first development** (parameterized queries)
-- **Production deployment** (Docker, cloud-native config)
-
-...creates applications that don't just work—they excel under real-world conditions.
+The main lesson was probably that you don't need super complex architecture to build something useful - sometimes simple tools that work well together are enough.
 
 ---
 
-*Want to explore the live dashboard? [**Try it here**](https://huggingface.co/spaces/fmazzoni/boston311) or dive into the [**technical documentation**](https://github.com/your-repo/boston311) to see the architecture in action.*
+*Want to check out the dashboard? [Try it here](https://huggingface.co/spaces/fmazzoni/boston311) or look at the [code](https://github.com/your-repo/boston311) to see how it's built.*
 
-**Technologies**: Python 3.13, DuckDB, Panel, Lonboard, Docker, Parquet, PostGIS, WebGL, Hugging Face Spaces
+**Technologies**: Python 3.13, DuckDB, Panel, Lonboard, Docker, Parquet, Hugging Face Spaces

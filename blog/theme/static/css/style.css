@@ -1,14 +1,14 @@
 :root {
   /* Light Mode Colors */
-  --light-background: #fefefe;
-  --light-secondary-background: #f8f9fa;
-  --light-card-background: #ffffff;
+  --light-background: #fafbfc;
+  --light-secondary-background: #f1f3f4;
+  --light-card-background: #fdfdfd;
   --light-border-color: #e1e5e9;
   --light-subtle-border: #f0f2f5;
-  --light-primary-text: #2c3e50;
-  --light-secondary-text: #64748b;
-  --light-muted-text: #94a3b8;
-  --light-heading-text: #1a202c;
+  --light-primary-text: #374151;
+  --light-secondary-text: #6b7280;
+  --light-muted-text: #9ca3af;
+  --light-heading-text: #1f2937;
   --light-code-background: #f1f5f9;
   --light-code-text: #334155;
   --light-code-border: #e2e8f0;
@@ -76,9 +76,9 @@
   --code-text: var(--light-code-text);
   --code-border: var(--light-code-border);
   
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
 }
 
 /* Global Styles */
@@ -499,40 +499,87 @@ pre:hover::before {
   top: 1rem;
   right: 1.5rem;
   font-size: 0.75rem;
-  background: var(--card-background);
+  background: rgba(255, 255, 255, 0.15);
   padding: 0.5rem 0.75rem;
-  border-radius: 12px;
+  border-radius: 14px;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.7px;
   font-weight: 600;
-  border: 1px solid var(--border-color);
-  z-index: 10;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  color: var(--primary-text);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  color: var(--text-color);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  opacity: 0.75;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(12px);
-  opacity: 0.95;
-  border-left: 3px solid var(--primary-accent);
+  z-index: 10;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Modern badge styling with glassmorphism */
+.language-badge.modern-badge {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(16px) saturate(180%);
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  opacity: 0.8;
 }
 
 .language-badge:hover {
-  opacity: 1;
-  transform: scale(1.08) translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.15);
-  border-left-color: var(--tertiary-accent);
+  opacity: 0.9;
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
-/* Language-specific colors */
+/* Emoji styling */
+.badge-emoji {
+  font-size: 0.9em;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+}
+
+/* Text styling */
+.badge-text {
+  font-size: 0.7em;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Language-specific colors with improved contrast */
 .language-badge[style*="--badge-color"] {
-  background: var(--badge-color);
-  color: white;
-  border-color: var(--badge-color);
+  background: rgba(var(--badge-color-rgb, 107, 114, 128), 0.25);
+  color: var(--badge-text-color, var(--badge-color));
+  border-color: rgba(var(--badge-color-rgb, 107, 114, 128), 0.4);
+  box-shadow: 
+    0 4px 20px rgba(var(--badge-color-rgb, 107, 114, 128), 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  opacity: 0.85;
+  font-weight: 700;
 }
 
-/* Dark mode adjustments for colored badges */
+/* Dark mode adjustments */
+[data-theme="dark"] .language-badge {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.15);
+  opacity: 0.8;
+}
+
+[data-theme="dark"] .language-badge.modern-badge {
+  background: rgba(0, 0, 0, 0.25);
+  border-color: rgba(255, 255, 255, 0.18);
+  opacity: 0.85;
+}
+
 [data-theme="dark"] .language-badge[style*="--badge-color"] {
-  opacity: 0.95;
+  background: rgba(var(--badge-color-rgb, 107, 114, 128), 0.3);
+  border-color: rgba(var(--badge-color-rgb, 107, 114, 128), 0.5);
+  opacity: 0.9;
 }
 
 /* Ensure badges work with highlight.js */
@@ -665,10 +712,58 @@ li {
 
 /* Blockquotes */
 blockquote {
-  border-left: 4px solid var(--primary-accent);
-  padding-left: 1rem;
+  border-left: 2px solid var(--primary-accent);
+  padding: 1rem 1.5rem;
   margin: 1.5rem 0;
   font-style: italic;
+  color: var(--secondary-text);
+  background: var(--card-background);
+  border-radius: 0 8px 8px 0;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+blockquote::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--primary-accent), var(--tertiary-accent));
+  border-radius: 0 1px 1px 0;
+}
+
+/* Light mode specific blockquote styling */
+[data-theme="light"] blockquote {
+  background: rgba(255, 255, 255, 0.3);
+  border-left-color: var(--primary-accent);
+  color: var(--secondary-text);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Light mode article content styling for better readability */
+[data-theme="light"] .article-content,
+[data-theme="light"] .page-content,
+[data-theme="light"] article {
+  background: rgba(255, 255, 255, 0.4);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  margin: 1rem 0;
+}
+
+[data-theme="light"] .article-content p,
+[data-theme="light"] .page-content p {
+  line-height: 1.7;
+  color: var(--primary-text);
+}
+
+/* Dark mode specific blockquote styling */
+[data-theme="dark"] blockquote {
+  background: rgba(22, 27, 34, 0.6);
+  border-left-color: var(--primary-accent);
   color: var(--secondary-text);
 }
 
@@ -780,7 +875,7 @@ footer a i {
     top: 0.5rem;
     right: 0.75rem;
     font-size: 0.65rem;
-    padding: 0.3rem 0.5rem;
+    padding: 0.35rem 0.5rem;
   }
   
   .mermaid {

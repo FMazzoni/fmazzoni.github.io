@@ -70,6 +70,69 @@
         'mermaid': 'Mermaid'
     };
     
+    // Emoji mapping for programming languages
+    const LANGUAGE_EMOJIS = {
+        'python': '🐍',
+        'py': '🐍',
+        'javascript': '🟨',
+        'js': '🟨',
+        'typescript': '🔷',
+        'ts': '🔷',
+        'html': '🌐',
+        'css': '🎨',
+        'sql': '🗄️',
+        'bash': '🐚',
+        'shell': '🐚',
+        'sh': '🐚',
+        'json': '📄',
+        'yaml': '📋',
+        'yml': '📋',
+        'markdown': '📝',
+        'md': '📝',
+        'dockerfile': '🐳',
+        'docker': '🐳',
+        'go': '🐹',
+        'golang': '🐹',
+        'rust': '🦀',
+        'rs': '🦀',
+        'java': '☕',
+        'cpp': '⚡',
+        'c': '⚡',
+        'csharp': '🔷',
+        'cs': '🔷',
+        'php': '🐘',
+        'ruby': '💎',
+        'rb': '💎',
+        'swift': '🦉',
+        'kotlin': '🟣',
+        'kt': '🟣',
+        'scala': '🔴',
+        'r': '📊',
+        'matlab': '🧮',
+        'lua': '🌙',
+        'perl': '🐪',
+        'pl': '🐪',
+        'powershell': '💙',
+        'ps1': '💙',
+        'vim': '✏️',
+        'viml': '✏️',
+        'xml': '📄',
+        'toml': '⚙️',
+        'ini': '⚙️',
+        'conf': '⚙️',
+        'config': '⚙️',
+        'makefile': '🔨',
+        'cmake': '🔧',
+        'gradle': '🏗️',
+        'maven': '📦',
+        'terraform': '🏗️',
+        'tf': '🏗️',
+        'ansible': '🤖',
+        'latex': '📚',
+        'tex': '📚',
+        'mermaid': '🌊'
+    };
+    
     // Color mapping for different language families
     const LANGUAGE_COLORS = {
         'python': '#3776ab',
@@ -138,19 +201,102 @@
     }
     
     /**
+     * Get emoji for a language
+     * @param {string} lang - Language identifier
+     * @returns {string} Emoji character
+     */
+    function getLanguageEmoji(lang) {
+        if (!lang) return '💻';
+        return LANGUAGE_EMOJIS[lang.toLowerCase()] || '💻';
+    }
+    
+    /**
+     * Convert hex color to RGB
+     * @param {string} hex - Hex color string
+     * @returns {Object|null} RGB object or null
+     */
+    function hexToRgb(hex) {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
+    }
+    
+    /**
+     * Determine if a color is light or dark for contrast
+     * @param {string} hex - Hex color string
+     * @returns {boolean} True if color is light, false if dark
+     */
+    function isLightColor(hex) {
+        const rgb = hexToRgb(hex);
+        if (!rgb) return false;
+        
+        // Calculate relative luminance
+        const luminance = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
+        return luminance > 0.5;
+    }
+    
+    /**
+     * Get contrasting color (darker version for light backgrounds, lighter for dark)
+     * @param {string} hex - Hex color string
+     * @returns {string} Contrasting color
+     */
+    function getContrastingColor(hex) {
+        const rgb = hexToRgb(hex);
+        if (!rgb) return hex;
+        
+        const isLight = isLightColor(hex);
+        
+        if (isLight) {
+            // For light colors, return a darker version
+            return `rgb(${Math.max(0, rgb.r - 40)}, ${Math.max(0, rgb.g - 40)}, ${Math.max(0, rgb.b - 40)})`;
+        } else {
+            // For dark colors, return a lighter version
+            return `rgb(${Math.min(255, rgb.r + 40)}, ${Math.min(255, rgb.g + 40)}, ${Math.min(255, rgb.b + 40)})`;
+        }
+    }
+    
+    /**
      * Create a language badge element
      * @param {string} lang - Language identifier
      * @returns {HTMLElement} Badge element
      */
     function createLanguageBadge(lang) {
         const badge = document.createElement('div');
-        badge.className = 'language-badge';
-        badge.textContent = getLanguageDisplayName(lang);
+        badge.className = 'language-badge modern-badge';
+        
+        // Get emoji and display name
+        const emoji = getLanguageEmoji(lang);
+        const displayName = getLanguageDisplayName(lang);
+        
+        // Create emoji span
+        const emojiSpan = document.createElement('span');
+        emojiSpan.className = 'badge-emoji';
+        emojiSpan.textContent = emoji;
+        
+        // Create text span
+        const textSpan = document.createElement('span');
+        textSpan.className = 'badge-text';
+        textSpan.textContent = displayName;
+        
+        // Append emoji and text to badge
+        badge.appendChild(emojiSpan);
+        badge.appendChild(textSpan);
         
         // Set custom color if available
         const color = getLanguageColor(lang);
         if (color !== '#6b7280') {
             badge.style.setProperty('--badge-color', color);
+            // Convert hex to RGB for transparency effects
+            const rgb = hexToRgb(color);
+            if (rgb) {
+                badge.style.setProperty('--badge-color-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
+                // Set contrasting text color for better readability
+                const contrastingColor = getContrastingColor(color);
+                badge.style.setProperty('--badge-text-color', contrastingColor);
+            }
         }
         
         return badge;
