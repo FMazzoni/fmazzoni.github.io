@@ -15,12 +15,13 @@ The result is a basic geospatial dashboard using DuckDB for data queries, Panel 
 
 **Try the interactive dashboard below** - you can filter by time period and neighborhood to explore Boston's 311 service requests:
 
+<div class="iframe-container">
 <iframe
  src="https://fmazzoni-boston311.hf.space"
  frameborder="0"
- width="850"
- height="450"
+ allowfullscreen
 ></iframe>
+</div>
 
 *Want to check out the dashboard on Hugging Face Spaces? [Try it here](https://huggingface.co/spaces/fmazzoni/boston311) or look at the [code](https://github.com/FMazzoni/boston311_paneldashboard) to see how it's built.*
 
