@@ -40,4 +40,11 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poe.tasks]
-serve = { shell = "bash -c 'cd blog && invoke livereload'" }
+# Development server with live reload
+serve = { shell = "cd blog && invoke livereload" }
+
+# Clean build (clears cache for fresh generation)
+build = { shell = "cd blog && rm -rf cache/ output/ && pelican content" }
+
+# Development build (same as build, but explicit about using dev config)
+build-dev = { shell = "cd blog && rm -rf cache/ output/ && pelican content -s pelicanconf.py" }

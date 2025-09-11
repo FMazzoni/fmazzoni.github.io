@@ -14,9 +14,21 @@
         {% endif %}
         {% if STYLESHEET_URL %}
         <link rel="stylesheet" href="{{ STYLESHEET_URL }}" type="text/css" />
-        <link rel="stylesheet" href="{{ SITEURL }}/theme/css/pygment.css" type="text/css">
         <link rel="stylesheet" href="{{ SITEURL }}/theme/css/style.css" type="text/css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+        
+        <!-- Prism.js with VS Code theme -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-vsc-dark-plus.min.css" rel="stylesheet" media="(prefers-color-scheme: dark)">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" media="(prefers-color-scheme: light)">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+        
+        <!-- Mermaid for diagram rendering -->
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+        
         {% endif %}
         {% if FEED_ALL_ATOM %}
         <link href="{{ FEED_DOMAIN }}/{% if FEED_ALL_ATOM_URL %}{{ FEED_ALL_ATOM_URL }}{% else %}{{ FEED_ALL_ATOM }}{% endif %}" type="application/atom+xml" rel="alternate" title="{{ SITENAME|striptags }} Full Atom Feed" />
@@ -64,6 +76,7 @@
           {% endfor %}
         {% endif %}
         </ul></nav>
+        <button class="theme-toggle" title="Toggle theme" aria-label="Toggle dark/light mode"></button>
         </header>
         <main>
         {% block content %}
@@ -75,6 +88,72 @@
           {% endfor %}
           <p>© {{current_year}} fmaz. All rights reserved.</p>
         </footer>
+        
+        <script src="{{ SITEURL }}/theme/js/theme-toggle.js"></script>
+        <script src="{{ SITEURL }}/theme/js/language-badges.js"></script>
+        <script src="{{ SITEURL }}/theme/js/mermaid-renderer.js"></script>
+        <script src="{{ SITEURL }}/theme/js/safe-highlighting.js"></script>
+        
+        <!-- Initialize Prism.js -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Configure Prism.js autoloader
+                Prism.plugins.autoloader.languages_path = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/';
+                
+                // Highlight all code blocks
+                Prism.highlightAll();
+                
+                // Initialize Mermaid for diagram rendering
+                if (typeof mermaid !== 'undefined') {
+                    mermaid.initialize({
+                        startOnLoad: true,
+                        theme: 'dark',
+                        themeVariables: {
+                            primaryColor: '#58a6ff',
+                            primaryTextColor: '#e6edf3',
+                            primaryBorderColor: '#30363d',
+                            lineColor: '#8b949e',
+                            secondaryColor: '#161b22',
+                            tertiaryColor: '#21262d',
+                            background: '#0d1117',
+                            mainBkg: '#161b22',
+                            secondBkg: '#21262d',
+                            tertiaryBkg: '#30363d'
+                        },
+                        flowchart: {
+                            htmlLabels: true,
+                            curve: 'basis'
+                        },
+                        sequence: {
+                            diagramMarginX: 50,
+                            diagramMarginY: 10,
+                            actorMargin: 50,
+                            width: 150,
+                            height: 65,
+                            boxMargin: 10,
+                            boxTextMargin: 5,
+                            noteMargin: 10,
+                            messageMargin: 35,
+                            mirrorActors: true,
+                            bottomMarginAdj: 1,
+                            useMaxWidth: true,
+                            rightAngles: false,
+                            showSequenceNumbers: false
+                        },
+                        gantt: {
+                            titleTopMargin: 25,
+                            diagramMarginX: 50,
+                            diagramMarginY: 10,
+                            gridLineStartPadding: 35,
+                            fontSize: 11,
+                            fontFamily: '"JetBrains Mono", "Fira Code", monospace',
+                            sectionFontSize: 24,
+                            numberSectionStyles: 4
+                        }
+                    });
+                }
+            });
+        </script>
 </body>
 
 
