@@ -22,7 +22,7 @@ The result is a basic geospatial dashboard using DuckDB for data queries, Panel 
  height="450"
 ></iframe>
 
-*Want to check out the dashboard on Hugging Face Spaces? [Try it here](https://huggingface.co/spaces/fmazzoni/boston311) or look at the [code](https://github.com/FMazzoni/boston311) to see how it's built.*
+*Want to check out the dashboard on Hugging Face Spaces? [Try it here](https://huggingface.co/spaces/fmazzoni/boston311) or look at the [code](https://github.com/FMazzoni/boston311_paneldashboard) to see how it's built.*
 
 ## Technical Choices
 
