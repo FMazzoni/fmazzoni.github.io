@@ -36,7 +36,7 @@ SOCIAL = (
     ("GitHub", "https://github.com/FMazzoni", "fab fa-github"),
     (
         "LinkedIn",
-        "https://www.linkedin.com/in/fernando-mazzoni-166443187",
+        "https://www.linkedin.com/in/fernando-mazzoni",
         "fab fa-linkedin",
     ),
     # ("Another social link", "#"),

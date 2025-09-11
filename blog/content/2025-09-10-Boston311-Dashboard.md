@@ -11,7 +11,9 @@ excerpt: "A weekend project exploring Boston's 311 service data with DuckDB, Pan
 
 I found Boston's 311 service request data was publicly available and spent a weekend building a simple dashboard to explore it. The dataset has about 14 years worth of records (2011-2025), which turned out to be a decent challenge for interactive visualization.
 
-The result is a basic geospatial dashboard using DuckDB for data queries, Panel for the interface, and Lonboard for GPU-accelerated mapping. Nothing fancy, but it gets the job done. It's deployed on Hugging Face Spaces if you want to check it out.
+The result is a basic geospatial dashboard using DuckDB for data queries, Panel for the interface, and Lonboard for GPU-accelerated mapping. Nothing fancy, but it gets the job done.
+
+**Try the interactive dashboard below** - you can filter by time period and neighborhood to explore Boston's 311 service requests:
 
 <iframe
  src="https://fmazzoni-boston311.hf.space"
@@ -19,6 +21,8 @@ The result is a basic geospatial dashboard using DuckDB for data queries, Panel 
  width="850"
  height="450"
 ></iframe>
+
+*Want to check out the dashboard on Hugging Face Spaces? [Try it here](https://huggingface.co/spaces/fmazzoni/boston311) or look at the [code](https://github.com/FMazzoni/boston311) to see how it's built.*
 
 ## Technical Choices
 
@@ -202,9 +206,5 @@ If I were to extend this, some things that might be interesting:
 This was a fun weekend project that turned out reasonably well. DuckDB + Panel + Lonboard is a solid stack for geospatial dashboards, and the Boston 311 data is interesting to explore.
 
 The main lesson was probably that you don't need super complex architecture to build something useful - sometimes simple tools that work well together are enough.
-
----
-
-*Want to check out the dashboard? [Try it here](https://huggingface.co/spaces/fmazzoni/boston311) or look at the [code](https://github.com/your-repo/boston311) to see how it's built.*
 
 **Technologies**: Python 3.13, DuckDB, Panel, Lonboard, Docker, Parquet, Hugging Face Spaces
