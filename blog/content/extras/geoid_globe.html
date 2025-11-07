@@ -121,6 +121,9 @@
         <label>
             <input type="checkbox" id="unlitColors" checked> Unlit colors (preserves detail)
         </label>
+        <label style="font-size: 11px;">
+            Brightness: <input type="number" id="brightness" min="0.5" max="3" step="0.1" value="1.5" style="width: 70px; margin-left: 5px; padding: 2px;">x
+        </label>
         <label>
             <input type="checkbox" id="showWireframes"> Show continent wireframes
         </label>
@@ -342,6 +345,7 @@
         let colorMax = null;
         let useUnlit = true;
         let rotationSpeed = 0.5;
+        let brightness = 1.5; // Brightness multiplier for unlit colors
 
         // Scientific colormap implementations
         // These are perceptually uniform colormaps suitable for scientific visualization
@@ -614,7 +618,15 @@
                 
                 // Color uses custom range if set
                 const normalizedHeightForColor = colorRange > 0 ? Math.max(0, Math.min(1, (height - colorMinH) / colorRange)) : 0.5;
-                const [r, g, b] = getColor(normalizedHeightForColor, currentColormap);
+                let [r, g, b] = getColor(normalizedHeightForColor, currentColormap);
+                
+                // Apply brightness multiplier for unlit colors
+                if (useUnlit) {
+                    r = Math.min(1, r * brightness);
+                    g = Math.min(1, g * brightness);
+                    b = Math.min(1, b * brightness);
+                }
+                
                 colors[i * 3] = r;
                 colors[i * 3 + 1] = g;
                 colors[i * 3 + 2] = b;
@@ -891,6 +903,7 @@
                 rotationSpeed: params.get('rotationSpeed') ? parseFloat(params.get('rotationSpeed')) : null,
                 colormap: params.get('colormap') || null,
                 unlit: params.get('unlit') !== null ? params.get('unlit') === 'true' : null,
+                brightness: params.get('brightness') ? parseFloat(params.get('brightness')) : null,
                 wireframes: params.get('wireframes') !== null ? params.get('wireframes') === 'true' : null,
                 colorMin: params.get('colorMin') ? parseFloat(params.get('colorMin')) : null,
                 colorMax: params.get('colorMax') ? parseFloat(params.get('colorMax')) : null,
@@ -904,6 +917,7 @@
             if (rotationSpeed !== 0.5) params.set('rotationSpeed', rotationSpeed.toString());
             if (currentColormap !== 'viridis') params.set('colormap', currentColormap);
             if (!useUnlit) params.set('unlit', 'false');
+            if (brightness !== 1.5) params.set('brightness', brightness.toString());
             if (showWireframes) params.set('wireframes', 'true');
             if (colorMin !== null) params.set('colorMin', colorMin.toString());
             if (colorMax !== null) params.set('colorMax', colorMax.toString());
@@ -921,6 +935,7 @@
         const rotationSpeedValue = document.getElementById('rotationSpeedValue');
         const colormapSelect = document.getElementById('colormapSelect');
         const unlitColorsCheckbox = document.getElementById('unlitColors');
+        const brightnessInput = document.getElementById('brightness');
         const showWireframesCheckbox = document.getElementById('showWireframes');
         const colorMinInput = document.getElementById('colorMin');
         const colorMaxInput = document.getElementById('colorMax');
@@ -945,6 +960,10 @@
         if (urlParams.unlit !== null) {
             useUnlit = urlParams.unlit;
             unlitColorsCheckbox.checked = useUnlit;
+        }
+        if (urlParams.brightness !== null) {
+            brightness = Math.max(0.5, Math.min(3, urlParams.brightness));
+            brightnessInput.value = brightness;
         }
         if (urlParams.wireframes !== null) {
             showWireframes = urlParams.wireframes;
@@ -1021,7 +1040,20 @@
         unlitColorsCheckbox.addEventListener('change', (e) => {
             useUnlit = e.target.checked;
             updateMaterial();
+            updateGeometry(); // Recalculate colors with/without brightness
             updateURL();
+        });
+
+        brightnessInput.addEventListener('change', (e) => {
+            const value = parseFloat(e.target.value);
+            if (!isNaN(value)) {
+                brightness = Math.max(0.5, Math.min(3, value));
+                e.target.value = brightness;
+                if (useUnlit) {
+                    updateGeometry(); // Update colors with new brightness
+                }
+                updateURL();
+            }
         });
 
         showWireframesCheckbox.addEventListener('change', (e) => {
