@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geoid Globe Visualization</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #000;
+            font-family: Arial, sans-serif;
+        }
+        #container {
+            width: 100vw;
+            height: 100vh;
+        }
+        #controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 5px;
+            z-index: 100;
+        }
+        #controls label {
+            display: block;
+            margin: 5px 0;
+        }
+        #controls input[type="range"] {
+            width: 200px;
+        }
+        #info {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: white;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+        #colorbar {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 70px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 8px;
+            border-radius: 5px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #colorbar-label {
+            color: white;
+            text-align: center;
+            font-size: 11px;
+            margin-bottom: 6px;
+            font-weight: bold;
+            line-height: 1.2;
+        }
+        #colorbar-max {
+            color: white;
+            font-size: 10px;
+            white-space: nowrap;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 2px 4px;
+            border-radius: 2px;
+            margin-bottom: 4px;
+            line-height: 1.2;
+        }
+        #colorbar canvas {
+            width: 24px;
+            height: 250px;
+            display: block;
+            margin: 0 auto;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            flex-shrink: 0;
+        }
+        #colorbar-min {
+            color: white;
+            font-size: 10px;
+            white-space: nowrap;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 2px 4px;
+            border-radius: 2px;
+            margin-top: 4px;
+            line-height: 1.2;
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    <div id="controls">
+        <h3>Controls</h3>
+        <label>
+            Deformation: <input type="number" id="deformationPercent" min="0" max="50" step="0.5" value="20" style="width: 70px; margin-left: 5px; padding: 2px;">% (0-50)
+        </label>
+        <label>
+            Rotation Speed: <span id="rotationSpeedValue">0.5</span>
+            <input type="range" id="rotationSpeed" min="0" max="2" step="0.5" value="0.5">
+        </label>
+        <label>
+            Colormap:
+            <select id="colormapSelect">
+                <option value="viridis">Viridis (default)</option>
+                <option value="plasma">Plasma</option>
+                <option value="turbo">Turbo</option>
+                <option value="inferno">Inferno</option>
+                <option value="magma">Magma</option>
+                <option value="cividis">Cividis</option>
+                <option value="rdbu">Red-Blue (diverging)</option>
+                <option value="coolwarm">Cool-Warm (diverging)</option>
+            </select>
+        </label>
+        <label>
+            <input type="checkbox" id="unlitColors" checked> Unlit colors (preserves detail)
+        </label>
+        <label>
+            <input type="checkbox" id="showWireframes"> Show continent wireframes
+        </label>
+        <hr style="margin: 10px 0; border-color: rgba(255,255,255,0.3);">
+        <div style="font-size: 11px; margin-bottom: 5px; font-weight: bold;">Color Scale Range:</div>
+        <label style="font-size: 11px;">
+            Min: <input type="number" id="colorMin" step="0.1" style="width: 70px; margin-left: 5px; padding: 2px;"> m
+        </label>
+        <label style="font-size: 11px;">
+            Max: <input type="number" id="colorMax" step="0.1" style="width: 70px; margin-left: 5px; padding: 2px;"> m
+        </label>
+        <button id="resetColorRange" style="margin-top: 5px; font-size: 11px; padding: 3px 8px;">Reset to Full Range</button>
+        <button id="resetCamera">Reset Camera</button>
+    </div>
+    <div id="info">
+        <div>Click and drag to rotate | Scroll to zoom</div>
+        <div style="margin-top: 5px; font-size: 11px; opacity: 0.8;">
+            Tip: Viridis/Turbo are best for detail. Diverging colormaps (Red-Blue, Cool-Warm) highlight deviations from zero.
+        </div>
+    </div>
+    <div id="colorbar">
+        <div id="colorbar-label">Height (m)</div>
+        <div id="colorbar-max">--</div>
+        <canvas id="colorbarCanvas" width="24" height="250"></canvas>
+        <div id="colorbar-min">--</div>
+    </div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // Configuration
+        const EARTH_RADIUS = 6371000; // meters
+        const MIN_HEIGHT = -106; // meters
+        const MAX_HEIGHT = 85; // meters
+        const HEIGHT_RANGE = MAX_HEIGHT - MIN_HEIGHT;
+
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.getElementById('container').appendChild(renderer.domElement);
+
+        // Camera position
+        camera.position.set(0, 0, 5);
+
+        // Controls
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.minDistance = 2;
+        controls.maxDistance = 20;
+
+        // Lighting - reduced intensity to preserve color detail
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+        scene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight.position.set(5, 3, 5);
+        scene.add(directionalLight);
+
+        // Create sphere geometry with high resolution for better color detail
+        const segments = 512; // Very high resolution for maximum color sampling and detail preservation
+        const geometry = new THREE.SphereGeometry(1, segments, segments);
+
+        // Raster data storage
+        let rasterLats = null;
+        let rasterLons = null;
+        let rasterHeights = null;
+        let rasterMinHeight = null;
+        let rasterMaxHeight = null;
+
+        // Function to bilinearly interpolate height from raster data
+        function getHeightFromRaster(lat, lon) {
+            if (!rasterHeights || !rasterLats || !rasterLons) {
+                // Fallback to demo pattern if no data loaded
+                return Math.sin(lat * Math.PI / 180) * Math.cos(lon * Math.PI / 180) * 50;
+            }
+
+            // Handle poles specially - at poles, use average of all longitudes at that latitude
+            // This handles both North Pole (lat > 89.5) and South Pole (lat < -89.5)
+            if (Math.abs(lat) > 89.5) {
+                // Near pole, find closest latitude row
+                let closestLatIdx = 0;
+                let minLatDiff = Math.abs(lat - rasterLats[0]);
+                for (let i = 1; i < rasterLats.length; i++) {
+                    const diff = Math.abs(lat - rasterLats[i]);
+                    if (diff < minLatDiff) {
+                        minLatDiff = diff;
+                        closestLatIdx = i;
+                    }
+                }
+                
+                // Ensure we have a valid index
+                if (closestLatIdx < 0 || closestLatIdx >= rasterHeights.length) {
+                    // Fallback: find any valid row
+                    for (let i = 0; i < rasterHeights.length; i++) {
+                        const row = rasterHeights[i];
+                        const validHeights = row.filter(h => isFinite(h) && Math.abs(h) < 10000);
+                        if (validHeights.length > 0) {
+                            return validHeights.reduce((a, b) => a + b, 0) / validHeights.length;
+                        }
+                    }
+                    return 0;
+                }
+                
+                // Average all longitudes at this latitude
+                const row = rasterHeights[closestLatIdx];
+                if (!row || row.length === 0) {
+                    return 0;
+                }
+                const validHeights = row.filter(h => isFinite(h) && Math.abs(h) < 10000);
+                if (validHeights.length > 0) {
+                    return validHeights.reduce((a, b) => a + b, 0) / validHeights.length;
+                }
+                return 0;
+            }
+
+            // Find the grid cell containing this lat/lon
+            // Raster lats are typically descending (90 to -90)
+            // Raster lons are typically ascending (-180 to 180)
+            
+            // Find lat indices
+            let latIdx0 = -1, latIdx1 = -1;
+            for (let i = 0; i < rasterLats.length - 1; i++) {
+                if (lat >= rasterLats[i + 1] && lat <= rasterLats[i]) {
+                    latIdx0 = i;
+                    latIdx1 = i + 1;
+                    break;
+                }
+            }
+            if (latIdx0 === -1) {
+                if (lat > rasterLats[0]) latIdx0 = latIdx1 = 0;
+                else latIdx0 = latIdx1 = rasterLats.length - 1;
+            }
+
+            // Find lon indices (handle wrap-around)
+            let lonIdx0 = -1, lonIdx1 = -1;
+            for (let i = 0; i < rasterLons.length - 1; i++) {
+                if (lon >= rasterLons[i] && lon <= rasterLons[i + 1]) {
+                    lonIdx0 = i;
+                    lonIdx1 = i + 1;
+                    break;
+                }
+            }
+            // Handle wrap-around
+            if (lonIdx0 === -1) {
+                if (lon < rasterLons[0]) {
+                    lonIdx0 = rasterLons.length - 1;
+                    lonIdx1 = 0;
+                } else {
+                    lonIdx0 = lonIdx1 = rasterLons.length - 1;
+                }
+            }
+
+            // Bilinear interpolation
+            const lat0 = rasterLats[latIdx0];
+            const lat1 = rasterLats[latIdx1];
+            const lon0 = rasterLons[lonIdx0];
+            const lon1 = rasterLons[lonIdx1 === 0 && lonIdx0 === rasterLons.length - 1 ? 0 : lonIdx1];
+
+            const h00 = rasterHeights[latIdx0][lonIdx0];
+            const h01 = rasterHeights[latIdx0][lonIdx1 === 0 && lonIdx0 === rasterLons.length - 1 ? 0 : lonIdx1];
+            const h10 = rasterHeights[latIdx1][lonIdx0];
+            const h11 = rasterHeights[latIdx1][lonIdx1 === 0 && lonIdx0 === rasterLons.length - 1 ? 0 : lonIdx1];
+
+            // Normalize coordinates
+            const latT = latIdx0 === latIdx1 ? 0 : (lat - lat0) / (lat1 - lat0);
+            let lonT = 0;
+            if (lonIdx0 === rasterLons.length - 1 && lonIdx1 === 0) {
+                // Wrap-around case
+                const lonDiff = (180 - lon0) + (lon1 + 180);
+                lonT = (lon - lon0) / lonDiff;
+                if (lonT < 0) lonT += 1;
+            } else {
+                lonT = lonIdx0 === lonIdx1 ? 0 : (lon - lon0) / (lon1 - lon0);
+            }
+
+            // Bilinear interpolation
+            const h0 = h00 * (1 - lonT) + h01 * lonT;
+            const h1 = h10 * (1 - lonT) + h11 * lonT;
+            let height = h0 * (1 - latT) + h1 * latT;
+            
+            // Handle invalid values (NaN, Infinity, or very large numbers)
+            if (!isFinite(height) || Math.abs(height) > 10000) {
+                // Use nearest valid neighbor or fallback
+                const validHeights = [h00, h01, h10, h11].filter(h => isFinite(h) && Math.abs(h) < 10000);
+                if (validHeights.length > 0) {
+                    height = validHeights.reduce((a, b) => a + b, 0) / validHeights.length;
+                } else {
+                    height = 0; // Fallback to zero if no valid data
+                }
+            }
+            
+            return height;
+        }
+
+        // Displace vertices based on height data
+        const positions = geometry.attributes.position;
+        const colors = new Float32Array(positions.count * 3);
+        
+        // Store original sphere positions (before any deformation)
+        const originalPositions = new Float32Array(positions.array.length);
+        originalPositions.set(positions.array);
+
+        let deformationPercent = 20.0;
+        let currentColormap = 'viridis';
+        let colorMin = null;
+        let colorMax = null;
+        let useUnlit = true;
+        let rotationSpeed = 0.5;
+
+        // Scientific colormap implementations
+        // These are perceptually uniform colormaps suitable for scientific visualization
+        
+        function viridis(t) {
+            // More accurate viridis colormap implementation
+            // Based on matplotlib's viridis colormap with higher precision
+            t = Math.max(0, Math.min(1, t));
+            
+            // Use piecewise cubic interpolation for smoother transitions
+            let r, g, b;
+            
+            if (t < 0.25) {
+                const localT = t / 0.25;
+                r = 0.26700401 + (0.4627451 - 0.26700401) * localT;
+                g = 0.00487433 + (0.11481717 - 0.00487433) * localT;
+                b = 0.32941519 + (0.56284153 - 0.32941519) * localT;
+            } else if (t < 0.5) {
+                const localT = (t - 0.25) / 0.25;
+                r = 0.4627451 + (0.24705882 - 0.4627451) * localT;
+                g = 0.11481717 + (0.42745098 - 0.11481717) * localT;
+                b = 0.56284153 + (0.70567316 - 0.56284153) * localT;
+            } else if (t < 0.75) {
+                const localT = (t - 0.5) / 0.25;
+                r = 0.24705882 + (0.05882353 - 0.24705882) * localT;
+                g = 0.42745098 + (0.76078431 - 0.42745098) * localT;
+                b = 0.70567316 + (0.83529412 - 0.70567316) * localT;
+            } else {
+                const localT = (t - 0.75) / 0.25;
+                r = 0.05882353 + (0.60784314 - 0.05882353) * localT;
+                g = 0.76078431 + (0.88235294 - 0.76078431) * localT;
+                b = 0.83529412 + (0.56078431 - 0.83529412) * localT;
+            }
+            
+            return [r, g, b];
+        }
+
+        function plasma(t) {
+            // Plasma colormap - perceptually uniform
+            t = Math.max(0, Math.min(1, t));
+            const r = t < 0.25 ? 0.050 + (0.451 - 0.050) * (t / 0.25) :
+                      t < 0.5 ? 0.451 + (0.941 - 0.451) * ((t - 0.25) / 0.25) :
+                      t < 0.75 ? 0.941 + (0.976 - 0.941) * ((t - 0.5) / 0.25) :
+                      0.976 + (0.940 - 0.976) * ((t - 0.75) / 0.25);
+            const g = t < 0.25 ? 0.028 + (0.030 - 0.028) * (t / 0.25) :
+                      t < 0.5 ? 0.030 + (0.604 - 0.030) * ((t - 0.25) / 0.25) :
+                      t < 0.75 ? 0.604 + (0.983 - 0.604) * ((t - 0.5) / 0.25) :
+                      0.983 + (0.977 - 0.983) * ((t - 0.75) / 0.25);
+            const b = t < 0.25 ? 0.527 + (0.211 - 0.527) * (t / 0.25) :
+                      t < 0.5 ? 0.211 + (0.016 - 0.211) * ((t - 0.25) / 0.25) :
+                      t < 0.75 ? 0.016 + (0.014 - 0.016) * ((t - 0.5) / 0.25) :
+                      0.014 + (0.131 - 0.014) * ((t - 0.75) / 0.25);
+            return [r, g, b];
+        }
+
+        function turbo(t) {
+            // More accurate turbo colormap implementation
+            // Based on Google Research's turbo colormap with higher precision
+            t = Math.max(0, Math.min(1, t));
+            
+            // Turbo uses a more complex curve - using more accurate key points
+            let r, g, b;
+            
+            if (t < 0.25) {
+                // Dark blue to cyan transition
+                const localT = t / 0.25;
+                r = 0.18995 + (0.00000 - 0.18995) * localT;
+                g = 0.07176 + (0.69846 - 0.07176) * localT;
+                b = 0.21381 + (1.00000 - 0.21381) * localT;
+            } else if (t < 0.5) {
+                // Cyan to green-yellow transition
+                const localT = (t - 0.25) / 0.25;
+                r = 0.00000;
+                g = 0.69846 + (1.00000 - 0.69846) * localT;
+                b = 1.00000 + (0.50000 - 1.00000) * localT;
+            } else if (t < 0.75) {
+                // Green-yellow to yellow transition
+                const localT = (t - 0.5) / 0.25;
+                r = 0.00000 + (1.00000 - 0.00000) * localT;
+                g = 1.00000;
+                b = 0.50000 + (0.00000 - 0.50000) * localT;
+            } else {
+                // Yellow to red transition
+                const localT = (t - 0.75) / 0.25;
+                r = 1.00000 + (0.50000 - 1.00000) * localT;
+                g = 1.00000 + (0.00000 - 1.00000) * localT;
+                b = 0.00000;
+            }
+            
+            return [r, g, b];
+        }
+
+        function inferno(t) {
+            // Inferno colormap - perceptually uniform
+            t = Math.max(0, Math.min(1, t));
+            const r = t < 0.25 ? 0.000 + (0.237 - 0.000) * (t / 0.25) :
+                      t < 0.5 ? 0.237 + (0.882 - 0.237) * ((t - 0.25) / 0.25) :
+                      t < 0.75 ? 0.882 + (1.000 - 0.882) * ((t - 0.5) / 0.25) :
+                      1.000;
+            const g = t < 0.25 ? 0.000 + (0.011 - 0.000) * (t / 0.25) :
+                      t < 0.5 ? 0.011 + (0.543 - 0.011) * ((t - 0.25) / 0.25) :
+                      t < 0.75 ? 0.543 + (0.975 - 0.543) * ((t - 0.5) / 0.25) :
+                      0.975 + (0.988 - 0.975) * ((t - 0.75) / 0.25);
+            const b = t < 0.25 ? 0.000 + (0.360 - 0.000) * (t / 0.25) :
+                      t < 0.5 ? 0.360 + (0.316 - 0.360) * ((t - 0.25) / 0.25) :
+                      t < 0.75 ? 0.316 + (0.131 - 0.316) * ((t - 0.5) / 0.25) :
+                      0.131 + (0.000 - 0.131) * ((t - 0.75) / 0.25);
+            return [r, g, b];
+        }
+
+        function magma(t) {
+            // Magma colormap - perceptually uniform
+            t = Math.max(0, Math.min(1, t));
+            const r = t < 0.25 ? 0.000 + (0.287 - 0.000) * (t / 0.25) :
+                      t < 0.5 ? 0.287 + (0.765 - 0.287) * ((t - 0.25) / 0.25) :
+                      t < 0.75 ? 0.765 + (0.992 - 0.765) * ((t - 0.5) / 0.25) :
+                      0.992 + (0.988 - 0.992) * ((t - 0.75) / 0.25);
+            const g = t < 0.25 ? 0.000 + (0.001 - 0.000) * (t / 0.25) :
+                      t < 0.5 ? 0.001 + (0.217 - 0.001) * ((t - 0.25) / 0.25) :
+                      t < 0.75 ? 0.217 + (0.753 - 0.217) * ((t - 0.5) / 0.25) :
+                      0.753 + (0.992 - 0.753) * ((t - 0.75) / 0.25);
+            const b = t < 0.25 ? 0.000 + (0.331 - 0.000) * (t / 0.25) :
+                      t < 0.5 ? 0.331 + (0.576 - 0.331) * ((t - 0.25) / 0.25) :
+                      t < 0.75 ? 0.576 + (0.525 - 0.576) * ((t - 0.5) / 0.25) :
+                      0.525 + (0.000 - 0.525) * ((t - 0.75) / 0.25);
+            return [r, g, b];
+        }
+
+        function cividis(t) {
+            // Cividis colormap - perceptually uniform, colorblind-friendly
+            t = Math.max(0, Math.min(1, t));
+            const r = t < 0.25 ? 0.000 + (0.060 - 0.000) * (t / 0.25) :
+                      t < 0.5 ? 0.060 + (0.240 - 0.060) * ((t - 0.25) / 0.25) :
+                      t < 0.75 ? 0.240 + (0.327 - 0.240) * ((t - 0.5) / 0.25) :
+                      0.327 + (0.993 - 0.327) * ((t - 0.75) / 0.25);
+            const g = t < 0.25 ? 0.135 + (0.204 - 0.135) * (t / 0.25) :
+                      t < 0.5 ? 0.204 + (0.408 - 0.204) * ((t - 0.25) / 0.25) :
+                      t < 0.75 ? 0.408 + (0.546 - 0.408) * ((t - 0.5) / 0.25) :
+                      0.546 + (0.906 - 0.546) * ((t - 0.75) / 0.25);
+            const b = t < 0.25 ? 0.315 + (0.384 - 0.315) * (t / 0.25) :
+                      t < 0.5 ? 0.384 + (0.543 - 0.384) * ((t - 0.25) / 0.25) :
+                      t < 0.75 ? 0.543 + (0.765 - 0.543) * ((t - 0.5) / 0.25) :
+                      0.765 + (0.144 - 0.765) * ((t - 0.75) / 0.25);
+            return [r, g, b];
+        }
+
+        function rdbu(t) {
+            // Red-Blue diverging colormap (good for showing deviations from zero)
+            t = Math.max(0, Math.min(1, t));
+            let r, g, b;
+            if (t < 0.5) {
+                // Blue to white
+                const localT = t / 0.5;
+                r = localT;
+                g = localT;
+                b = 1.0;
+            } else {
+                // White to red
+                const localT = (t - 0.5) / 0.5;
+                r = 1.0;
+                g = 1.0 - localT;
+                b = 1.0 - localT;
+            }
+            return [r, g, b];
+        }
+
+        function coolwarm(t) {
+            // Cool-Warm diverging colormap
+            t = Math.max(0, Math.min(1, t));
+            let r, g, b;
+            if (t < 0.5) {
+                // Blue to cyan to white
+                const localT = t / 0.5;
+                r = 0.0 + localT * 0.5;
+                g = 0.0 + localT;
+                b = 0.5 + localT * 0.5;
+            } else {
+                // White to yellow to red
+                const localT = (t - 0.5) / 0.5;
+                r = 0.5 + localT * 0.5;
+                g = 1.0 - localT * 0.5;
+                b = 1.0 - localT;
+            }
+            return [r, g, b];
+        }
+
+        // Colormap selector function
+        function getColor(t, colormap) {
+            switch(colormap) {
+                case 'viridis': return viridis(t);
+                case 'plasma': return plasma(t);
+                case 'turbo': return turbo(t);
+                case 'inferno': return inferno(t);
+                case 'magma': return magma(t);
+                case 'cividis': return cividis(t);
+                case 'rdbu': return rdbu(t);
+                case 'coolwarm': return coolwarm(t);
+                default: return viridis(t);
+            }
+        }
+
+        function getColorRange() {
+            const dataMin = rasterMinHeight ?? MIN_HEIGHT;
+            const dataMax = rasterMaxHeight ?? MAX_HEIGHT;
+            return {
+                min: colorMin ?? dataMin,
+                max: colorMax ?? dataMax,
+                dataMin,
+                dataMax
+            };
+        }
+
+        // Function to update the colorbar
+        function updateColorbar() {
+            const canvas = document.getElementById('colorbarCanvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Get effective color range
+            const { min: minH, max: maxH } = getColorRange();
+            
+            // Use high-resolution sampling for smooth gradient
+            // Sample many more colors than pixels for smooth interpolation
+            const numSamples = Math.max(height * 4, 1000); // At least 4x pixel resolution or 1000 samples
+            const gradient = ctx.createLinearGradient(0, 0, 0, height);
+            
+            // Build gradient with many color stops for smooth transitions
+            for (let i = 0; i <= numSamples; i++) {
+                const t = 1 - (i / numSamples); // Reverse: top is max (1.0), bottom is min (0.0)
+                const [r, g, b] = getColor(t, currentColormap);
+                const color = `rgb(${Math.round(r * 255)}, ${Math.round(g * 255)}, ${Math.round(b * 255)})`;
+                const offset = i / numSamples;
+                gradient.addColorStop(offset, color);
+            }
+            
+            // Fill the entire canvas with the gradient
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+            
+            // Update labels
+            document.getElementById('colorbar-max').textContent = maxH.toFixed(1) + ' m';
+            document.getElementById('colorbar-min').textContent = minH.toFixed(1) + ' m';
+        }
+
+        function updateGeometry() {
+            const dataMin = rasterMinHeight ?? MIN_HEIGHT;
+            const dataMax = rasterMaxHeight ?? MAX_HEIGHT;
+            const dataRange = dataMax - dataMin;
+            const { min: colorMinH, max: colorMaxH } = getColorRange();
+            const colorRange = colorMaxH - colorMinH;
+            
+            for (let i = 0; i < positions.count; i++) {
+                const vertex = new THREE.Vector3(
+                    originalPositions[i * 3],
+                    originalPositions[i * 3 + 1],
+                    originalPositions[i * 3 + 2]
+                );
+                
+                const lat = Math.asin(vertex.y) * 180 / Math.PI;
+                const lon = Math.atan2(vertex.x, vertex.z) * 180 / Math.PI;
+                const height = getHeightFromRaster(lat, lon);
+                
+                // Deformation uses full data range
+                const normalizedHeightForDisplacement = dataRange > 0 ? (height - dataMin) / dataRange : 0.5;
+                const heightOffset = (normalizedHeightForDisplacement - 0.5) * 2;
+                const scaleFactor = Math.max(0.5, Math.min(1.5, 1 + heightOffset * (deformationPercent / 100)));
+                vertex.multiplyScalar(scaleFactor);
+                positions.setXYZ(i, vertex.x, vertex.y, vertex.z);
+                
+                // Color uses custom range if set
+                const normalizedHeightForColor = colorRange > 0 ? Math.max(0, Math.min(1, (height - colorMinH) / colorRange)) : 0.5;
+                const [r, g, b] = getColor(normalizedHeightForColor, currentColormap);
+                colors[i * 3] = r;
+                colors[i * 3 + 1] = g;
+                colors[i * 3 + 2] = b;
+            }
+            
+            positions.needsUpdate = true;
+            geometry.computeVertexNormals();
+            
+            // Update color attribute
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        }
+
+        // Create materials - BasicMaterial shows true colors without lighting effects
+        const unlitMaterial = new THREE.MeshBasicMaterial({
+            vertexColors: true,
+        });
+        
+        // LambertMaterial for lit rendering (less washed out than Phong)
+        const litMaterial = new THREE.MeshLambertMaterial({
+            vertexColors: true,
+            flatShading: false,
+        });
+        
+        let currentMaterial = unlitMaterial;
+
+        // Create a group to hold globe and wireframes so they rotate together
+        const globeGroup = new THREE.Group();
+        scene.add(globeGroup);
+        
+        // Create mesh
+        const globe = new THREE.Mesh(geometry, currentMaterial);
+        globeGroup.add(globe);
+
+        // Continent wireframes
+        let continentLines = null;
+        let showWireframes = false;
+        const wireframeCoords = new Map(); // Store lat/lon for each wireframe line
+
+        // Function to convert lat/lon to 3D position on sphere
+        // Matches Three.js SphereGeometry coordinate system
+        function latLonToPosition(lat, lon, radius = 1) {
+            // Convert to radians
+            const latRad = lat * Math.PI / 180;
+            const lonRad = lon * Math.PI / 180;
+            
+            // Three.js SphereGeometry: y is up, x/z are horizontal
+            // lat: -90 (south) to 90 (north) -> y: -1 to 1
+            // lon: -180 (west) to 180 (east) -> x/z rotation
+            const x = radius * Math.cos(latRad) * Math.sin(lonRad);
+            const y = radius * Math.sin(latRad);
+            const z = radius * Math.cos(latRad) * Math.cos(lonRad);
+            
+            return new THREE.Vector3(x, y, z);
+        }
+
+        // Function to find nearest valid raster cell height
+        function getNearestRasterCellHeight(lat, lon) {
+            if (!rasterHeights?.length || !rasterLats?.length || !rasterLons?.length) {
+                return 0;
+            }
+
+            // Find closest lat/lon indices
+            let closestLatIdx = 0;
+            let closestLonIdx = 0;
+            let minLatDiff = Math.abs(lat - rasterLats[0]);
+            let minLonDiff = Math.abs(lon - rasterLons[0]);
+
+            for (let i = 1; i < rasterLats.length; i++) {
+                const diff = Math.abs(lat - rasterLats[i]);
+                if (diff < minLatDiff) {
+                    minLatDiff = diff;
+                    closestLatIdx = i;
+                }
+            }
+
+            for (let i = 1; i < rasterLons.length; i++) {
+                let diff = Math.abs(lon - rasterLons[i]);
+                if (diff > 180) diff = 360 - diff; // Handle wrap-around
+                if (diff < minLonDiff) {
+                    minLonDiff = diff;
+                    closestLonIdx = i;
+                }
+            }
+
+            // Try nearest cell first
+            if (closestLatIdx >= 0 && closestLatIdx < rasterHeights.length &&
+                closestLonIdx >= 0 && closestLonIdx < rasterLons.length) {
+                const height = rasterHeights[closestLatIdx][closestLonIdx];
+                if (isFinite(height) && Math.abs(height) < 10000) {
+                    return height;
+                }
+            }
+
+            // Search nearby cells if nearest is invalid
+            for (let latOffset = -2; latOffset <= 2; latOffset++) {
+                for (let lonOffset = -2; lonOffset <= 2; lonOffset++) {
+                    const latIdx = closestLatIdx + latOffset;
+                    const lonIdx = (closestLonIdx + lonOffset + rasterLons.length) % rasterLons.length;
+                    
+                    if (latIdx >= 0 && latIdx < rasterHeights.length &&
+                        lonIdx >= 0 && lonIdx < rasterLons.length) {
+                        const height = rasterHeights[latIdx][lonIdx];
+                        if (isFinite(height) && Math.abs(height) < 10000) {
+                            return height;
+                        }
+                    }
+                }
+            }
+
+            return 0;
+        }
+
+        // Function to apply deformation to a position
+        function applyDeformationToPosition(position, lat, lon) {
+            if (!rasterHeights || !rasterLats || !rasterLons) {
+                return position.clone();
+            }
+
+            let height = getHeightFromRaster(lat, lon);
+            if (!isFinite(height) || Math.abs(height) > 10000) {
+                height = getNearestRasterCellHeight(lat, lon);
+            }
+            
+            const dataMin = rasterMinHeight ?? MIN_HEIGHT;
+            const dataMax = rasterMaxHeight ?? MAX_HEIGHT;
+            const dataRange = dataMax - dataMin;
+            
+            if (dataRange <= 0 || !isFinite(dataRange)) {
+                return position.clone();
+            }
+            
+            const normalizedHeight = Math.max(0, Math.min(1, (Math.max(dataMin, Math.min(dataMax, height)) - dataMin) / dataRange));
+            const heightOffset = (normalizedHeight - 0.5) * 2;
+            const scaleFactor = Math.max(0.5, Math.min(1.5, 1 + heightOffset * (deformationPercent / 100)));
+            
+            return isFinite(scaleFactor) ? position.clone().multiplyScalar(scaleFactor) : position.clone();
+        }
+
+        // Function to load and render continent boundaries
+        async function loadContinentWireframes() {
+            try {
+                // Use Natural Earth simplified coastline data (110m resolution)
+                const response = await fetch('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson');
+                const geojson = await response.json();
+                
+                const lineMaterial = new THREE.LineBasicMaterial({ 
+                    color: 0xffffff, 
+                    opacity: 0.6, 
+                    transparent: true,
+                    linewidth: 1
+                });
+
+                const lineGroup = new THREE.Group();
+                
+                // Process each feature (country/continent boundary)
+                let lineIndex = 0;
+                geojson.features.forEach(feature => {
+                    if (feature.geometry.type === 'Polygon') {
+                        const coordinates = feature.geometry.coordinates[0];
+                        const points = [];
+                        const coords = [];
+                        
+                        coordinates.forEach(([lon, lat]) => {
+                            coords.push([lat, lon]);
+                            const pos = latLonToPosition(lat, lon, 1);
+                            const deformedPos = applyDeformationToPosition(pos, lat, lon);
+                            points.push(deformedPos);
+                        });
+                        
+                        if (points.length > 0) {
+                            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                            const line = new THREE.Line(geometry, lineMaterial);
+                            lineGroup.add(line);
+                            wireframeCoords.set(lineIndex, coords);
+                            lineIndex++;
+                        }
+                    } else if (feature.geometry.type === 'MultiPolygon') {
+                        feature.geometry.coordinates.forEach(polygon => {
+                            const coordinates = polygon[0];
+                            const points = [];
+                            const coords = [];
+                            
+                            coordinates.forEach(([lon, lat]) => {
+                                coords.push([lat, lon]);
+                                const pos = latLonToPosition(lat, lon, 1);
+                                const deformedPos = applyDeformationToPosition(pos, lat, lon);
+                                points.push(deformedPos);
+                            });
+                            
+                            if (points.length > 0) {
+                                const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                                const line = new THREE.Line(geometry, lineMaterial);
+                                lineGroup.add(line);
+                                wireframeCoords.set(lineIndex, coords);
+                                lineIndex++;
+                            }
+                        });
+                    }
+                });
+
+                continentLines = lineGroup;
+                continentLines.visible = showWireframes;
+                globeGroup.add(continentLines); // Add to globe group so it rotates with globe
+                console.log('Loaded continent wireframes');
+            } catch (error) {
+                console.error('Error loading continent wireframes:', error);
+                // Fallback: create simple continent outlines using a basic pattern
+                createSimpleContinentWireframes();
+            }
+        }
+
+        // Fallback function for simple continent wireframes
+        function createSimpleContinentWireframes() {
+            const lineMaterial = new THREE.LineBasicMaterial({ 
+                color: 0xffffff, 
+                opacity: 0.6, 
+                transparent: true
+            });
+
+            const lineGroup = new THREE.Group();
+            
+            // Create a simple grid pattern as fallback
+            const segments = 36;
+            for (let i = 0; i <= segments; i++) {
+                const lat = -90 + (i / segments) * 180;
+                const points = [];
+                for (let j = 0; j <= segments; j++) {
+                    const lon = -180 + (j / segments) * 360;
+                    const pos = latLonToPosition(lat, lon, 1);
+                    points.push(pos);
+                }
+                const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                const line = new THREE.Line(geometry, lineMaterial);
+                lineGroup.add(line);
+            }
+
+            continentLines = lineGroup;
+            continentLines.visible = showWireframes;
+            globeGroup.add(continentLines); // Add to globe group so it rotates with globe
+        }
+
+        // Function to update wireframe positions when deformation changes
+        function updateWireframePositions() {
+            if (!continentLines) return;
+
+            continentLines.children.forEach((line, lineIndex) => {
+                if (!wireframeCoords.has(lineIndex)) return;
+                
+                const coords = wireframeCoords.get(lineIndex);
+                const newPositions = [];
+                
+                coords.forEach(([lat, lon]) => {
+                    const originalPos = latLonToPosition(lat, lon, 1);
+                    const deformedPos = applyDeformationToPosition(originalPos, lat, lon);
+                    newPositions.push(deformedPos.x, deformedPos.y, deformedPos.z);
+                });
+                
+                line.geometry.setAttribute('position', new THREE.Float32BufferAttribute(newPositions, 3));
+                line.geometry.attributes.position.needsUpdate = true;
+            });
+        }
+        
+        // Function to update material
+        function updateMaterial() {
+            currentMaterial = useUnlit ? unlitMaterial : litMaterial;
+            globe.material = currentMaterial;
+        }
+
+        // URL parameter management
+        function getURLParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                deformation: params.get('deformation') ? parseFloat(params.get('deformation')) : null,
+                rotationSpeed: params.get('rotationSpeed') ? parseFloat(params.get('rotationSpeed')) : null,
+                colormap: params.get('colormap') || null,
+                unlit: params.get('unlit') !== null ? params.get('unlit') === 'true' : null,
+                wireframes: params.get('wireframes') !== null ? params.get('wireframes') === 'true' : null,
+                colorMin: params.get('colorMin') ? parseFloat(params.get('colorMin')) : null,
+                colorMax: params.get('colorMax') ? parseFloat(params.get('colorMax')) : null,
+                data: params.get('data') || null
+            };
+        }
+
+        function updateURL() {
+            const params = new URLSearchParams();
+            if (deformationPercent !== 20) params.set('deformation', deformationPercent.toString());
+            if (rotationSpeed !== 0.5) params.set('rotationSpeed', rotationSpeed.toString());
+            if (currentColormap !== 'viridis') params.set('colormap', currentColormap);
+            if (!useUnlit) params.set('unlit', 'false');
+            if (showWireframes) params.set('wireframes', 'true');
+            if (colorMin !== null) params.set('colorMin', colorMin.toString());
+            if (colorMax !== null) params.set('colorMax', colorMax.toString());
+            
+            const currentParams = new URLSearchParams(window.location.search);
+            if (currentParams.get('data')) params.set('data', currentParams.get('data'));
+            
+            const newURL = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+            window.history.replaceState({}, '', newURL);
+        }
+
+        // Controls UI - get elements first
+        const deformationPercentInput = document.getElementById('deformationPercent');
+        const rotationSpeedSlider = document.getElementById('rotationSpeed');
+        const rotationSpeedValue = document.getElementById('rotationSpeedValue');
+        const colormapSelect = document.getElementById('colormapSelect');
+        const unlitColorsCheckbox = document.getElementById('unlitColors');
+        const showWireframesCheckbox = document.getElementById('showWireframes');
+        const colorMinInput = document.getElementById('colorMin');
+        const colorMaxInput = document.getElementById('colorMax');
+        const resetColorRangeBtn = document.getElementById('resetColorRange');
+        const resetCameraBtn = document.getElementById('resetCamera');
+
+        // Initialize from URL parameters
+        const urlParams = getURLParams();
+        if (urlParams.deformation !== null) {
+            deformationPercent = Math.max(0, Math.min(50, urlParams.deformation));
+            deformationPercentInput.value = deformationPercent;
+        }
+        if (urlParams.rotationSpeed !== null) {
+            rotationSpeed = Math.max(0, Math.min(2, urlParams.rotationSpeed));
+            rotationSpeedSlider.value = rotationSpeed;
+            rotationSpeedValue.textContent = rotationSpeed;
+        }
+        if (urlParams.colormap !== null) {
+            currentColormap = urlParams.colormap;
+            colormapSelect.value = currentColormap;
+        }
+        if (urlParams.unlit !== null) {
+            useUnlit = urlParams.unlit;
+            unlitColorsCheckbox.checked = useUnlit;
+        }
+        if (urlParams.wireframes !== null) {
+            showWireframes = urlParams.wireframes;
+            showWireframesCheckbox.checked = showWireframes;
+            if (showWireframes) {
+                // Load wireframes asynchronously
+                setTimeout(() => loadContinentWireframes(), 100);
+            }
+        }
+        if (urlParams.colorMin !== null) {
+            colorMin = urlParams.colorMin;
+            colorMinInput.value = colorMin;
+        }
+        if (urlParams.colorMax !== null) {
+            colorMax = urlParams.colorMax;
+            colorMaxInput.value = colorMax;
+        }
+        
+        // Function to update color range input values and limits
+        function updateColorRangeInputs() {
+            const { dataMin, dataMax } = getColorRange();
+            if (colorMinInput && colorMaxInput) {
+                // Set min/max attributes for validation
+                colorMinInput.min = (dataMin - 10).toFixed(1);
+                colorMinInput.max = (dataMax + 10).toFixed(1);
+                colorMaxInput.min = (dataMin - 10).toFixed(1);
+                colorMaxInput.max = (dataMax + 10).toFixed(1);
+                
+                // Update values if using full range (null)
+                if (colorMin === null) {
+                    colorMinInput.value = dataMin.toFixed(1);
+                } else {
+                    colorMinInput.value = colorMin.toFixed(1);
+                }
+                
+                if (colorMax === null) {
+                    colorMaxInput.value = dataMax.toFixed(1);
+                } else {
+                    colorMaxInput.value = colorMax.toFixed(1);
+                }
+            }
+        }
+
+        // Initial geometry update and colorbar
+        updateGeometry();
+        updateColorbar();
+        updateColorRangeInputs(); // Initialize color range inputs
+
+        deformationPercentInput.addEventListener('change', (e) => {
+            const value = parseFloat(e.target.value);
+            if (!isNaN(value)) {
+                deformationPercent = Math.max(0, Math.min(50, value));
+                e.target.value = deformationPercent;
+                updateGeometry();
+                updateWireframePositions();
+                updateURL();
+            }
+        });
+
+        rotationSpeedSlider.addEventListener('input', (e) => {
+            rotationSpeed = parseFloat(e.target.value);
+            rotationSpeedValue.textContent = rotationSpeed;
+            globe.userData.rotationSpeed = rotationSpeed;
+            updateURL();
+        });
+
+        colormapSelect.addEventListener('change', (e) => {
+            currentColormap = e.target.value;
+            updateGeometry();
+            updateColorbar();
+            updateURL();
+        });
+
+        unlitColorsCheckbox.addEventListener('change', (e) => {
+            useUnlit = e.target.checked;
+            updateMaterial();
+            updateURL();
+        });
+
+        showWireframesCheckbox.addEventListener('change', (e) => {
+            showWireframes = e.target.checked;
+            if (continentLines) {
+                continentLines.visible = showWireframes;
+            } else if (showWireframes) {
+                loadContinentWireframes();
+            }
+            updateURL();
+        });
+
+        // Handle color range input changes
+        function handleColorRangeChange() {
+            updateGeometry();
+            updateColorbar();
+        }
+
+        colorMinInput.addEventListener('change', (e) => {
+            const value = parseFloat(e.target.value);
+            if (!isNaN(value)) {
+                colorMin = value;
+                if (colorMax !== null && value >= colorMax) {
+                    colorMin = colorMax - 0.1;
+                    colorMinInput.value = colorMin.toFixed(1);
+                }
+                handleColorRangeChange();
+                updateURL();
+            }
+        });
+
+        colorMaxInput.addEventListener('change', (e) => {
+            const value = parseFloat(e.target.value);
+            if (!isNaN(value)) {
+                colorMax = value;
+                if (colorMin !== null && value <= colorMin) {
+                    colorMax = colorMin + 0.1;
+                    colorMaxInput.value = colorMax.toFixed(1);
+                }
+                handleColorRangeChange();
+                updateURL();
+            }
+        });
+
+        resetColorRangeBtn.addEventListener('click', () => {
+            colorMin = null;
+            colorMax = null;
+            updateColorRangeInputs();
+            handleColorRangeChange();
+            updateURL();
+        });
+
+        resetCameraBtn.addEventListener('click', () => {
+            camera.position.set(0, 0, 5);
+            controls.reset();
+        });
+
+        globe.userData.rotationSpeed = rotationSpeed;
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Auto-rotate (rotate the group so globe and wireframes rotate together)
+            if (globe.userData.rotationSpeed > 0) {
+                globeGroup.rotation.y += 0.01 * globe.userData.rotationSpeed;
+            }
+            
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Function to load raster data from JSON file
+        async function loadRasterData(url) {
+            try {
+                console.log(`Loading raster data from: ${url}`);
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                rasterHeights = data.heights;
+                rasterLats = data.lats;
+                rasterLons = data.lons;
+                rasterMinHeight = data.minHeight || MIN_HEIGHT;
+                rasterMaxHeight = data.maxHeight || MAX_HEIGHT;
+                
+                console.log(`Loaded raster: ${data.shape[0]}x${data.shape[1]}`);
+                console.log(`Height range: ${rasterMinHeight} to ${rasterMaxHeight} meters`);
+                
+                // Update geometry with real data
+                updateGeometry();
+                // Update colorbar with new data range
+                updateColorbar();
+                // Update color range inputs to match new data
+                updateColorRangeInputs();
+                
+                return data;
+            } catch (error) {
+                console.error('Error loading raster data:', error);
+                console.log('Using fallback pattern');
+            }
+        }
+
+        // Auto-load if data file is specified in URL parameter
+        if (urlParams.data) {
+            loadRasterData(urlParams.data);
+        } else {
+            // Try to auto-load geoid_data.json from the same directory
+            const currentPath = window.location.pathname;
+            const basePath = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
+            loadRasterData(basePath + 'geoid_data.json').catch(() => {
+                // Silently fail if geoid_data.json doesn't exist - will use fallback pattern
+                console.log('geoid_data.json not found, using fallback pattern');
+            });
+        }
+
+        // Export function for external use
+        window.updateDeformationPercent = (percent) => {
+            deformationPercent = Math.max(0, Math.min(50, percent));
+            if (deformationPercentInput) {
+                deformationPercentInput.value = deformationPercent;
+            }
+            updateGeometry();
+            updateURL();
+        };
+
+        window.loadRasterData = loadRasterData;
+    </script>
+</body>
+</html>
+

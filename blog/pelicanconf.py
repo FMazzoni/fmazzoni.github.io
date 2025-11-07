@@ -71,3 +71,13 @@ MARKDOWN = {
 # Extra settings
 DISPLAY_PAGES_ON_MENU = True
 DISPLAY_CATEGORIES_ON_MENU = True
+
+# Static files configuration
+# Files in these directories will be copied to the output root
+STATIC_PATHS = ["extras"]
+
+# Exclude HTML files from being processed as content pages
+# This ensures HTML files in extras/ are copied as static files
+READERS = {
+    "html": None,  # Don't process HTML files as content
+}
