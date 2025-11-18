@@ -16,22 +16,15 @@ Why does this matter? When your GPS gives you a height, it's measuring distance 
 
 <div class="iframe-container">
 <iframe
- src="https://fmazzoni.github.io/geoid-globe/"
+ src="https://fmazzoni.github.io/geoid-globe/?deformation=30&colormap=turbo&brightness=0.5&wireframes=true"
  frameborder="0"
  allowfullscreen
 ></iframe>
 </div>
 
-*The visualization shows geoid undulation from -106 meters (blue) to +85 meters (red), with the sphere deformed to exaggerate the variations. Use the controls to adjust deformation, rotation speed, and colormap. [View full screen](https://fmazzoni.github.io/geoid-globe/)*
+*The visualization shows geoid undulation from -106 meters (blue) to +85 meters (red), with the sphere deformed to exaggerate the variations. Use the controls to adjust deformation, rotation speed, and colormap. [View full screen](https://fmazzoni.github.io/geoid-globe/?deformation=30&colormap=turbo&brightness=0.5&wireframes=true)*
 
-### Demo Video
-
-Here's a quick walkthrough of the interactive visualization:
-
-<video controls width="100%">
-  <source src="/geoid-globe-demo.webm" type="video/webm">
-  Your browser does not support the video tag. <a href="/geoid-globe-demo.webm">Download the video</a> instead.
-</video>
+**Code**: [GitHub repository](https://github.com/FMazzoni/geoid-globe)
 
 ## Why Visualize the Geoid?
 
@@ -167,3 +160,5 @@ If you want to dive deeper into the geoid:
 The geoid is a fundamental concept in GIS and geodesy, and visualizing it in 3D helps make this abstract concept more tangible. Whether you're working with GPS data, doing surveying, or just curious about how gravity shapes our planet, understanding the geoid is essential.
 
 **Technologies**: Python, pyshtools, Three.js, EGM2008, GeoTIFF, JSON
+
+**Repository**: [https://github.com/FMazzoni/geoid-globe](https://github.com/FMazzoni/geoid-globe)
