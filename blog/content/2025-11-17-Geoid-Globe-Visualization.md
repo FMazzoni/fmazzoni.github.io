@@ -16,22 +16,13 @@ Why does this matter? When your GPS gives you a height, it's measuring distance 
 
 <div class="iframe-container">
 <iframe
- src="https://fmazzoni.github.io/geoid-globe/"
+ src="https://fmazzoni.github.io/geoid-globe/?deformation=30&colormap=turbo&brightness=0.5&wireframes=true"
  frameborder="0"
  allowfullscreen
 ></iframe>
 </div>
 
-*The visualization shows geoid undulation from -106 meters (blue) to +85 meters (red), with the sphere deformed to exaggerate the variations. Use the controls to adjust deformation, rotation speed, and colormap. [View full screen](https://fmazzoni.github.io/geoid-globe/)*
-
-### Demo Video
-
-Here's a quick walkthrough of the interactive visualization:
-
-<video controls width="100%">
-  <source src="/geoid-globe-demo.webm" type="video/webm">
-  Your browser does not support the video tag. <a href="/geoid-globe-demo.webm">Download the video</a> instead.
-</video>
+*The visualization shows geoid undulation from -106 meters (blue) to +85 meters (red), with the sphere deformed to exaggerate the variations. Use the controls to adjust deformation, rotation speed, and colormap. [View full screen](https://fmazzoni.github.io/geoid-globe/?deformation=30&colormap=turbo&brightness=0.5&wireframes=true)*
 
 ## Why Visualize the Geoid?
 
