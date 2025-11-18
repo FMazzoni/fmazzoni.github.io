@@ -24,6 +24,8 @@ Why does this matter? When your GPS gives you a height, it's measuring distance 
 
 *The visualization shows geoid undulation from -106 meters (blue) to +85 meters (red), with the sphere deformed to exaggerate the variations. Use the controls to adjust deformation, rotation speed, and colormap. [View full screen](https://fmazzoni.github.io/geoid-globe/?deformation=30&colormap=turbo&brightness=0.5&wireframes=true)*
 
+**Code**: [GitHub repository](https://github.com/FMazzoni/geoid-globe)
+
 ## Why Visualize the Geoid?
 
 The geoid is a fundamental concept in geodesy and GIS, but it's often abstract and hard to grasp from 2D maps or numbers. A 3D interactive visualization helps:
@@ -158,3 +160,5 @@ If you want to dive deeper into the geoid:
 The geoid is a fundamental concept in GIS and geodesy, and visualizing it in 3D helps make this abstract concept more tangible. Whether you're working with GPS data, doing surveying, or just curious about how gravity shapes our planet, understanding the geoid is essential.
 
 **Technologies**: Python, pyshtools, Three.js, EGM2008, GeoTIFF, JSON
+
+**Repository**: [https://github.com/FMazzoni/geoid-globe](https://github.com/FMazzoni/geoid-globe)
