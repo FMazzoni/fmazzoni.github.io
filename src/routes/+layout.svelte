@@ -238,6 +238,19 @@
 	<title>{siteConfig.name}</title>
 	<meta name="description" content="{siteConfig.author}'s blog" />
 	<link rel="canonical" href={siteConfig.url} />
+	
+	<!-- Initialize theme immediately to prevent FOUC -->
+	<script>
+		(function() {
+			try {
+				const theme = localStorage.getItem('blog-theme') || 'dark';
+				document.documentElement.setAttribute('data-theme', theme);
+			} catch (e) {
+				// Fallback to dark theme if localStorage is unavailable
+				document.documentElement.setAttribute('data-theme', 'dark');
+			}
+		})();
+	</script>
 
 	<!-- External CSS -->
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/holiday.css@0.11.2" />
