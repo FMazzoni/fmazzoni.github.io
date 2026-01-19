@@ -82,14 +82,6 @@ The site is automatically deployed to GitHub Pages via GitHub Actions when you p
 2. Source: GitHub Actions
 3. The workflow will automatically build and deploy on every push to `main`
 
-## 📚 Migration Notes
-
-This project was migrated from Pelican to SvelteKit. See [PELICAN_TO_SVELTEKIT_MIGRATION.md](./PELICAN_TO_SVELTEKIT_MIGRATION.md) for migration details.
-
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
 ## 🔗 Links
 
 - **Live Site**: [https://fmazzoni.github.io](https://fmazzoni.github.io)

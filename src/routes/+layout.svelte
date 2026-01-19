@@ -312,9 +312,6 @@
 						// Wait a bit for CSS variables to update
 						await new Promise((resolve) => setTimeout(resolve, 100));
 						
-						// Get all math elements
-						const mathElements = document.querySelectorAll('.MathJax, mjx-container, [class*="MathJax"]');
-						
 						// Clear previous typeset math
 						if (MathJax.typesetClear) {
 							MathJax.typesetClear();

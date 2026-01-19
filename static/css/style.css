@@ -1927,42 +1927,101 @@ footer p {
   margin-bottom: 1.2rem;
 }
 
-/* MathJax styling to match theme */
-mjx-container {
+/* MathJax styling to match theme - comprehensive rules with maximum specificity */
+mjx-container,
+mjx-container *,
+mjx-container::before,
+mjx-container::after,
+mjx-container *::before,
+mjx-container *::after {
   color: var(--primary-text) !important;
 }
 
-mjx-container mjx-math {
-  color: inherit !important;
+mjx-container mjx-math,
+mjx-container mjx-math * {
+  color: var(--primary-text) !important;
 }
 
-mjx-container svg {
-  fill: currentColor !important;
+mjx-container svg,
+mjx-container svg * {
+  fill: var(--primary-text) !important;
+  color: var(--primary-text) !important;
+  stroke: var(--primary-text) !important;
 }
 
-/* Ensure MathJax text elements use theme colors */
+/* Ensure all MathJax text elements use theme colors - highest specificity */
 mjx-container text,
-mjx-container tspan {
+mjx-container tspan,
+mjx-container text *,
+mjx-container tspan *,
+mjx-container .mjx-char,
+mjx-container .mjx-char *,
+mjx-container .mjx-char text,
+mjx-container .mjx-char tspan {
   fill: var(--primary-text) !important;
   color: var(--primary-text) !important;
 }
 
-/* MathJax in light theme */
+/* MathJax inline math (within paragraphs and spans) - very specific */
+p mjx-container,
+p mjx-container *,
+span mjx-container,
+span mjx-container *,
+article mjx-container,
+article mjx-container *,
+main mjx-container,
+main mjx-container * {
+  color: var(--primary-text) !important;
+  fill: var(--primary-text) !important;
+}
+
+/* Override any MathJax default colors - must come after all other rules */
+mjx-container[style*="color"],
+mjx-container *[style*="color"],
+mjx-container[style*="fill"],
+mjx-container *[style*="fill"] {
+  color: var(--primary-text) !important;
+  fill: var(--primary-text) !important;
+}
+
+/* MathJax in light theme - explicit overrides with maximum specificity */
+html[data-theme="light"] mjx-container,
+html[data-theme="light"] mjx-container *,
+html[data-theme="light"] mjx-container text,
+html[data-theme="light"] mjx-container tspan,
+html[data-theme="light"] mjx-container svg,
+html[data-theme="light"] mjx-container svg *,
+html[data-theme="light"] p mjx-container,
+html[data-theme="light"] span mjx-container,
 [data-theme="light"] mjx-container,
+[data-theme="light"] mjx-container *,
 [data-theme="light"] mjx-container text,
 [data-theme="light"] mjx-container tspan,
-[data-theme="light"] mjx-container svg {
+[data-theme="light"] mjx-container svg,
+[data-theme="light"] mjx-container svg * {
   fill: var(--primary-text) !important;
   color: var(--primary-text) !important;
+  stroke: var(--primary-text) !important;
 }
 
-/* MathJax in dark theme */
+/* MathJax in dark theme - explicit overrides with maximum specificity */
+html[data-theme="dark"] mjx-container,
+html[data-theme="dark"] mjx-container *,
+html[data-theme="dark"] mjx-container text,
+html[data-theme="dark"] mjx-container tspan,
+html[data-theme="dark"] mjx-container svg,
+html[data-theme="dark"] mjx-container svg *,
+html[data-theme="dark"] p mjx-container,
+html[data-theme="dark"] span mjx-container,
 [data-theme="dark"] mjx-container,
+[data-theme="dark"] mjx-container *,
 [data-theme="dark"] mjx-container text,
 [data-theme="dark"] mjx-container tspan,
-[data-theme="dark"] mjx-container svg {
+[data-theme="dark"] mjx-container svg,
+[data-theme="dark"] mjx-container svg * {
   fill: var(--primary-text) !important;
   color: var(--primary-text) !important;
+  stroke: var(--primary-text) !important;
 }
 
 
