@@ -23,7 +23,7 @@ const config = {
 			strict: true
 		}),
 		paths: {
-			base: dev ? '' : '/fmazzoni.github.io',
+			base: '',
 			relative: false
 		},
 		prerender: {
