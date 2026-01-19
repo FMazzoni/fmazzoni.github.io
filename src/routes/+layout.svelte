@@ -13,12 +13,12 @@
 	function convertMermaidCodeBlocks() {
 		if (typeof window === 'undefined') return;
 
-		// Find all code blocks with mermaid language
+		// Find all code blocks with mermaid language that haven't been processed
 		const mermaidBlocks = document.querySelectorAll('pre code.language-mermaid, pre code[class*="mermaid"]');
 		
 		mermaidBlocks.forEach((block: Element) => {
 			const preElement = block.parentElement;
-			if (!preElement || preElement.classList.contains('mermaid-processed')) return;
+			if (!preElement || preElement.classList.contains('mermaid-converted')) return;
 
 			const mermaidCode = block.textContent?.trim();
 			if (!mermaidCode) return;
@@ -30,7 +30,8 @@
 
 			// Replace the code block with the Mermaid div
 			preElement.parentElement?.replaceChild(mermaidDiv, preElement);
-			mermaidDiv.classList.add('mermaid-processed');
+			// Mark the parent as converted (but don't mark mermaid div yet - let Mermaid process it)
+			preElement.classList.add('mermaid-converted');
 		});
 	}
 
@@ -61,6 +62,7 @@
 		// Re-render Mermaid (using run() method for Mermaid 10.x)
 		if ((window as any).mermaid) {
 			try {
+				// Run Mermaid on all .mermaid elements
 				(window as any).mermaid.run();
 			} catch (e) {
 				// If run() fails, try init() as fallback
@@ -101,11 +103,29 @@
 						background: '#0d1117',
 						mainBkg: '#161b22',
 						secondBkg: '#21262d',
-						tertiaryBkg: '#30363d'
+						tertiaryBkg: '#30363d',
+						// Text colors for labels
+						textColor: '#e6edf3',
+						secondaryTextColor: '#8b949e',
+						tertiaryTextColor: '#7d8590',
+						// Node text colors
+						nodeTextColor: '#e6edf3',
+						// Edge label colors
+						edgeLabelBackground: '#161b22',
+						clusterBkg: '#21262d',
+						clusterBorder: '#30363d',
+						defaultLinkColor: '#58a6ff',
+						titleColor: '#f0f6fc',
+						// Font settings
+						fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+						fontSize: '16px'
 					},
 					flowchart: {
-						htmlLabels: true,
-						curve: 'basis'
+						htmlLabels: false, // Use SVG labels instead of HTML for better compatibility
+						curve: 'basis',
+						// Ensure text is visible
+						useMaxWidth: true,
+						wrap: true
 					},
 					sequence: {
 						diagramMarginX: 50,
@@ -150,6 +170,7 @@
 <svelte:head>
 	<title>{siteConfig.name}</title>
 	<meta name="description" content="{siteConfig.author}'s blog" />
+	<link rel="canonical" href={siteConfig.url} />
 
 	<!-- External CSS -->
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/holiday.css@0.11.2" />
@@ -207,6 +228,7 @@
 	<script src="/js/theme-toggle.js"></script>
 	<script src="/js/safe-highlighting.js"></script>
 	<script src="/js/mobile-navigation.js"></script>
+	<script src="/js/copy-code-button.js"></script>
 </svelte:head>
 
 <Header />

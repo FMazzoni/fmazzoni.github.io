@@ -1,12 +1,17 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import { format } from 'date-fns';
+	import { page } from '$app/stores';
+	import { siteConfig } from '$lib/config/site';
 
 	export let data: PageData;
+	
+	$: canonicalUrl = `${siteConfig.url}${$page.url.pathname}`;
 </script>
 
 <svelte:head>
 	<title>blog - All Posts</title>
+	<link rel="canonical" href={canonicalUrl} />
 </svelte:head>
 
 <article>
