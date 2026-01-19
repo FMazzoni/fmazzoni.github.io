@@ -2,7 +2,7 @@ import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { getPostBySlug, getPosts } from '$lib/utils/content.server';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, url }) => {
 	const post = getPostBySlug(params.slug);
 
 	if (!post) {
@@ -18,7 +18,8 @@ export const load: PageServerLoad = async ({ params }) => {
 	return {
 		post,
 		nextPost,
-		prevPost
+		prevPost,
+		url: url.toString()
 	};
 };
 

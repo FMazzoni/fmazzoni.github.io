@@ -15,70 +15,11 @@
     }
     
     /**
-     * Add copy button functionality
+     * Copy button functionality removed - handled by copy-code-button.js
      */
     function addCopyButtons() {
-        const codeBlocks = document.querySelectorAll('pre code');
-        
-        codeBlocks.forEach(function(block) {
-            const preElement = block.parentElement;
-            
-            // Skip if copy button already exists
-            if (preElement.querySelector('.copy-button')) {
-                return;
-            }
-            
-            // Create copy button
-            const copyButton = document.createElement('button');
-            copyButton.className = 'copy-button';
-            copyButton.innerHTML = '📋';
-            copyButton.title = 'Copy code';
-            copyButton.style.cssText = `
-                position: absolute;
-                bottom: 1rem;
-                right: 1rem;
-                background: var(--card-background);
-                border: 1px solid var(--border-color);
-                border-radius: 6px;
-                padding: 0.5rem;
-                cursor: pointer;
-                font-size: 0.8rem;
-                opacity: 0.7;
-                transition: all 0.2s ease;
-                z-index: 20;
-            `;
-            
-            // Add hover effects
-            copyButton.addEventListener('mouseenter', function() {
-                this.style.opacity = '1';
-                this.style.transform = 'scale(1.1)';
-            });
-            
-            copyButton.addEventListener('mouseleave', function() {
-                this.style.opacity = '0.7';
-                this.style.transform = 'scale(1)';
-            });
-            
-            // Add copy functionality
-            copyButton.addEventListener('click', function() {
-                const text = block.textContent;
-                navigator.clipboard.writeText(text).then(function() {
-                    copyButton.innerHTML = '✅';
-                    setTimeout(function() {
-                        copyButton.innerHTML = '📋';
-                    }, 2000);
-                }).catch(function() {
-                    copyButton.innerHTML = '❌';
-                    setTimeout(function() {
-                        copyButton.innerHTML = '📋';
-                    }, 2000);
-                });
-            });
-            
-            // Position the pre element relatively
-            preElement.style.position = 'relative';
-            preElement.appendChild(copyButton);
-        });
+        // Copy buttons are now handled by copy-code-button.js
+        // This function is kept for compatibility but does nothing
     }
     
     /**
