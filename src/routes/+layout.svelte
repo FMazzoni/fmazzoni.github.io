@@ -27,11 +27,26 @@
 			const mermaidDiv = document.createElement('div');
 			mermaidDiv.className = 'mermaid';
 			mermaidDiv.textContent = mermaidCode;
+			// Store the source for theme re-rendering
+			mermaidDiv.dataset.mermaidSource = mermaidCode;
 
 			// Replace the code block with the Mermaid div
 			preElement.parentElement?.replaceChild(mermaidDiv, preElement);
 			// Mark the parent as converted (but don't mark mermaid div yet - let Mermaid process it)
 			preElement.classList.add('mermaid-converted');
+		});
+		
+		// Also ensure existing .mermaid elements have their source stored
+		const existingMermaidElements = document.querySelectorAll('.mermaid:not([data-mermaid-source])');
+		existingMermaidElements.forEach((element: Element) => {
+			const mermaidEl = element as HTMLElement;
+			// If not yet rendered, store the text content
+			if (!mermaidEl.querySelector('svg')) {
+				const source = mermaidEl.textContent?.trim() || mermaidEl.innerText?.trim() || '';
+				if (source) {
+					mermaidEl.dataset.mermaidSource = source;
+				}
+			}
 		});
 	}
 
@@ -62,6 +77,18 @@
 		// Re-render Mermaid (using run() method for Mermaid 10.x)
 		if ((window as any).mermaid) {
 			try {
+				// Ensure all .mermaid elements have their source stored before rendering
+				const mermaidElements = document.querySelectorAll('.mermaid:not([data-mermaid-source])');
+				mermaidElements.forEach((element: Element) => {
+					const mermaidEl = element as HTMLElement;
+					if (!mermaidEl.querySelector('svg')) {
+						const source = mermaidEl.textContent?.trim() || mermaidEl.innerText?.trim() || '';
+						if (source) {
+							mermaidEl.dataset.mermaidSource = source;
+						}
+					}
+				});
+				
 				// Run Mermaid on all .mermaid elements
 				(window as any).mermaid.run();
 			} catch (e) {
@@ -192,14 +219,121 @@
 			}
 
 			// Update Mermaid theme and re-render
-			function updateMermaidTheme() {
+			async function updateMermaidTheme() {
 				if ((window as any).mermaid) {
-					initializeMermaid();
-					// Re-render all Mermaid diagrams
 					try {
-						(window as any).mermaid.run();
+						// Ensure all Mermaid elements have their source stored
+						convertMermaidCodeBlocks();
+						
+						// Get all Mermaid diagrams
+						const mermaidElements = document.querySelectorAll('.mermaid');
+						
+						// Restore source for re-rendering and reset element state
+						mermaidElements.forEach((element: Element) => {
+							const mermaidEl = element as HTMLElement;
+							
+							// Get the source from data attribute (should be stored before first render)
+							let source = mermaidEl.dataset.mermaidSource;
+							
+							// If no stored source and element hasn't been rendered yet, store current text
+							if (!source && !mermaidEl.querySelector('svg')) {
+								source = mermaidEl.textContent?.trim() || mermaidEl.innerText?.trim() || '';
+								if (source) {
+									mermaidEl.dataset.mermaidSource = source;
+								}
+							}
+							
+							// If we have a source, restore it
+							if (source) {
+								// Completely clear the element
+								mermaidEl.innerHTML = '';
+								
+								// Set the text content (Mermaid reads from textContent)
+								mermaidEl.textContent = source;
+								
+								// Remove any Mermaid processing markers that might prevent re-rendering
+								mermaidEl.removeAttribute('data-processed');
+								mermaidEl.removeAttribute('id'); // Mermaid might add IDs
+								mermaidEl.classList.remove('mermaid-processed');
+								
+								// Ensure only the mermaid class is present (clean state)
+								mermaidEl.className = 'mermaid';
+								
+								// Ensure the source is still stored
+								if (!mermaidEl.dataset.mermaidSource) {
+									mermaidEl.dataset.mermaidSource = source;
+								}
+							}
+						});
+						
+						// Re-initialize with new theme
+						initializeMermaid();
+						
+						// Wait for initialization and DOM updates
+						await new Promise((resolve) => setTimeout(resolve, 200));
+						
+						// Re-render all Mermaid diagrams
+						// Mermaid 10.x run() method processes all .mermaid elements automatically
+						if ((window as any).mermaid.run) {
+							const result = (window as any).mermaid.run();
+							// run() may return a promise
+							if (result && typeof result.then === 'function') {
+								await result;
+							}
+						} else if ((window as any).mermaid.init) {
+							// Fallback for older Mermaid versions
+							(window as any).mermaid.init();
+						}
 					} catch (e) {
 						console.warn('Mermaid re-render failed:', e);
+						// Try a simpler approach as fallback
+						try {
+							// Re-initialize and try run again
+							initializeMermaid();
+							await new Promise((resolve) => setTimeout(resolve, 150));
+							if ((window as any).mermaid.run) {
+								const result = (window as any).mermaid.run();
+								if (result && typeof result.then === 'function') {
+									await result;
+								}
+							}
+						} catch (e2) {
+							console.error('Mermaid re-render fallback also failed:', e2);
+						}
+					}
+				}
+			}
+
+			// Update MathJax to reflect theme changes
+			async function updateMathJaxTheme() {
+				const MathJax = (window as any).MathJax;
+				if (MathJax) {
+					try {
+						// Wait a bit for CSS variables to update
+						await new Promise((resolve) => setTimeout(resolve, 100));
+						
+						// Get all math elements
+						const mathElements = document.querySelectorAll('.MathJax, mjx-container, [class*="MathJax"]');
+						
+						// Clear previous typeset math
+						if (MathJax.typesetClear) {
+							MathJax.typesetClear();
+						}
+						
+						// Reset equation numbering
+						if (MathJax.texReset) {
+							MathJax.texReset();
+						}
+						
+						// Re-typeset all math with new theme colors
+						if (MathJax.typesetPromise) {
+							await MathJax.typesetPromise();
+						} else if (MathJax.typeset) {
+							// Fallback for older MathJax versions
+							MathJax.typeset();
+						}
+					} catch (e) {
+						console.warn('MathJax re-render failed:', e);
 					}
 				}
 			}
@@ -209,10 +343,13 @@
 
 			// Watch for theme changes
 			if (typeof MutationObserver !== 'undefined') {
-				const themeObserver = new MutationObserver((mutations) => {
+				const themeObserver = new MutationObserver(async (mutations) => {
 					mutations.forEach((mutation) => {
 						if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+							// Update Mermaid theme
 							updateMermaidTheme();
+							// Update MathJax theme
+							updateMathJaxTheme();
 						}
 					});
 				});
@@ -238,19 +375,6 @@
 	<title>{siteConfig.name}</title>
 	<meta name="description" content="{siteConfig.author}'s blog" />
 	<link rel="canonical" href={siteConfig.url} />
-	
-	<!-- Initialize theme immediately to prevent FOUC -->
-	<script>
-		(function() {
-			try {
-				const theme = localStorage.getItem('blog-theme') || 'dark';
-				document.documentElement.setAttribute('data-theme', theme);
-			} catch (e) {
-				// Fallback to dark theme if localStorage is unavailable
-				document.documentElement.setAttribute('data-theme', 'dark');
-			}
-		})();
-	</script>
 
 	<!-- External CSS -->
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/holiday.css@0.11.2" />
