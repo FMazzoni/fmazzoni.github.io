@@ -618,6 +618,65 @@ code:hover {
   transform: translateY(-1px);
 }
 
+/* Prevent Prism.js from styling inline code (not in pre blocks) */
+/* Only target the code element itself and Prism token spans, not all descendants */
+code:not(pre code) {
+  background: var(--code-background) !important;
+  color: var(--code-text) !important;
+  border: 1px solid var(--code-border) !important;
+}
+
+/* Override Prism token classes that might be added to inline code */
+code:not(pre code) .token {
+  background: transparent !important;
+  color: inherit !important;
+}
+
+code:not(pre code) .token * {
+  background: transparent !important;
+  color: inherit !important;
+}
+
+/* Light mode specific inline code styling */
+[data-theme="light"] code:not(pre code),
+html[data-theme="light"] code:not(pre code) {
+  background: var(--light-code-background) !important;
+  color: var(--light-code-text) !important;
+  border-color: var(--light-code-border) !important;
+}
+
+[data-theme="light"] code:not(pre code) .token,
+html[data-theme="light"] code:not(pre code) .token {
+  background: transparent !important;
+  color: inherit !important;
+}
+
+[data-theme="light"] code:not(pre code) .token *,
+html[data-theme="light"] code:not(pre code) .token * {
+  background: transparent !important;
+  color: inherit !important;
+}
+
+/* Dark mode specific inline code styling */
+[data-theme="dark"] code:not(pre code),
+html[data-theme="dark"] code:not(pre code) {
+  background: var(--dark-code-background) !important;
+  color: var(--dark-code-text) !important;
+  border-color: var(--dark-code-border) !important;
+}
+
+[data-theme="dark"] code:not(pre code) .token,
+html[data-theme="dark"] code:not(pre code) .token {
+  background: transparent !important;
+  color: inherit !important;
+}
+
+[data-theme="dark"] code:not(pre code) .token *,
+html[data-theme="dark"] code:not(pre code) .token * {
+  background: transparent !important;
+  color: inherit !important;
+}
+
 pre {
   background: var(--code-background);
   border: 1px solid var(--code-border);
