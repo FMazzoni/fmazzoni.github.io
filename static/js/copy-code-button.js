@@ -1,93 +1,177 @@
 /**
- * Add copy buttons to code blocks
+ * Simple copy code button for code blocks
  */
 (function() {
     'use strict';
     
-    function initCopyButtons() {
-        // Find all pre code blocks
-        const codeBlocks = document.querySelectorAll('pre code');
-        
-        codeBlocks.forEach((codeBlock) => {
-            const pre = codeBlock.parentElement;
-            if (!pre || pre.classList.contains('copy-button-added')) return;
-            
-            // Create copy button
-            const copyButton = document.createElement('button');
-            copyButton.className = 'copy-code-button';
-            copyButton.setAttribute('aria-label', 'Copy code to clipboard');
-            copyButton.setAttribute('title', 'Copy code');
-            copyButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="5" width="9" height="11" rx="1" stroke-linecap="round"/><path d="M3 2h8v8H3z" stroke-linecap="round"/></svg>';
-            
-            // Add click handler
-            copyButton.addEventListener('click', async () => {
-                const text = codeBlock.textContent || '';
-                
-                try {
-                    await navigator.clipboard.writeText(text);
-                    
-                    // Visual feedback
-                    copyButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 4L6 11L3 8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-                    copyButton.classList.add('copied');
-                    
-                    setTimeout(() => {
-                        copyButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="5" width="9" height="11" rx="1" stroke-linecap="round"/><path d="M3 2h8v8H3z" stroke-linecap="round"/></svg>';
-                        copyButton.classList.remove('copied');
-                    }, 2000);
-                } catch (err) {
-                    console.error('Failed to copy:', err);
-                    // Fallback for older browsers
-                    const textArea = document.createElement('textarea');
-                    textArea.value = text;
-                    textArea.style.position = 'fixed';
-                    textArea.style.opacity = '0';
-                    document.body.appendChild(textArea);
-                    textArea.select();
-                    try {
-                        document.execCommand('copy');
-                        copyButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 4L6 11L3 8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-                        copyButton.classList.add('copied');
-                        setTimeout(() => {
-                            copyButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="5" width="9" height="11" rx="1" stroke-linecap="round"/><path d="M3 2h8v8H3z" stroke-linecap="round"/></svg>';
-                            copyButton.classList.remove('copied');
-                        }, 2000);
-                    } catch (fallbackErr) {
-                        console.error('Fallback copy failed:', fallbackErr);
-                    }
-                    document.body.removeChild(textArea);
-                }
-            });
-            
-            // Position button
-            pre.style.position = 'relative';
-            pre.appendChild(copyButton);
-            pre.classList.add('copy-button-added');
-        });
-    }
-    
-    // Initialize on load
-    function init() {
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initCopyButtons);
-        } else {
-            initCopyButtons();
+    function addCopyButtons() {
+        if (!document.body) {
+            return;
         }
         
-        // Re-initialize after dynamic content loads (for SvelteKit navigation)
-        setTimeout(initCopyButtons, 300);
+        var codeBlocks = document.querySelectorAll('pre code');
+        
+        if (codeBlocks.length === 0) {
+            return;
+        }
+        
+        for (var i = 0; i < codeBlocks.length; i++) {
+            var codeBlock = codeBlocks[i];
+            var pre = codeBlock.parentElement;
+            
+            // Skip if already has button or invalid parent
+            if (!pre || !codeBlock || pre.querySelector('.copy-code-button')) {
+                continue;
+            }
+            
+            // Create button
+            var button = document.createElement('button');
+            button.className = 'copy-code-button';
+            button.setAttribute('aria-label', 'Copy code');
+            button.setAttribute('title', 'Copy code');
+            button.innerHTML = '📋';
+            
+            // Click handler (capture codeBlock in closure)
+            (function(cb, btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    var text = cb.textContent || '';
+                    var buttonEl = this;
+                
+                    // Try modern clipboard API
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(text).then(function() {
+                            buttonEl.innerHTML = '✓';
+                            buttonEl.classList.add('copied');
+                            setTimeout(function() {
+                                buttonEl.innerHTML = '📋';
+                                buttonEl.classList.remove('copied');
+                            }, 2000);
+                        }).catch(function(err) {
+                            console.error('Clipboard API failed:', err);
+                            // Fallback
+                            fallbackCopy(text, buttonEl);
+                        });
+                    } else {
+                        // Fallback
+                        fallbackCopy(text, buttonEl);
+                    }
+                });
+            })(codeBlock, button);
+            
+            // Make pre relative if needed
+            if (getComputedStyle(pre).position === 'static') {
+                pre.style.position = 'relative';
+            }
+            
+            pre.appendChild(button);
+        }
     }
     
-    // Also watch for mutations (for dynamically added content)
-    if (typeof MutationObserver !== 'undefined') {
-        const observer = new MutationObserver(() => {
-            initCopyButtons();
+    function fallbackCopy(text, button) {
+        var textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        textArea.style.left = '-9999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        
+        try {
+            if (document.execCommand('copy')) {
+                button.innerHTML = '✓';
+                button.classList.add('copied');
+                setTimeout(function() {
+                    button.innerHTML = '📋';
+                    button.classList.remove('copied');
+                }, 2000);
+            }
+        } catch (err) {
+            console.error('Copy failed:', err);
+        }
+        
+        document.body.removeChild(textArea);
+    }
+    
+    // Initialize
+    function init() {
+        if (!document.body) {
+            return;
+        }
+        try {
+            addCopyButtons();
+        } catch (err) {
+            console.error('Error adding copy buttons:', err);
+        }
+    }
+    
+    // Run on load
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            init();
+            setTimeout(init, 300);
+            setTimeout(init, 800);
+            setTimeout(init, 1500);
+        });
+    } else {
+        init();
+        setTimeout(init, 100);
+        setTimeout(init, 300);
+        setTimeout(init, 800);
+        setTimeout(init, 1500);
+    }
+    
+    // Also listen for SvelteKit navigation
+    if (typeof window !== 'undefined') {
+        window.addEventListener('load', function() {
+            setTimeout(init, 500);
+            setTimeout(init, 1000);
         });
         
+        // Listen for navigation events
+        document.addEventListener('sveltekit:navigation-end', function() {
+            setTimeout(init, 100);
+            setTimeout(init, 300);
+            setTimeout(init, 600);
+            setTimeout(init, 1000);
+        });
+        
+        // Also listen for popstate (back/forward)
+        window.addEventListener('popstate', function() {
+            setTimeout(init, 200);
+            setTimeout(init, 600);
+        });
+    }
+    
+    // Watch for new content (only if body exists)
+    if (typeof MutationObserver !== 'undefined' && document.body) {
+        var observer = new MutationObserver(function() {
+            setTimeout(init, 100);
+        });
         observer.observe(document.body, {
             childList: true,
             subtree: true
         });
+    } else if (typeof MutationObserver !== 'undefined') {
+        // Wait for body to be available
+        var checkBody = setInterval(function() {
+            if (document.body) {
+                clearInterval(checkBody);
+                var observer = new MutationObserver(function() {
+                    setTimeout(init, 100);
+                });
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
+            }
+        }, 100);
+        
+        // Stop checking after 5 seconds
+        setTimeout(function() {
+            clearInterval(checkBody);
+        }, 5000);
     }
-    
-    init();
 })();
