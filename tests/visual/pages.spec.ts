@@ -59,8 +59,24 @@ async function checkLayout(page: Page) {
 	expect(libertinus, 'Libertinus loaded').toBe(true);
 }
 
-const shot = (page: Page, info: TestInfo, name: string) =>
-	page.screenshot({ path: `shots/${info.project.name}/${name}.png`, fullPage: true });
+// Chromium can't capture a page taller than about 16,000 device pixels in one go, so a long post
+// (the Boston 311 one, on a phone) is saved in parts: name.png, name-2.png, ...
+const MAX_CAPTURE_PX = 14000;
+async function shot(page: Page, info: TestInfo, name: string) {
+	const { height, width, dpr } = await page.evaluate(() => ({
+		height: document.documentElement.scrollHeight,
+		width: document.documentElement.clientWidth,
+		dpr: devicePixelRatio
+	}));
+	const part = Math.floor(MAX_CAPTURE_PX / dpr);
+	for (let y = 0, i = 1; y < height; y += part, i++) {
+		await page.screenshot({
+			path: `shots/${info.project.name}/${name}${i > 1 ? `-${i}` : ''}.png`,
+			fullPage: true,
+			clip: { x: 0, y, width, height: Math.min(part, height - y) }
+		});
+	}
+}
 
 for (const theme of THEMES) {
 	for (const route of ROUTES) {

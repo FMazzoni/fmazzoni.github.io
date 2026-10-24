@@ -9,6 +9,8 @@
 :root {
 	--bg: #141516; --ink: #e7e4dd; --muted: #a29e96; --link: #9dc4f2; --line: #2b2d31;
 	--matte: #0e1013; --code: #1a1b1e; --lat: #3c434c; --latmaj: #56606c; --path: #9dc4f2; --home: #e7e4dd;
+	/* Code colours, each at least 4.5:1 on --code. */
+	--c-keyword: #9dc4f2; --c-string: #a8cc8c; --c-number: #e2b07a; --c-type: #c9a9ec; --c-function: #86d2c4; --c-comment: #9a968e;
 	--serif: 'Libertinus Web', 'Libertinus Serif', 'Linux Libertine O', 'DejaVu Serif', serif;
 	--mono: 'NCM Mono Web', 'Latin Modern Mono', 'DejaVu Sans Mono', monospace;
 	--measure: 31em;
@@ -22,12 +24,14 @@
 	:root:not([data-theme='dark']) {
 		--bg: #fbfbf9; --ink: #191919; --muted: #595955; --link: #1e4e9c; --line: #dcdcd7;
 		--code: #f1f1ee; --lat: #cdd3d9; --latmaj: #a9b3bd; --path: #1e4e9c; --home: #191919;
+		--c-keyword: #1e4e9c; --c-string: #3b6a1f; --c-number: #9a520c; --c-type: #6a3e9e; --c-function: #1a6a61; --c-comment: #62625c;
 		color-scheme: light;
 	}
 }
 :root[data-theme='light'] {
 	--bg: #fbfbf9; --ink: #191919; --muted: #595955; --link: #1e4e9c; --line: #dcdcd7;
 	--code: #f1f1ee; --lat: #cdd3d9; --latmaj: #a9b3bd; --path: #1e4e9c; --home: #191919;
+	--c-keyword: #1e4e9c; --c-string: #3b6a1f; --c-number: #9a520c; --c-type: #6a3e9e; --c-function: #1a6a61; --c-comment: #62625c;
 	color-scheme: light;
 }
 
@@ -102,15 +106,21 @@ ul.dated .excerpt, ul.dated .by { display: block; color: var(--muted); font-size
 ul.dated.papers li { grid-template-columns: 4rem minmax(0, 1fr); padding-block: 12px; }
 
 /* Posts */
+/* A post is one centred reading column; embeds and code may run wider than the text, centred on it. */
 article.post { margin-bottom: 104px; }
-article.post header { padding-block: 64px 30px; max-width: var(--measure); }
+article.post header { padding-block: 64px 30px; max-width: var(--measure); margin-inline: auto; }
 article.post h1 { font-weight: 400; font-size: clamp(1.65rem, 1.3rem + 1vw, 2.1rem); line-height: 1.2; margin: 0 0 6px; text-wrap: balance; }
 article.post .byline { color: var(--muted); margin: 0; }
-.post-body { max-width: 60rem; }
-/* Text keeps the reading measure; embeds and code may run wider, up to the page's figure width. */
-.post-body > :not(.iframe-container, pre, table) { max-width: var(--measure); }
+/* One centre column at the reading measure, sized from the post's text, so headings and paragraphs
+   share an edge; embeds, code and tables span the wider figure width around it. */
+.post-body {
+	display: grid; max-width: 60rem; margin-inline: auto;
+	grid-template-columns: 1fr min(var(--measure), 100%) 1fr;
+}
+.post-body > * { grid-column: 2; min-width: 0; }
+.post-body > .iframe-container, .post-body > .embed-still { grid-column: 1 / -1; }
+.post-body > pre, .post-body > table { grid-column: 1 / -1; width: min(46rem, 100%); justify-self: center; }
 .post-body > :first-child { margin-top: 0; }
-.post-body > pre { max-width: 46rem; }
 .post-body h2 { font-size: 1.2rem; font-weight: 700; margin: 40px 0 10px; }
 .post-body h3 { font-size: 1.05rem; font-weight: 700; margin: 30px 0 8px; }
 .post-body p, .post-body li { text-wrap: pretty; }
@@ -134,10 +144,19 @@ article.post .byline { color: var(--muted); margin: 0; }
 pre { background: var(--code); padding: 16px 18px; overflow-x: auto; font: 15px/1.55 var(--mono); border: 1px solid var(--line); margin: 18px 0; }
 code { font-family: var(--mono); font-size: 0.88em; }
 pre code { font-size: inherit; }
-.hljs-comment, .hljs-quote { color: var(--muted); font-style: italic; }
-.hljs-keyword, .hljs-built_in, .hljs-literal, .hljs-selector-tag { color: var(--link); }
-.hljs-string, .hljs-number { color: var(--ink); }
-.post-nav { display: flex; justify-content: space-between; gap: 22px; flex-wrap: wrap; max-width: var(--measure); border-top: 1px solid var(--line); padding-top: 18px; margin-top: 40px; font-size: 0.95rem; }
+.hljs-comment, .hljs-quote { color: var(--c-comment); font-style: italic; }
+.hljs-keyword, .hljs-selector-tag, .hljs-meta .hljs-keyword { color: var(--c-keyword); }
+.hljs-string, .hljs-regexp, .hljs-template-tag, .hljs-addition { color: var(--c-string); }
+.hljs-number, .hljs-literal, .hljs-symbol, .hljs-deletion { color: var(--c-number); }
+.hljs-built_in, .hljs-type, .hljs-class .hljs-title, .hljs-title.class_ { color: var(--c-type); }
+.hljs-title, .hljs-title.function_, .hljs-function .hljs-title, .hljs-section { color: var(--c-function); }
+.hljs-attr, .hljs-attribute, .hljs-variable, .hljs-params { color: var(--ink); }
+.hljs-meta { color: var(--c-comment); }
+.post-nav { display: flex; justify-content: space-between; gap: 22px; flex-wrap: wrap; max-width: var(--measure); border-top: 1px solid var(--line); padding-top: 18px; margin: 40px auto 0; font-size: 0.95rem; }
+/* On laptops and wider, posts set a size up: the column fills more of the screen at the same line length. */
+@media (min-width: 1100px) {
+	article.post { font-size: 21.5px; }
+}
 
 /* About: the point-cloud scene. Its matte stays dark in both themes. */
 .scene { margin: 0 0 96px; max-width: 960px; }
