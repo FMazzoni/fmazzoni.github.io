@@ -1,5 +1,8 @@
 import adapter from '@sveltejs/adapter-static';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+import otherSites from './src/lib/config/other-sites.json' with { type: 'json' };
+
+const otherSite = new RegExp(`^/(${otherSites.join('|')})(/|$)`);
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -17,9 +20,8 @@ const config = {
 		prerender: {
 			entries: ['*'],
 			handleHttpError: ({ path, message }) => {
-				// The project sites under /geoid-globe/, /divisor-invariant/ and /quipu/ are other repos'
-				// GitHub Pages, so links to them don't resolve inside this build.
-				if (/^\/(geoid-globe|divisor-invariant|quipu)(\/|$)/.test(path)) return;
+				// Other repos' GitHub Pages sites live under these paths, so links to them don't resolve here.
+				if (otherSite.test(path)) return;
 				throw new Error(message);
 			}
 		}

@@ -4,6 +4,7 @@ import matter from 'gray-matter';
 import { Marked } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 import hljs from 'highlight.js/lib/common';
+import { isOtherSite } from '$lib/config/site';
 
 // Markdown becomes HTML here, once, at build time; templates only render the fields this returns.
 const markdown = new Marked(
@@ -16,6 +17,17 @@ const markdown = new Marked(
 		}
 	})
 );
+
+// Links to the project sites other repos serve on this domain must load those pages, not route here.
+markdown.use({
+	renderer: {
+		link({ href, title, tokens }) {
+			if (!isOtherSite(href)) return false;
+			const titleAttr = title ? ` title="${title}"` : '';
+			return `<a href="${href}"${titleAttr} data-sveltekit-reload>${this.parser.parseInline(tokens)}</a>`;
+		}
+	}
+});
 
 const render = (source: string): string => markdown.parse(source) as string;
 

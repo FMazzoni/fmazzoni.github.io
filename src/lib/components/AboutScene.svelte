@@ -51,7 +51,7 @@
 		</li>
 		<li>
 			<img src="/about-scene/stills/4.webp" width="600" height="375" loading="lazy" decoding="async" alt="A lumpy globe of dots coloured from blue for low to red for high" />
-			<p class="c"><b>2025. The geoid.</b> Earth’s geoid from the EGM2008 gravity model, with its height exaggerated 5,000 times. It runs from 106&#8239;m below the ellipsoid south of India (blue) to 87&#8239;m above it near New Guinea (red). <a href="/geoid-globe/">geoid-globe</a></p>
+			<p class="c"><b>2025. The geoid.</b> Earth’s geoid from the EGM2008 gravity model, with its height exaggerated 5,000 times. It runs from 106&#8239;m below the ellipsoid south of India (blue) to 87&#8239;m above it near New Guinea (red). <a href="/geoid-globe/" data-sveltekit-reload>geoid-globe</a></p>
 		</li>
 		<li>
 			<img src="/about-scene/stills/5.webp" width="600" height="375" loading="lazy" decoding="async" alt="Four small robots made of dots walking out on separate lanes from one line, one stopped with a question mark" />

@@ -106,7 +106,11 @@ article.post { margin-bottom: 104px; }
 article.post header { padding-block: 64px 30px; max-width: var(--measure); }
 article.post h1 { font-weight: 400; font-size: clamp(1.65rem, 1.3rem + 1vw, 2.1rem); line-height: 1.2; margin: 0 0 6px; text-wrap: balance; }
 article.post .byline { color: var(--muted); margin: 0; }
-.post-body { max-width: var(--measure); }
+.post-body { max-width: 60rem; }
+/* Text keeps the reading measure; embeds and code may run wider, up to the page's figure width. */
+.post-body > :not(.iframe-container, pre, table) { max-width: var(--measure); }
+.post-body > :first-child { margin-top: 0; }
+.post-body > pre { max-width: 46rem; }
 .post-body h2 { font-size: 1.2rem; font-weight: 700; margin: 40px 0 10px; }
 .post-body h3 { font-size: 1.05rem; font-weight: 700; margin: 30px 0 8px; }
 .post-body p, .post-body li { text-wrap: pretty; }
@@ -118,8 +122,12 @@ article.post .byline { color: var(--muted); margin: 0; }
 .post-body li { margin-bottom: 4px; }
 .post-body blockquote { margin: 0 0 14px; padding-left: 16px; border-left: 1px solid var(--line); color: var(--muted); }
 .post-body img { display: block; height: auto; background: var(--matte); margin: 26px 0 10px; }
-.post-body .iframe-container { position: relative; aspect-ratio: 16 / 10; background: var(--matte); margin: 26px 0 10px; }
+.post-body .iframe-container { position: relative; aspect-ratio: 16 / 10; background: var(--matte); margin: 30px 0 12px; }
 .post-body .iframe-container iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+/* A still that links to an embedded app, shown instead of the embed where the app doesn't fit. */
+.post-body > .embed-still { display: none; margin: 30px 0 12px; }
+.post-body > .embed-still img { margin: 0; width: 100%; }
+.post-body > .embed-still span { display: block; margin-top: 8px; font-size: 0.95rem; }
 .post-body table { border-collapse: collapse; font-size: 0.9rem; margin: 0 0 14px; display: block; overflow-x: auto; }
 .post-body th, .post-body td { text-align: left; padding: 6px 12px 6px 0; border-bottom: 1px solid var(--line); }
 .post-body hr { border: 0; border-top: 1px solid var(--line); margin: 30px 0; }
@@ -173,6 +181,11 @@ pre code { font-size: inherit; }
 	ul.dated li, ul.dated.papers li { grid-template-columns: minmax(0, 1fr); gap: 0; }
 	article.post header { padding-block: 40px 22px; }
 	.post-body p { text-align: left; hyphens: manual; -webkit-hyphens: manual; }
+	/* Embedded apps carry their own controls, which cover the subject on a phone; where a post
+	   offers a still instead, show that (a hidden lazy iframe never loads). */
+	.post-body .iframe-container { aspect-ratio: 4 / 5; }
+	.post-body > .iframe-container.has-still { display: none; }
+	.post-body > .embed-still { display: block; }
 	.pane .tag { font-size: 0.75rem; }
 	.lost { padding-block: 40px 64px; }
 }

@@ -103,3 +103,14 @@ for (const theme of THEMES) {
 		expect(problems.filter((p) => !p.includes('/no-such-page'))).toEqual([]);
 	});
 }
+
+// Other repos serve /geoid-globe/ and the like on this domain. A link there has to make the browser
+// load that page; if SvelteKit's router took it, visitors would get this site's 404 instead.
+test('links to project sites leave the app', async ({ page }) => {
+	await page.goto('/', { waitUntil: 'networkidle' });
+	const link = page.locator('a[href="/geoid-globe/"]').first();
+	await expect(link).toHaveAttribute('data-sveltekit-reload');
+	const documentRequest = page.waitForRequest((r) => r.url().endsWith('/geoid-globe/') && r.resourceType() === 'document');
+	await link.click();
+	await documentRequest;
+});

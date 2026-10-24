@@ -1,7 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <!-- Terminal prompt - Red circle, variant 1: closer together -->
-  <rect x="10" y="10" width="80" height="80" rx="8" fill="#0d1117"/>
-  <rect x="15" y="15" width="70" height="70" rx="4" fill="#161b22"/>
-  <text x="28" y="58" font-family="monospace" font-size="28" fill="#58a6ff">&gt;</text>
-  <circle cx="65" cy="50" r="7" fill="#f85149"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- A short random walk on a lattice that wanders and comes back home (the dot). -->
+  <rect width="32" height="32" rx="7" fill="#0E1013"/>
+  <polyline points="11,21 16,21 16,25 21,25 21,16 25,16 25,7 17,7 17,12 11,12 7,12 7,21 11,21" fill="none" stroke="#9DC4F2" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="11" cy="21" r="2.6" fill="#E7E4DD"/>
 </svg>

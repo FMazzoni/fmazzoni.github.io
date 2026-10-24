@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Project } from '$lib/config/projects';
+	import { isOtherSite } from '$lib/config/site';
 
 	let { project }: { project: Project } = $props();
 
@@ -28,7 +29,7 @@
 		{#if project.subcaption}<span class="subcap">{project.subcaption}</span>{/if}
 		<div class="links">
 			{#each project.links as link (link.href)}
-				<a href={link.href}>{link.label}</a>
+				<a href={link.href} data-sveltekit-reload={isOtherSite(link.href) || undefined}>{link.label}</a>
 			{/each}
 		</div>
 	</div>

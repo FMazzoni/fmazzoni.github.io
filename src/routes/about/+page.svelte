@@ -2,11 +2,12 @@
 	import Seo from '$lib/components/Seo.svelte';
 	import AboutScene from '$lib/components/AboutScene.svelte';
 	import { papers } from '$lib/config/papers';
+	import { site } from '$lib/config/site';
 
 	let { data } = $props();
 </script>
 
-<Seo title="About" description="Fernando works on machine learning and data engineering, after research in physics on X-ray astronomy, LiDAR and agent search." />
+<Seo title="About" description="{site.name} works on machine learning and data engineering, after research in physics on X-ray astronomy, LiDAR and agent search." />
 
 <section class="intro">
 	<h1>About</h1>

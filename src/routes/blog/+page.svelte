@@ -1,11 +1,12 @@
 <script lang="ts">
 	import Seo from '$lib/components/Seo.svelte';
 	import { shortDate } from '$lib/utils/dates';
+	import { site } from '$lib/config/site';
 
 	let { data } = $props();
 </script>
 
-<Seo title="Writing" description="Posts by Fernando on geospatial data, visualization and the tools he builds." />
+<Seo title="Writing" description="Posts by {site.name} on geospatial data, visualization and tools for AI agents." />
 
 <section class="intro">
 	<h1>Writing</h1>

@@ -1,3 +1,5 @@
+import otherSites from './other-sites.json';
+
 // The site's identity, in one place: components read it from here instead of repeating it.
 export const site = {
 	name: 'Fernando',
@@ -15,3 +17,10 @@ export const nav = [
 	{ title: 'Writing', href: '/blog' },
 	{ title: 'About', href: '/about' }
 ] as const;
+
+/**
+ * Paths on this domain that other repos' GitHub Pages serve (/geoid-globe/ and so on). SvelteKit's
+ * router would render its own 404 for them, so links there must make the browser load the page.
+ */
+const otherSite = new RegExp(`^(https://fmazzoni\\.github\\.io)?/(${otherSites.join('|')})(/|$|\\?)`);
+export const isOtherSite = (href: string): boolean => otherSite.test(href);

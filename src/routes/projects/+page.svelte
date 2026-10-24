@@ -2,12 +2,13 @@
 	import Seo from '$lib/components/Seo.svelte';
 	import ProjectFigure from '$lib/components/ProjectFigure.svelte';
 	import { projects } from '$lib/config/projects';
+	import { isOtherSite, site } from '$lib/config/site';
 
 	const featured = projects.filter((p) => p.featured);
 	const more = projects.filter((p) => !p.featured);
 </script>
 
-<Seo title="Projects" description="Things Fernando has built: tools for AI agents, geospatial visualizations and data pipelines." />
+<Seo title="Projects" description="Things {site.name} has built: tools for AI agents, geospatial visualizations and data pipelines." />
 
 <section class="intro">
 	<h1>Projects</h1>
@@ -29,7 +30,7 @@
 					<b>{project.name}.</b>
 					{project.summary}
 					<span class="inline-links">
-						{#each project.links as link (link.href)}<a href={link.href}>{link.label}</a>{/each}
+						{#each project.links as link (link.href)}<a href={link.href} data-sveltekit-reload={isOtherSite(link.href) || undefined}>{link.label}</a>{/each}
 					</span>
 				</p>
 			</li>

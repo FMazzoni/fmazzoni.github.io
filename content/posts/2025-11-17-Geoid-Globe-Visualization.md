@@ -14,7 +14,7 @@ Why does this matter? When your GPS gives you a height, it's measuring distance 
 
 **Try the interactive visualization below**—you can rotate, zoom, and adjust the deformation to see how Earth's gravity field shapes this fundamental reference surface:
 
-<div class="iframe-container">
+<div class="iframe-container has-still">
 <iframe
  src="https://fmazzoni.github.io/geoid-globe/?deformation=30&colormap=turbo&brightness=0.5&wireframes=true"
  title="Interactive 3D globe of Earth's geoid"
@@ -22,6 +22,7 @@ Why does this matter? When your GPS gives you a height, it's measuring distance 
  allowfullscreen
 ></iframe>
 </div>
+<a class="embed-still" href="https://fmazzoni.github.io/geoid-globe/?deformation=30&colormap=turbo&brightness=0.5&wireframes=true" data-sveltekit-reload><img src="/images/posts/geoid-figure.webp" alt="The geoid as a deformed globe, coloured from −106 m to +85 m" width="1240" height="775" loading="lazy"><span>Open the interactive globe</span></a>
 
 *The visualization shows geoid undulation from -106 meters (blue) to +85 meters (red), with the sphere deformed to exaggerate the variations. Use the controls to adjust deformation, rotation speed, and colormap. [View full screen](https://fmazzoni.github.io/geoid-globe/?deformation=30&colormap=turbo&brightness=0.5&wireframes=true)*
 
