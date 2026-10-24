@@ -39,9 +39,8 @@
 	"dependencies": {
 		"date-fns": "^4.1.0",
 		"gray-matter": "^4.0.3",
-		"highlight.js": "11.11.1",
 		"marked": "^17.0.1",
-		"marked-highlight": "2.2.3"
+		"shiki": "4.5.0"
 	},
 	"engines": {
 		"node": ">=18.0.0",

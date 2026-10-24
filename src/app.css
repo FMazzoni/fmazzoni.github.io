@@ -144,14 +144,15 @@ article.post .byline { color: var(--muted); margin: 0; }
 pre { background: var(--code); padding: 16px 18px; overflow-x: auto; font: 15px/1.55 var(--mono); border: 1px solid var(--line); margin: 18px 0; }
 code { font-family: var(--mono); font-size: 0.88em; }
 pre code { font-size: inherit; }
-.hljs-comment, .hljs-quote { color: var(--c-comment); font-style: italic; }
-.hljs-keyword, .hljs-selector-tag, .hljs-meta .hljs-keyword { color: var(--c-keyword); }
-.hljs-string, .hljs-regexp, .hljs-template-tag, .hljs-addition { color: var(--c-string); }
-.hljs-number, .hljs-literal, .hljs-symbol, .hljs-deletion { color: var(--c-number); }
-.hljs-built_in, .hljs-type, .hljs-class .hljs-title, .hljs-title.class_ { color: var(--c-type); }
-.hljs-title, .hljs-title.function_, .hljs-function .hljs-title, .hljs-section { color: var(--c-function); }
-.hljs-attr, .hljs-attribute, .hljs-variable, .hljs-params { color: var(--ink); }
-.hljs-meta { color: var(--c-comment); }
+/* Shiki writes each token's colour as one of these variables; they follow the theme through --c-*. */
+:root {
+	--shiki-foreground: var(--ink); --shiki-background: var(--code);
+	--shiki-token-keyword: var(--c-keyword); --shiki-token-comment: var(--c-comment);
+	--shiki-token-string: var(--c-string); --shiki-token-string-expression: var(--c-string);
+	--shiki-token-constant: var(--c-number); --shiki-token-function: var(--c-function);
+	--shiki-token-parameter: var(--c-type); --shiki-token-punctuation: var(--muted); --shiki-token-link: var(--link);
+}
+.shiki span[style*='--shiki-token-comment'] { font-style: italic; }
 .post-nav { display: flex; justify-content: space-between; gap: 22px; flex-wrap: wrap; max-width: var(--measure); border-top: 1px solid var(--line); padding-top: 18px; margin: 40px auto 0; font-size: 0.95rem; }
 /* On laptops and wider, posts set a size up: the column fills more of the screen at the same line length. */
 @media (min-width: 1100px) {

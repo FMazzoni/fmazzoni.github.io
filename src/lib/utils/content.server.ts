@@ -2,25 +2,46 @@ import fs from 'node:fs';
 import path from 'node:path';
 import matter from 'gray-matter';
 import { Marked } from 'marked';
-import { markedHighlight } from 'marked-highlight';
-import hljs from 'highlight.js/lib/common';
+import { createCssVariablesTheme, createHighlighterCoreSync } from 'shiki/core';
+import { createJavaScriptRegexEngine } from 'shiki/engine/javascript';
+import bash from 'shiki/langs/bash.mjs';
+import docker from 'shiki/langs/docker.mjs';
+import javascript from 'shiki/langs/javascript.mjs';
+import json from 'shiki/langs/json.mjs';
+import python from 'shiki/langs/python.mjs';
+import rust from 'shiki/langs/rust.mjs';
+import sql from 'shiki/langs/sql.mjs';
+import toml from 'shiki/langs/toml.mjs';
+import typescript from 'shiki/langs/typescript.mjs';
+import yaml from 'shiki/langs/yaml.mjs';
 import { isOtherSite } from '$lib/config/site';
 
-// Markdown becomes HTML here, once, at build time; templates only render the fields this returns.
-const markdown = new Marked(
-	{ async: false, gfm: true },
-	markedHighlight({
-		langPrefix: 'hljs language-',
-		highlight(code, lang) {
-			const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-			return hljs.highlight(code, { language }).value;
-		}
-	})
-);
+// Code is highlighted at build time with Shiki (VS Code's grammars). The theme emits CSS variables,
+// so app.css sets the colours for both themes; pages ship no highlighting script.
+const theme = createCssVariablesTheme({ name: 'site', variablePrefix: '--shiki-' });
+const highlighter = createHighlighterCoreSync({
+	themes: [theme],
+	langs: [bash, docker, javascript, json, python, rust, sql, toml, typescript, yaml],
+	engine: createJavaScriptRegexEngine()
+});
+const aliases: Record<string, string> = { dockerfile: 'docker', sh: 'bash', shell: 'bash', js: 'javascript', ts: 'typescript', py: 'python', yml: 'yaml' };
 
-// Links to the project sites other repos serve on this domain must load those pages, not route here.
+function highlight(code: string, lang: string | undefined): string {
+	const name = aliases[lang ?? ''] ?? lang ?? '';
+	const known = highlighter.getLoadedLanguages().includes(name);
+	return highlighter.codeToHtml(code, { lang: known ? name : 'text', theme: 'site' });
+}
+
+// Markdown becomes HTML here, once, at build time; templates only render the fields this returns.
+const markdown = new Marked({ async: false, gfm: true });
+
+// Code blocks go through Shiki. Links to the project sites other repos serve on this domain must
+// load those pages, not route here.
 markdown.use({
 	renderer: {
+		code({ text, lang }) {
+			return highlight(text, lang?.split(/\s/)[0]);
+		},
 		link({ href, title, tokens }) {
 			if (!isOtherSite(href)) return false;
 			const titleAttr = title ? ` title="${title}"` : '';
