@@ -18,7 +18,8 @@ The result is a basic geospatial dashboard using DuckDB for data queries, Panel 
 <div class="iframe-container">
 <iframe
  src="https://fmazzoni-boston311.hf.space"
- frameborder="0"
+ title="Boston 311 service requests dashboard"
+ loading="lazy"
  allowfullscreen
 ></iframe>
 </div>

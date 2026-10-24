@@ -1,27 +1,17 @@
-export const siteConfig = {
-	name: 'blog',
-	author: 'fmaz',
-	email: '',
+// The site's identity, in one place: components read it from here instead of repeating it.
+export const site = {
+	name: 'Fernando',
 	url: 'https://fmazzoni.github.io',
-	timezone: 'America/New_York',
-	defaultLang: 'en',
-
+	intro: 'Hi, I’m Fernando. I work on machine learning and data engineering.',
+	description: 'Fernando’s projects and writing on machine learning, data engineering and physics.',
 	social: [
-		{ name: 'GitHub', url: 'https://github.com/FMazzoni', icon: 'fab fa-github' },
-		{
-			name: 'LinkedIn',
-			url: 'https://www.linkedin.com/in/fernando-mazzoni',
-			icon: 'fab fa-linkedin'
-		}
-	],
+		{ name: 'GitHub', url: 'https://github.com/FMazzoni' },
+		{ name: 'LinkedIn', url: 'https://www.linkedin.com/in/fernando-mazzoni' }
+	]
+} as const;
 
-	links: [
-		{ title: 'Python', url: 'https://www.python.org/' },
-		{ title: 'Pelican', url: 'https://getpelican.com/' },
-		{ title: 'Jinja2', url: 'https://palletsprojects.com/p/jinja/' }
-	],
-
-	pagination: {
-		postsPerPage: 10
-	}
-};
+export const nav = [
+	{ title: 'Projects', href: '/projects' },
+	{ title: 'Writing', href: '/blog' },
+	{ title: 'About', href: '/about' }
+] as const;

@@ -1,44 +1,105 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Page, type TestInfo } from '@playwright/test';
 
-// Every page the site serves, checked in both themes. Add a route here when the site gains one.
-const ROUTES = ['/', '/blog', '/about', '/Geoid-Globe-Visualization', '/Boston311-Dashboard'];
-const THEMES = ['dark', 'light'] as const;
+// Visual loop: every page in each theme, at the sizes the config's projects set (desktop, phone).
+// Screenshots go to shots/<project>/; look at them after any visual change. Dark is the default;
+// THEMES=dark,light adds the light theme.
+const ROUTES = ['/', '/projects', '/blog', '/about', '/Geoid-Globe-Visualization', '/Boston311-Dashboard'];
+const THEMES = (process.env.THEMES ?? 'dark').split(',') as ('dark' | 'light')[];
 
-function slugOf(route: string): string {
-	return route === '/' ? 'home' : route.replace(/^\//, '').replace(/\//g, '_');
+const slugOf = (route: string) => (route === '/' ? 'home' : route.slice(1).replace(/\//g, '_'));
+
+/** Problems the page itself causes. Third-party embeds (the Hugging Face iframe) are not counted. */
+function collectProblems(page: Page): string[] {
+	const problems: string[] = [];
+	const ours = (url: string) => url.startsWith('http://127.0.0.1');
+	page.on('pageerror', (e) => problems.push(`error: ${e.message}`));
+	page.on('console', (m) => {
+		if (m.type() === 'error' && ours(m.location().url)) problems.push(`console: ${m.text()} (${m.location().url})`);
+	});
+	page.on('requestfailed', (r) => {
+		if (ours(r.url())) problems.push(`failed: ${r.url()}`);
+	});
+	return problems;
 }
 
-async function openInTheme(page: Page, route: string, theme: (typeof THEMES)[number]) {
-	await page.addInitScript((t) => localStorage.setItem('blog-theme', t), theme);
-	await page.goto(route, { waitUntil: 'networkidle' });
+async function open(page: Page, route: string, theme: 'dark' | 'light') {
+	// The loop checks this site, not the apps embedded in posts (a live WebGL globe, a Hugging Face
+	// space), which make headless runs slow and flaky; their frames stay empty here.
+	await page.route(/^https?:\/\/(?!127\.0\.0\.1)/, (r) => r.abort());
+	await page.addInitScript((t) => {
+		// Init scripts also run in the blocked embeds' frames, where storage is denied.
+		if (window !== window.top) return;
+		localStorage.setItem('theme', t);
+	}, theme);
+	return page.goto(route, { waitUntil: 'networkidle' });
 }
 
-for (const route of ROUTES) {
-	for (const theme of THEMES) {
+/** Scroll through the page so lazy images load, then return to the top. */
+async function loadEverything(page: Page) {
+	await page.evaluate(async () => {
+		for (let y = 0; y < document.body.scrollHeight; y += 500) {
+			scrollTo(0, y);
+			await new Promise((r) => setTimeout(r, 60));
+		}
+		scrollTo(0, 0);
+	});
+	// Lazy images may still be in flight after the scroll; load them all and wait until each has
+	// settled (a broken one also counts as complete, and checkLayout then reports it).
+	await page.evaluate(() => document.querySelectorAll('img').forEach((i) => (i.loading = 'eager')));
+	await page.waitForFunction(() => [...document.images].every((i) => i.complete), null, { timeout: 15000 });
+	await page.evaluate(() => document.fonts.ready);
+}
+
+async function checkLayout(page: Page) {
+	const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+	expect(overflow, 'page scrolls sideways').toBeLessThanOrEqual(0);
+	const broken = await page.$$eval('img', (imgs) => imgs.filter((i) => !i.complete || i.naturalWidth === 0).map((i) => i.src));
+	expect(broken, 'broken images').toEqual([]);
+	const libertinus = await page.evaluate(() => document.fonts.check('16px "Libertinus Web"'));
+	expect(libertinus, 'Libertinus loaded').toBe(true);
+}
+
+const shot = (page: Page, info: TestInfo, name: string) =>
+	page.screenshot({ path: `shots/${info.project.name}/${name}.png`, fullPage: true });
+
+for (const theme of THEMES) {
+	for (const route of ROUTES) {
 		test(`${route} (${theme})`, async ({ page }, info) => {
-			const errors: string[] = [];
-			page.on('pageerror', (e) => errors.push(e.message));
-			page.on('console', (m) => m.type() === 'error' && errors.push(m.text()));
-
-			await openInTheme(page, route, theme);
-			await page.screenshot({
-				path: `shots/${info.project.name}/${slugOf(route)}-${theme}.png`,
-				fullPage: true
-			});
-
-			// No sideways scroll at any width.
-			const overflow = await page.evaluate(
-				() => document.documentElement.scrollWidth - document.documentElement.clientWidth
-			);
-			expect(overflow, 'page scrolls sideways').toBeLessThanOrEqual(0);
-
-			// Every image loaded.
-			const broken = await page.$$eval('img', (imgs) =>
-				imgs.filter((i) => !i.complete || i.naturalWidth === 0).map((i) => i.src)
-			);
-			expect(broken, 'broken images').toEqual([]);
-
-			expect(errors, 'console errors').toEqual([]);
+			const problems = collectProblems(page);
+			const response = await open(page, route, theme);
+			expect(response?.status()).toBe(200);
+			await loadEverything(page);
+			await checkLayout(page);
+			await shot(page, info, `${slugOf(route)}-${theme}`);
+			expect(problems).toEqual([]);
 		});
 	}
+
+	test(`about scene, all stages (${theme})`, async ({ page }, info) => {
+		const problems = collectProblems(page);
+		await open(page, '/about', theme);
+		const figure = page.locator('figure.scene');
+		await figure.scrollIntoViewIfNeeded();
+		await expect(figure).toHaveAttribute('data-ready', '1', { timeout: 10000 });
+		for (let stage = 1; stage <= 5; stage++) {
+			if (stage > 1) await figure.locator('button.next').click();
+			await page.waitForTimeout(stage === 5 ? 9000 : 3000);
+			await figure.screenshot({ path: `shots/${info.project.name}/about-stage${stage}-${theme}.png` });
+		}
+		await expect(figure.locator('button.next')).toBeDisabled();
+		expect(problems).toEqual([]);
+	});
+
+	test(`404 walk (${theme})`, async ({ page }, info) => {
+		const problems = collectProblems(page);
+		await open(page, '/no-such-page', theme);
+		await expect(page.locator('h1')).toHaveText('This page wandered off.');
+		await page.waitForTimeout(1000);
+		await shot(page, info, `404-running-${theme}`);
+		await expect(page.locator('button.again')).toBeEnabled({ timeout: 20000 });
+		await shot(page, info, `404-done-${theme}`);
+		await checkLayout(page);
+		// The document itself answers 404, which the browser logs; that is the point of the page.
+		expect(problems.filter((p) => !p.includes('/no-such-page'))).toEqual([]);
+	});
 }

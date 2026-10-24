@@ -17,7 +17,8 @@ Why does this matter? When your GPS gives you a height, it's measuring distance 
 <div class="iframe-container">
 <iframe
  src="https://fmazzoni.github.io/geoid-globe/?deformation=30&colormap=turbo&brightness=0.5&wireframes=true"
- frameborder="0"
+ title="Interactive 3D globe of Earth's geoid"
+ loading="lazy"
  allowfullscreen
 ></iframe>
 </div>

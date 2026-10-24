@@ -1,14 +1,10 @@
 <script lang="ts">
-	import { siteConfig } from '$lib/config/site';
-
-	const currentYear = new Date().getFullYear();
+	import { site } from '$lib/config/site';
 </script>
 
-<footer>
-	{#each siteConfig.social as social}
-		<a href={social.url}>
-			<i class={social.icon}></i> {social.name}
-		</a>
+<footer class="site">
+	{#each site.social as link (link.url)}
+		<a href={link.url}>{link.name}</a>
 	{/each}
-	<p>© {currentYear} {siteConfig.author}. All rights reserved.</p>
+	<a href="/rss.xml">RSS</a>
 </footer>

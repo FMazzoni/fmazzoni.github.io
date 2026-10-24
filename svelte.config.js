@@ -1,40 +1,25 @@
 import adapter from '@sveltejs/adapter-static';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
-import { mdsvex } from 'mdsvex';
-
-const dev = process.env.NODE_ENV === 'development';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-	extensions: ['.svelte', '.md', '.svx'],
-	preprocess: [
-		vitePreprocess(),
-		mdsvex({
-			extensions: ['.md', '.svx']
-		})
-	],
+	preprocess: vitePreprocess(),
 
 	kit: {
 		adapter: adapter({
 			pages: 'build',
 			assets: 'build',
-			fallback: undefined,
+			// GitHub Pages serves 404.html for unknown paths; the app renders the random-walk 404 there.
+			fallback: '404.html',
 			precompress: false,
 			strict: true
 		}),
-		paths: {
-			base: '',
-			relative: false
-		},
 		prerender: {
 			entries: ['*'],
-			handleHttpError: ({ path, referrer, message }) => {
-				// Ignore 404s for paths that don't match base path during prerender
-				// This can happen when base path is set for GitHub Pages
-				if (message.includes('does not begin with `base`')) {
-					return;
-				}
-				// Otherwise, throw the error
+			handleHttpError: ({ path, message }) => {
+				// The project sites under /geoid-globe/, /divisor-invariant/ and /quipu/ are other repos'
+				// GitHub Pages, so links to them don't resolve inside this build.
+				if (/^\/(geoid-globe|divisor-invariant|quipu)(\/|$)/.test(path)) return;
 				throw new Error(message);
 			}
 		}

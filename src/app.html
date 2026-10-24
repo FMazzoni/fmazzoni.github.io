@@ -4,17 +4,16 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="icon" href="%sveltekit.assets%/favicon.svg" type="image/svg+xml" />
-		<!-- Initialize theme immediately to prevent FOUC and ensure correct background -->
+		<link rel="preload" href="%sveltekit.assets%/fonts/libertinus-regular.woff2" as="font" type="font/woff2" crossorigin />
+		<link rel="preload" href="%sveltekit.assets%/fonts/libertinus-bold.woff2" as="font" type="font/woff2" crossorigin />
 		<script>
-			(function() {
-				try {
-					const theme = localStorage.getItem('blog-theme') || 'dark';
-					document.documentElement.setAttribute('data-theme', theme);
-				} catch (e) {
-					// Fallback to dark theme if localStorage is unavailable
-					document.documentElement.setAttribute('data-theme', 'dark');
-				}
-			})();
+			// Apply a saved theme before first paint; with none saved, the CSS follows the system setting.
+			try {
+				const theme = localStorage.getItem('theme');
+				if (theme === 'dark' || theme === 'light') document.documentElement.dataset.theme = theme;
+			} catch {
+				// Storage blocked: follow the system setting.
+			}
 		</script>
 		%sveltekit.head%
 	</head>

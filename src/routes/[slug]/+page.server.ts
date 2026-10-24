@@ -1,30 +1,15 @@
 import { error } from '@sveltejs/kit';
-import type { PageServerLoad } from './$types';
-import { getPostBySlug, getPosts } from '$lib/utils/content.server';
+import type { EntryGenerator, PageServerLoad } from './$types';
+import { getPost, getPosts } from '$lib/utils/content.server';
 
-export const load: PageServerLoad = async ({ params, url }) => {
-	const post = getPostBySlug(params.slug);
+export const entries: EntryGenerator = () => getPosts().map(({ slug }) => ({ slug }));
 
-	if (!post) {
-		throw error(404, 'Post not found');
-	}
+export const load: PageServerLoad = ({ params }) => {
+	const post = getPost(params.slug);
+	if (!post) error(404, 'Not found');
 
-	// Get all posts for navigation
-	const allPosts = getPosts();
-	const currentIndex = allPosts.findIndex((p) => p.slug === params.slug);
-	const nextPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
-	const prevPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null;
-
-	return {
-		post,
-		nextPost,
-		prevPost,
-		url: url.toString()
-	};
-};
-
-// Generate static paths for all posts
-export const entries = async () => {
 	const posts = getPosts();
-	return posts.map((post) => ({ slug: post.slug }));
+	const i = posts.findIndex((p) => p.slug === post.slug);
+	const link = (p: (typeof posts)[number] | undefined) => (p ? { slug: p.slug, title: p.title } : undefined);
+	return { post, newer: link(posts[i - 1]), older: link(posts[i + 1]) };
 };

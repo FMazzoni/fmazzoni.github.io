@@ -1,15 +1,6 @@
 import type { PageServerLoad } from './$types';
-import { getPageBySlug } from '$lib/utils/content.server';
-import { error } from '@sveltejs/kit';
+import { getPosts } from '$lib/utils/content.server';
 
-export const load: PageServerLoad = async () => {
-	const page = getPageBySlug('about');
-
-	if (!page) {
-		throw error(404, 'Page not found');
-	}
-
-	return {
-		page
-	};
-};
+export const load: PageServerLoad = () => ({
+	posts: getPosts().map(({ slug, title, date }) => ({ slug, title, date }))
+});

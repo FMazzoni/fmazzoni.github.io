@@ -1,88 +1,38 @@
-# Personal Blog
+# fmazzoni.github.io
 
-A modern personal blog and portfolio website built with [SvelteKit](https://kit.svelte.dev/), migrated from Pelican.
+My personal site: projects, writing and an about page. It is a SvelteKit app, prerendered to static
+HTML and served by GitHub Pages.
 
-## 🚀 Features
+## Writing a post
 
-- **Modern Stack**: Built with SvelteKit, TypeScript, and Vite
-- **Markdown Support**: Content written in Markdown with [mdsvex](https://mdsvex.com/)
-- **Static Site Generation**: Optimized for GitHub Pages deployment
-- **Type-Safe**: Full TypeScript support
-- **Responsive Design**: Mobile-friendly interface
+Add `content/posts/YYYY-MM-DD-Slug.md`. The post is served at `/Slug`. Its front matter needs a
+`title`, a `date` that matches the file name, and a one-sentence `excerpt`, which is used in lists and
+link previews:
 
-## 📁 Project Structure
-
-Standard SvelteKit root-level structure:
-
-```
-.
-├── src/                     # Source code
-│   ├── lib/                 # Shared components and utilities
-│   │   ├── components/      # Svelte components
-│   │   ├── config/          # Site configuration
-│   │   └── utils/           # Utility functions
-│   └── routes/              # SvelteKit routes (file-based routing)
-├── content/                 # Blog posts and content (Markdown)
-│   ├── posts/               # Blog posts
-│   └── pages/               # Static pages
-├── static/                  # Static assets (CSS, JS, images)
-├── package.json             # All dependencies (app + tooling)
-├── svelte.config.js         # SvelteKit configuration
-├── vite.config.ts          # Vite configuration
-├── tsconfig.json            # TypeScript configuration
-└── eslint.config.mts        # ESLint configuration
+```yaml
+---
+title: Visualizing Earth's Geoid in 3D
+date: 2025-11-17
+tags: python, geospatial
+excerpt: "An interactive 3D visualization of Earth's geoid."
+---
 ```
 
-## 🛠️ Development
+The about page's text is `content/pages/about.md`. Projects and papers are data, in
+`src/lib/config/projects.ts` and `src/lib/config/papers.ts`.
 
-### Prerequisites
+## Running it
 
-- **Node.js 18+** and npm (currently using Node 24.13.0 via nvm)
-- See [INSTALL_PREREQUISITES.md](./INSTALL_PREREQUISITES.md) for detailed setup instructions
+```sh
+npm ci
+npm run dev       # http://localhost:5173
+npm run check     # svelte-check and TypeScript
+npm run lint
+npm run shots     # build, then screenshot every page at desktop and phone size into shots/
+```
 
-**Note:** This project uses nvm. If you have nvm installed, run `nvm use` to automatically switch to the correct Node version.
+`npm run shots` also fails on sideways scrolling, broken images, missing fonts and console errors.
+`THEMES=dark,light npm run shots` adds the light theme. Look at the screenshots after any visual
+change.
 
-### Getting Started
-
-1. **Install dependencies**:
-
-   ```bash
-   npm install
-   ```
-
-2. **Start development server**:
-
-   ```bash
-   npm run dev
-   ```
-
-3. **Build for production**:
-
-   ```bash
-   npm run build
-   ```
-
-4. **Preview production build**:
-
-   ```bash
-   npm run preview
-   ```
-
-## 📝 Writing Content
-
-Blog posts are written in Markdown and stored in `content/posts/`. Each post should follow the naming convention: `YYYY-MM-DD-Post-Title.md`.
-
-## 🚢 Deployment
-
-The site is automatically deployed to GitHub Pages via GitHub Actions when you push to the `main` branch. See `.github/workflows/deploy.yml` for the deployment configuration.
-
-**Note:** Make sure GitHub Pages is configured in your repository settings:
-
-1. Go to Settings → Pages
-2. Source: GitHub Actions
-3. The workflow will automatically build and deploy on every push to `main`
-
-## 🔗 Links
-
-- **Live Site**: [https://fmazzoni.github.io](https://fmazzoni.github.io)
-- **GitHub**: [https://github.com/FMazzoni](https://github.com/FMazzoni)
+Pushing to `main` builds and deploys the site with `.github/workflows/deploy.yml`.

@@ -1,103 +1,91 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import matter from 'gray-matter';
-import { error } from '@sveltejs/kit';
-import { marked } from 'marked';
+import { Marked } from 'marked';
+import { markedHighlight } from 'marked-highlight';
+import hljs from 'highlight.js/lib/common';
 
-// Configure marked for synchronous use
-marked.setOptions({
-	async: false
-});
+// Markdown becomes HTML here, once, at build time; templates only render the fields this returns.
+const markdown = new Marked(
+	{ async: false, gfm: true },
+	markedHighlight({
+		langPrefix: 'hljs language-',
+		highlight(code, lang) {
+			const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+			return hljs.highlight(code, { language }).value;
+		}
+	})
+);
+
+const render = (source: string): string => markdown.parse(source) as string;
 
 export interface Post {
 	slug: string;
 	title: string;
+	/** YYYY-MM-DD, as written in the front matter. */
 	date: string;
-	category?: string;
-	tags?: string[];
-	excerpt?: string;
-	content: string;
-	math?: boolean;
+	tags: string[];
+	/** One plain-text sentence for lists, meta descriptions and link previews. */
+	excerpt: string;
+	html: string;
+	readingMinutes: number;
 }
 
 export interface Page {
 	slug: string;
 	title: string;
-	content: string;
-	date?: string;
+	html: string;
 }
 
-function getContentDirectory(): string {
-	// In production/build, content is in the project root
-	// In dev, it's also in the project root
-	return path.join(process.cwd(), 'content');
+const contentDir = path.join(process.cwd(), 'content');
+
+// gray-matter reads `date: 2025-11-17` as midnight UTC; keep it as the calendar date it names.
+function isoDate(value: unknown): string {
+	if (value instanceof Date) return value.toISOString().slice(0, 10);
+	return String(value ?? '').slice(0, 10);
 }
 
+function plainText(html: string): string {
+	return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function readingMinutes(html: string): number {
+	return Math.max(1, Math.round(plainText(html).split(' ').length / 220));
+}
+
+function readPost(filename: string): Post {
+	const { data, content } = matter(fs.readFileSync(path.join(contentDir, 'posts', filename), 'utf8'));
+	const html = render(content);
+	return {
+		slug: filename.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.md$/, ''),
+		title: String(data.title ?? ''),
+		date: isoDate(data.date),
+		tags: Array.isArray(data.tags) ? data.tags.map(String) : String(data.tags ?? '').split(',').map((t) => t.trim()).filter(Boolean),
+		excerpt: String(data.excerpt ?? ''),
+		html,
+		readingMinutes: readingMinutes(html)
+	};
+}
+
+let cache: Post[] | undefined;
+
+/** Every post, newest first. */
 export function getPosts(): Post[] {
-	const postsDirectory = path.join(getContentDirectory(), 'posts');
-	if (!fs.existsSync(postsDirectory)) return [];
-
-	const filenames = fs.readdirSync(postsDirectory);
-
-	const posts = filenames
-		.filter((name: string) => name.endsWith('.md'))
-		.map((filename: string) => {
-			const filePath = path.join(postsDirectory, filename);
-			const fileContents = fs.readFileSync(filePath, 'utf8');
-			const { data, content } = matter(fileContents);
-
-			// Extract slug from filename (remove date prefix and .md)
-			const slug = filename.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.md$/, '');
-
-			return {
-				slug,
-				title: data.title || 'Untitled',
-				date: data.date || '',
-				category: data.category,
-				tags: Array.isArray(data.tags)
-					? data.tags
-					: typeof data.tags === 'string'
-						? data.tags.split(',').map((t) => t.trim())
-						: [],
-				excerpt: data.excerpt ? marked.parse(data.excerpt) as string : undefined,
-				content: marked.parse(content) as string,
-				math: data.math || false
-			};
-		})
-		.sort((a: Post, b: Post) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-	return posts;
+	cache ??= fs
+		.readdirSync(path.join(contentDir, 'posts'))
+		.filter((name) => name.endsWith('.md'))
+		.map(readPost)
+		.sort((a, b) => b.date.localeCompare(a.date));
+	return cache;
 }
 
-export function getPostBySlug(slug: string): Post | null {
-	const posts = getPosts();
-	return posts.find((post) => post.slug === slug) || null;
+export function getPost(slug: string): Post | undefined {
+	return getPosts().find((post) => post.slug === slug);
 }
 
-export function getPages(): Page[] {
-	const pagesDirectory = path.join(getContentDirectory(), 'pages');
-	if (!fs.existsSync(pagesDirectory)) return [];
-
-	const filenames = fs.readdirSync(pagesDirectory);
-	return filenames
-		.filter((name: string) => name.endsWith('.md'))
-		.map((filename: string) => {
-			const filePath = path.join(pagesDirectory, filename);
-			const fileContents = fs.readFileSync(filePath, 'utf8');
-			const { data, content } = matter(fileContents);
-
-			const slug = filename.replace(/\.md$/, '');
-
-			return {
-				slug,
-				title: data.title || slug,
-				content: marked.parse(content) as string,
-				date: data.date
-			};
-		});
-}
-
-export function getPageBySlug(slug: string): Page | null {
-	const pages = getPages();
-	return pages.find((page) => page.slug === slug) || null;
+export function getPage(slug: string): Page | undefined {
+	const file = path.join(contentDir, 'pages', `${slug}.md`);
+	if (!fs.existsSync(file)) return undefined;
+	const { data, content } = matter(fs.readFileSync(file, 'utf8'));
+	return { slug, title: String(data.title ?? slug), html: render(content) };
 }
