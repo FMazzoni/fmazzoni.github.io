@@ -44,6 +44,10 @@ const markdown = new Marked({ async: false, gfm: true });
 // Code blocks go through Shiki. Links to the project sites other repos serve on this domain must
 // load those pages, not route here.
 markdown.use({
+	// Prose text only: code spans, code blocks and raw HTML are other token types and stay untouched.
+	walkTokens(token) {
+		if (token.type === 'text' && !('tokens' in token && token.tokens)) token.text = smarten(token.text);
+	},
 	renderer: {
 		code({ text, lang }) {
 			return highlight(text, lang?.split(/\s/)[0]);
@@ -67,7 +71,6 @@ export interface Post {
 	/** One plain-text sentence for lists, meta descriptions and link previews. */
 	excerpt: string;
 	html: string;
-	readingMinutes: number;
 }
 
 export interface Page {
@@ -84,12 +87,17 @@ function isoDate(value: unknown): string {
 	return String(value ?? '').slice(0, 10);
 }
 
-function plainText(html: string): string {
-	return html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-}
-
-function readingMinutes(html: string): number {
-	return Math.max(1, Math.round(plainText(html).split(' ').length / 220));
+/**
+ * Typographer's quotes and dashes, as a smartypants pass sets them: curly quotes and apostrophes, and
+ * a spaced hyphen as an en dash. It changes no words, so posts stay as written. Code is never passed in.
+ */
+export function smarten(text: string): string {
+	return text
+		.replace(/(^|\s)-(?=\s)/g, '$1–')
+		.replace(/(^|[\s([{\u2013\u2014])"(?=\S)/g, '$1\u201c')
+		.replace(/"/g, '\u201d')
+		.replace(/([\s([{\u2013\u2014])'(?=\w)/g, '$1\u2018')
+		.replace(/'/g, '\u2019');
 }
 
 function readPost(filename: string): Post {
@@ -97,12 +105,11 @@ function readPost(filename: string): Post {
 	const html = render(content);
 	return {
 		slug: filename.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.md$/, ''),
-		title: String(data.title ?? ''),
+		title: smarten(String(data.title ?? '')),
 		date: isoDate(data.date),
 		tags: Array.isArray(data.tags) ? data.tags.map(String) : String(data.tags ?? '').split(',').map((t) => t.trim()).filter(Boolean),
-		excerpt: String(data.excerpt ?? ''),
-		html,
-		readingMinutes: readingMinutes(html)
+		excerpt: smarten(String(data.excerpt ?? '')),
+		html
 	};
 }
 

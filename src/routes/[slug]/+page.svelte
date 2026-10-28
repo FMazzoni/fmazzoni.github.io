@@ -11,7 +11,7 @@
 <article class="post">
 	<header>
 		<h1>{post.title}</h1>
-		<p class="byline"><time datetime={post.date}>{longDate(post.date)}</time> · {post.readingMinutes} min read</p>
+		<p class="byline"><time datetime={post.date}>{longDate(post.date)}</time></p>
 	</header>
 	<div class="post-body">
 		<!-- eslint-disable-next-line svelte/no-at-html-tags -- the owner's Markdown, rendered at build time (ruly: html-from-content-pipeline) -->

@@ -61,7 +61,7 @@ async function checkLayout(page: Page) {
 
 // Chromium can't capture a page taller than about 16,000 device pixels in one go, so a long post
 // (the Boston 311 one, on a phone) is saved in parts: name.png, name-2.png, ...
-const MAX_CAPTURE_PX = 14000;
+const MAX_CAPTURE_PX = 8000;
 async function shot(page: Page, info: TestInfo, name: string) {
 	const { height, width, dpr } = await page.evaluate(() => ({
 		height: document.documentElement.scrollHeight,
