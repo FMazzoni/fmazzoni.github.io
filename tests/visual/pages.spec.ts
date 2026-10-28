@@ -17,7 +17,8 @@ function collectProblems(page: Page): string[] {
 		if (m.type() === 'error' && ours(m.location().url)) problems.push(`console: ${m.text()} (${m.location().url})`);
 	});
 	page.on('requestfailed', (r) => {
-		if (ours(r.url())) problems.push(`failed: ${r.url()}`);
+		// ERR_ABORTED is the browser dropping a request it no longer needs (the test moved on), not a failure.
+		if (ours(r.url()) && r.failure()?.errorText !== 'net::ERR_ABORTED') problems.push(`failed: ${r.url()} (${r.failure()?.errorText})`);
 	});
 	return problems;
 }

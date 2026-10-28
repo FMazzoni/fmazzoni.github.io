@@ -8,7 +8,7 @@
 
 :root {
 	--bg: #141516; --ink: #e7e4dd; --muted: #a29e96; --link: #9dc4f2; --line: #2b2d31;
-	--matte: #0e1013; --frame: #0e1013; --code: #1a1b1e; --lat: #3c434c; --latmaj: #56606c; --path: #9dc4f2; --home: #e7e4dd;
+	--matte: #0e1013; --frame: #0e1013; --code: #1a1b1e; --lat: #3c434c; --latmaj: #56606c; --path: var(--link); --home: var(--ink);
 	/* Code colours, each at least 4.5:1 on --code. */
 	--c-keyword: #9dc4f2; --c-string: #a8cc8c; --c-number: #e2b07a; --c-type: #c9a9ec; --c-function: #86d2c4; --c-comment: #9a968e;
 	--serif: 'Libertinus Web', 'Libertinus Serif', 'Linux Libertine O', 'DejaVu Serif', serif;
@@ -25,13 +25,13 @@
 @media (prefers-color-scheme: light) {
 	:root:not([data-theme='dark']) {
 		--bg: #f6f3ec; --ink: #24211c; --muted: #5e584d; --link: #1d4c95; --line: #dedad1; --frame: #ebe6db;
-		--code: #ede9df; --lat: #d3cdbf; --latmaj: #b3ab9b; --path: #1d4c95; --home: #24211c;
+		--code: #ede9df; --lat: #d3cdbf; --latmaj: #b3ab9b;
 		color-scheme: light;
 	}
 }
 :root[data-theme='light'] {
 	--bg: #f6f3ec; --ink: #24211c; --muted: #5e584d; --link: #1d4c95; --line: #dedad1; --frame: #ebe6db;
-	--code: #ede9df; --lat: #d3cdbf; --latmaj: #b3ab9b; --path: #1d4c95; --home: #24211c;
+	--code: #ede9df; --lat: #d3cdbf; --latmaj: #b3ab9b;
 	color-scheme: light;
 }
 
@@ -78,6 +78,8 @@ footer.site a { color: var(--muted); padding-block: 10px; }
 .hello { margin: 0; }
 .hello { max-width: 440px; justify-self: end; width: 100%; }
 .hello img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; background: var(--matte); box-shadow: 0 0 0 1px var(--line); filter: brightness(1.35); }
+.lower { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 56px; }
+.lower ul.dated { max-width: none; }
 .hello figcaption { font-size: 0.85rem; color: var(--muted); margin-top: 8px; text-wrap: pretty; }
 .projects + ul.more { margin-top: -40px; margin-bottom: 0; }
 p.all { margin: 14px 0 104px; font-size: 0.95rem; }
@@ -88,8 +90,8 @@ h2.sec a { color: inherit; text-decoration: none; }
 /* Projects: screenshot on a matte, label underneath */
 .projects { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 56px 40px; margin-bottom: 96px; }
 .frame { background: var(--frame); box-shadow: 0 0 0 1px var(--line); aspect-ratio: 16 / 10; overflow: hidden; display: flex; justify-content: center; align-items: center; padding: 5%; }
-.frame.single { padding: 0; }
-.frame.single img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.frame.single { padding: 3.5%; }
+.frame.single img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .frame.phones { padding: 6% 6% 4%; gap: 5%; align-items: stretch; }
 .pane { position: relative; height: 100%; min-width: 0; }
 .pane img { height: 100%; width: auto; max-width: 100%; object-fit: contain; display: block; }
@@ -129,7 +131,7 @@ article.post .byline { color: var(--muted); margin: 0; }
 	grid-template-columns: 1fr min(var(--measure), 100%) 1fr;
 }
 .post-body > * { grid-column: 2; min-width: 0; }
-.post-body > .iframe-container, .post-body > .embed-still { grid-column: 1 / -1; }
+.post-body > .iframe-container { grid-column: 1 / -1; }
 .post-body > pre { grid-column: 2; margin-inline: -18px; }
 .post-body > table { grid-column: 2; }
 .post-body > :first-child { margin-top: 0; }
@@ -153,10 +155,10 @@ article.post .byline { color: var(--muted); margin: 0; }
 .post-body > .iframe-container.has-still { display: none; }
 .post-body > .embed-still { display: block; position: relative; grid-column: 2; margin: 30px 0 12px; }
 .post-body > .embed-still img { margin: 0; width: 100%; }
-.post-body > .embed-still span { position: absolute; left: 14px; bottom: 12px; font-size: 0.85rem; color: #d5d9de; text-decoration: underline; text-underline-offset: 0.18em; }
+.post-body > .embed-still span { position: absolute; left: 16px; bottom: 14px; font-size: 0.95rem; color: #d5d9de; text-decoration: underline; text-underline-offset: 0.18em; }
 .post-body > .embed-still img { box-shadow: 0 0 0 1px var(--line); }
 /* An editor's note set apart from the author's text, where an embed used to be. */
-.post-body > .note { font-size: 0.9em; color: var(--muted); font-style: italic; border-left: 1px solid var(--line); padding-left: 14px; }
+.post-body > p.note { text-align: left; font-size: 0.9em; color: var(--muted); font-style: italic; border-left: 1px solid var(--line); padding-left: 14px; }
 .post-body table { border-collapse: collapse; font-size: 0.9rem; margin: 0 0 14px; display: block; overflow-x: auto; }
 .post-body th, .post-body td { text-align: left; padding: 6px 12px 6px 0; border-bottom: 1px solid var(--line); }
 .post-body hr { border: 0; border-top: 1px solid var(--line); margin: 30px 0; }
@@ -227,6 +229,8 @@ pre code { font-size: inherit; }
 	.intro { padding-block: 44px; }
 	.intro.with-figure { grid-template-columns: minmax(0, 1fr); padding-block: 40px 48px; }
 	.hello { max-width: 360px; justify-self: start; }
+	.hello img { aspect-ratio: 1; }
+	.lower { grid-template-columns: minmax(0, 1fr); }
 	.projects { grid-template-columns: minmax(0, 1fr); gap: 44px; }
 	ul.dated li, ul.dated.papers li { grid-template-columns: minmax(0, 1fr); gap: 0; }
 	article.post header { padding-block: 40px 22px; }

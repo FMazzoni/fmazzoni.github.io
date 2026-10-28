@@ -67,7 +67,6 @@ export interface Post {
 	title: string;
 	/** YYYY-MM-DD, as written in the front matter. */
 	date: string;
-	tags: string[];
 	/** One plain-text sentence for lists, meta descriptions and link previews. */
 	excerpt: string;
 	html: string;
@@ -91,9 +90,10 @@ function isoDate(value: unknown): string {
  * Typographer's quotes and dashes, as a smartypants pass sets them: curly quotes and apostrophes, and
  * a spaced hyphen as an en dash. It changes no words, so posts stay as written. Code is never passed in.
  */
-export function smarten(text: string): string {
+function smarten(text: string): string {
 	return text
 		.replace(/(^|\s)-(?=\s)/g, '$1–')
+		.replace(/(^|[\s(])-(?=\d)/g, '$1\u2212')
 		.replace(/(^|[\s([{\u2013\u2014])"(?=\S)/g, '$1\u201c')
 		.replace(/"/g, '\u201d')
 		.replace(/([\s([{\u2013\u2014])'(?=\w)/g, '$1\u2018')
@@ -107,7 +107,6 @@ function readPost(filename: string): Post {
 		slug: filename.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.md$/, ''),
 		title: smarten(String(data.title ?? '')),
 		date: isoDate(data.date),
-		tags: Array.isArray(data.tags) ? data.tags.map(String) : String(data.tags ?? '').split(',').map((t) => t.trim()).filter(Boolean),
 		excerpt: smarten(String(data.excerpt ?? '')),
 		html
 	};
@@ -133,5 +132,5 @@ export function getPage(slug: string): Page | undefined {
 	const file = path.join(contentDir, 'pages', `${slug}.md`);
 	if (!fs.existsSync(file)) return undefined;
 	const { data, content } = matter(fs.readFileSync(file, 'utf8'));
-	return { slug, title: String(data.title ?? slug), html: render(content) };
+	return { slug, title: smarten(String(data.title ?? slug)), html: render(content) };
 }

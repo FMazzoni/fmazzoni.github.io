@@ -19,8 +19,14 @@
 <section class="intro with-figure">
 	<h1>{site.intro}</h1>
 	<figure class="hello">
+		<!-- Waves once on load (an animated WebP that plays once), square on phones, a still under reduced motion. -->
 		<a href="/about"
-			><img src="/images/hello-wave.webp" width="800" height="936" alt="A person drawn in rows of points, one arm raised in a wave, as a LiDAR sensor would see them" /></a
+			><picture>
+				<source media="(prefers-reduced-motion: reduce) and (max-width: 760px)" srcset="/images/hello-wave-square-still.webp" />
+				<source media="(prefers-reduced-motion: reduce)" srcset="/images/hello-wave-still.webp" />
+				<source media="(max-width: 760px)" srcset="/images/hello-wave-square.webp" />
+				<img src="/images/hello-wave.webp" width="640" height="480" alt="A person drawn in rows of points, one arm raised in a wave, as a LiDAR sensor would see them" />
+			</picture></a
 		>
 		<figcaption><i>Fig. 1.</i> Hello, as a LiDAR scanner would see it (an illustration). <a href="/about">More of my work, in points</a>.</figcaption>
 	</figure>
@@ -50,6 +56,7 @@
 	<p class="all"><a href="/projects">All projects</a></p>
 </section>
 
+<div class="lower">
 <section aria-labelledby="writing">
 	<h2 class="sec" id="writing"><a href="/blog">Writing</a></h2>
 	<ul class="dated">
@@ -73,3 +80,4 @@
 		{/each}
 	</ul>
 </section>
+</div>
