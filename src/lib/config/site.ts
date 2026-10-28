@@ -13,6 +13,12 @@ export const site = {
 	]
 } as const;
 
+/**
+ * What the home page shows. Projects appear in the order of projects.ts: the first `figures`
+ * featured ones get a screenshot, the next `lines` get a line each, then a link to the rest.
+ */
+export const home = { figures: 2, lines: 3 } as const;
+
 export const nav = [
 	{ title: 'Projects', href: '/projects' },
 	{ title: 'Writing', href: '/blog' },

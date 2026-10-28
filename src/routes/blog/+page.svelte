@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Seo from '$lib/components/Seo.svelte';
-	import { shortDate } from '$lib/utils/dates';
+	import DatedList from '$lib/components/DatedList.svelte';
+	import { postEntries } from '$lib/utils/entries';
 	import { site } from '$lib/config/site';
 
 	let { data } = $props();
@@ -12,14 +13,4 @@
 	<h1>Writing</h1>
 </section>
 
-<ul class="dated">
-	{#each data.posts as post (post.slug)}
-		<li>
-			<time datetime={post.date}>{shortDate(post.date)}</time>
-			<span>
-				<a href="/{post.slug}">{post.title}</a>
-				{#if post.excerpt}<span class="excerpt">{post.excerpt}</span>{/if}
-			</span>
-		</li>
-	{/each}
-</ul>
+<DatedList entries={postEntries(data.posts, true)} />

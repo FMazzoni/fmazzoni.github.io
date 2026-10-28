@@ -43,8 +43,8 @@
 			<p class="c"><b>2019. Stars.</b> Every star brighter than <i>G</i>&#8239;=&#8239;20.5 within 0.6° of SDSS J151905.90+500702.9, a dwarf carbon star (ringed). We detected it and five others in X-rays with Chandra. Positions and brightness are from Gaia DR3. <a href="https://doi.org/10.3847/1538-4357/ab2bf4">ApJ 881, 49</a></p>
 		</li>
 		<li>
-			<img src="/about-scene/stills/2.webp" width="600" height="375" loading="lazy" decoding="async" alt="A person drawn in horizontal rows of dots, one forearm raised in a wave, standing on arcs of floor points" />
-			<p class="c"><b>2020. LiDAR.</b> An illustration of what a LiDAR sensor sees of a person waving: rings of returns from the side facing the sensor, and nothing from behind. In LAMAR we used scans like this to tell what several people in a room were doing. <a href="https://doi.org/10.1145/3448891.3450334">MobiQuitous 2020</a></p>
+			<img src="/about-scene/stills/2.webp" width="600" height="375" loading="lazy" decoding="async" alt="A person drawn in a coarse grid of dots, one hand raised in a wave, seen a little from the side" />
+			<p class="c"><b>2020. LiDAR.</b> Me waving at a 160 × 60 depth LiDAR, played back at its own nine frames a second. Turned a little, you can see it only measured the side facing it. In LAMAR we used scans like this to tell what several people in a room were doing. <a href="https://doi.org/10.1145/3448891.3450334">MobiQuitous 2020</a></p>
 		</li>
 		<li>
 			<img src="/about-scene/stills/3.webp" width="600" height="375" loading="lazy" decoding="async" alt="Two boxes: on the left a tight tangle of steps near the centre, on the right a path with long straight runs across the box" />

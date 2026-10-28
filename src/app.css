@@ -91,9 +91,8 @@ footer.site a { color: var(--muted); padding-block: 10px; }
 .lower { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--col-gap); }
 .lower ul.dated { max-width: none; }
 .hello figcaption { font-size: 0.85rem; color: var(--muted); margin-top: 8px; text-wrap: pretty; }
-/* The one-liners under the home figures take the first grid column, so their edges line up. */
-.projects + ul.more { margin-top: -40px; margin-bottom: 0; max-width: calc((100% - var(--col-gap)) / 2); }
-p.all { margin: 14px 0 104px; font-size: 0.95rem; }
+/* One-liners straight under the figures sit closer to them than a new section would. */
+.projects + ul.more { margin-top: -40px; }
 /* Caps and small caps, as a paper sets a section head: a full capital, then small caps. */
 h2.sec { font-size: 1.3rem; font-weight: 400; font-variant-caps: small-caps; letter-spacing: 0.02em; margin: 0 0 22px; }
 h2.sec a { color: inherit; text-decoration: none; }
@@ -117,9 +116,10 @@ h2.sec a { color: inherit; text-decoration: none; }
 .label .subcap { display: block; color: var(--muted); font-size: 0.9rem; margin-top: 4px; max-width: 60ch; text-wrap: pretty; }
 .label .links { margin-top: 6px; display: flex; gap: 16px; font-size: 0.95rem; }
 .label .links a { padding-block: 6px; }
-ul.more { list-style: none; padding: 0; margin: 0 0 104px; max-width: var(--measure); }
-ul.more li { padding-block: 12px; border-top: 1px solid var(--line); }
-ul.more li:last-child { border-bottom: 1px solid var(--line); }
+/* Projects without a figure: two columns on the figures' grid, rules between rows. */
+ul.more { list-style: none; padding: 0; margin: 0 0 104px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--col-gap); }
+ul.more li { padding-block: 12px; border-block: 1px solid var(--line); margin-bottom: -1px; }
+ul.more li.all { display: flex; align-items: center; font-size: 0.95rem; }
 ul.more .meta { display: block; color: var(--muted); font-size: 0.85rem; }
 ul.more p { margin: 2px 0 0; text-wrap: pretty; }
 ul.more .inline-links a { margin-left: 0.6em; }
@@ -128,9 +128,9 @@ ul.more .inline-links a { margin-left: 0.6em; }
 ul.dated { list-style: none; padding: 0; margin: 0 0 104px; max-width: var(--measure); }
 ul.dated li { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 16px; align-items: baseline; padding-block: 10px; border-top: 1px solid var(--line); }
 ul.dated li:last-child { border-bottom: 1px solid var(--line); }
-ul.dated time, ul.dated .yr { color: var(--muted); font-size: 0.9rem; font-variant-numeric: lining-nums tabular-nums; }
-ul.dated .excerpt, ul.dated .by { display: block; color: var(--muted); font-size: 0.9rem; margin-top: 2px; text-wrap: pretty; }
-ul.dated.papers li { grid-template-columns: 4rem minmax(0, 1fr); padding-block: 12px; }
+ul.dated time, ul.dated .when { color: var(--muted); font-size: 0.9rem; font-variant-numeric: lining-nums tabular-nums; }
+ul.dated .note { display: block; color: var(--muted); font-size: 0.9rem; margin-top: 2px; text-wrap: pretty; }
+ul.dated.years li { grid-template-columns: 4rem minmax(0, 1fr); padding-block: 12px; }
 
 /* Posts */
 /* A post is one centred reading column; embeds and code may run wider than the text, centred on it. */
@@ -156,7 +156,7 @@ article.post .byline { color: var(--muted); margin: 0; }
 .post-body li > strong:first-child, .post-body p > strong:first-child { font-weight: 400; font-style: italic; }
 .post-body p, .post-body li { text-wrap: pretty; }
 .post-body p {
-	margin: 0 0 14px; text-align: justify; hyphens: auto; -webkit-hyphens: auto;
+	margin: 0 0 14px; hyphens: auto; -webkit-hyphens: auto;
 	hyphenate-limit-chars: 7 3 3;
 }
 .post-body ul, .post-body ol { padding-left: 1.3em; margin: 0 0 14px; }
@@ -219,7 +219,8 @@ pre code { font-size: inherit; }
 .scene .ui button:hover { text-decoration-thickness: 2px; }
 .scene .ui button:disabled { color: var(--muted); text-decoration: none; cursor: default; }
 .scene .ui .count { color: var(--muted); font-variant-numeric: lining-nums tabular-nums; }
-.scene .live { display: none; max-width: var(--measure); font-size: 0.9rem; color: var(--muted); margin-top: 4px; text-wrap: pretty; min-height: 6.2em; }
+.scene .live { display: none; max-width: var(--measure); font-size: 0.9rem; color: var(--muted); margin-top: 4px; text-wrap: pretty; min-height: 6.2em; transition: opacity 0.25s; }
+.scene .live.swap { opacity: 0; }
 .scene .live b, .stills b { color: var(--ink); font-weight: 700; }
 .stills { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 36px 28px; }
 .stills img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; background: var(--matte); }
@@ -253,11 +254,11 @@ pre code { font-size: inherit; }
 	.hello { max-width: 360px; justify-self: start; }
 	.hello img { aspect-ratio: 1; }
 	.lower { grid-template-columns: minmax(0, 1fr); }
-	.projects + ul.more { max-width: none; }
+	ul.more { grid-template-columns: minmax(0, 1fr); }
 	.projects { grid-template-columns: minmax(0, 1fr); gap: 44px; }
-	ul.dated li, ul.dated.papers li { grid-template-columns: minmax(0, 1fr); gap: 0; }
+	ul.dated li, ul.dated.years li { grid-template-columns: minmax(0, 1fr); gap: 0; }
 	article.post header { padding-block: 40px 22px; }
-	.post-body p { text-align: left; hyphens: manual; -webkit-hyphens: manual; }
+	.post-body p { hyphens: manual; -webkit-hyphens: manual; }
 	/* Embedded apps carry their own controls, which cover the subject on a phone; where a post
 	   offers a still instead, show that (a hidden lazy iframe never loads). */
 	.post-body .iframe-container { aspect-ratio: 4 / 5; }

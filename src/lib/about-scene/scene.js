@@ -1,11 +1,12 @@
 // @ts-nocheck -- plain JS ported from the About-scene prototype; its behaviour is checked by the Playwright run.
 /* About-page scene. One cloud of points re-forms through five stages of the owner's work.
- * It plays through once when it comes into view, holding each stage long enough to read its
- * caption, and stops on the last; Pause, Previous and Next take over at any point.
+ * It plays through once when it comes into view. Every stage keeps moving until the next one
+ * takes over (a camera push, a playback, walkers walking, a turning globe), so the story flows;
+ * it stops on the last stage. Pause, Previous and Next take over at any point.
  * data.bin (built outside this repo) holds:
  *   stars   Gaia DR3 field around SDSS J151905.90+500702.9 (target of ApJ 881, 49)
  *   geoid   EGM2008 undulation grid from FMazzoni/geoid-globe
- *   person  SYNTHETIC LiDAR-style scan of a parametric body waving. Not a real scan.
+ *   person  REAL: the owner waving at a 160x60 depth LiDAR (2020)
  * Generated here:
  *   walks   SIMULATED Brownian and Levy walkers (a simulation, as in the paper, not measured data)
  *   now     SYNTHETIC illustration: agents on parallel lanes merging back.
@@ -57,7 +58,7 @@ export function mountScene(fig) {
 
   let W = 0, H = 0, dpr = 1, step = 1;
   const S = []; // stages
-  const mk = (o) => Object.assign({ ex: new Float32Array(N), ey: new Float32Array(N), ez: new Float32Array(N), sz: new Float32Array(N).fill(1.6), cb: new Uint8Array(N), idx: new Uint16Array(N), hold: 0, yaw: () => 0, pitch: 0, dist: 0, ext: [1, 1], cover: false, delay: null, ann: null }, o);
+  const mk = (o) => Object.assign({ ex: new Float32Array(N), ey: new Float32Array(N), ez: new Float32Array(N), sz: new Float32Array(N).fill(1.6), cb: new Uint8Array(N), idx: new Uint16Array(N), hold: 0, read: null, zoom: null, yaw: () => 0, pitch: 0, dist: 0, ext: [1, 1], cover: false, ann: null }, o);
 
   function build(buf) {
     const dv = new DataView(buf); let o = 0;
@@ -65,7 +66,10 @@ export function mountScene(fig) {
     // ---- 1 stars (real, Gaia DR3). Element 0 is the target. Elements past the catalogue repeat faint stars.
     const ns = u16(), sxy = new Uint16Array(buf.slice(o, o + ns * 4)); o += ns * 4;
     const sg = new Uint8Array(buf, o, ns); o += ns;
-    const st = mk({ ext: [0.42, 0.42], cover: true, ann: annStars }); // the square inside the 0.6 deg field
+    // The camera pushes in on the target while the caption is read: from 0.5 deg out to 0.3 deg.
+    const st = mk({ ext: [0.5, 0.5], cover: true, ann: annStars, hold: 7, read: 1 });
+    st.zoom = t => 1 - 0.4 * ease(Math.min(1, t / st.hold));
+    st.stillT = st.hold;
     for (let e = 0; e < N; e++) {
       const k = e < ns ? e : ns - 1 - (e % (ns >> 1));
       const G = sg[k] / 20 + 8;
@@ -79,7 +83,7 @@ export function mountScene(fig) {
     const ng = u16(), gh = new Uint8Array(buf, o, ng); o += ng;
     const nb = u16(), bll = new Uint16Array(buf.slice(o, o + nb * 4)); o += nb * 4; // country outlines (geoid-globe repo)
     const bh = new Uint8Array(buf, o, nb); o += nb;
-    const ge = mk({ ext: [1.2, 1.2], dist: 4.5, pitch: 0.38, hold: 6.5, ann: annGeoid });
+    const ge = mk({ ext: [1.2, 1.2], dist: 4.5, pitch: 0.38, hold: 9, read: 0.5, ann: annGeoid }); // turns the whole time it is up
     const PHI = Math.PI * (3 - Math.sqrt(5)), K = 5000 / 6371000; // 5,000x exaggeration
     ge.h = new Float32Array(N);
     ge.out = new Uint8Array(N);
@@ -93,32 +97,32 @@ export function mountScene(fig) {
     }
     const L0 = 75 * Math.PI / 180, L1 = -15 * Math.PI / 180; // facing the India low, then turning to the Atlantic
     ge.yaw = t => -(L0 + (L1 - L0) * ease(Math.min(1, t / ge.hold)));
-    // ---- person (SYNTHETIC: parametric body, simulated spinning-LiDAR rings, back half occluded)
-    const np_ = u16(), pd = new Uint8Array(buf, o, np_ * 4); o += np_ * 4;
-    const pe = mk({ ext: [0.9, 1.12], dist: 4, pitch: 0.2, hold: 3.05, yaw: () => -0.42 });
-    const SX = 0.9, SY = 1.1, SZ = 5, EX = -0.4, EY = 1.53, sc = 1 / 1.02; // sensor and elbow, m
-    pe.r = new Float32Array(N); pe.wave = new Uint8Array(N); pe.rx = new Float32Array(N); pe.ry = new Float32Array(N);
-    for (let e = 0; e < N; e++) {
-      const k = e < np_ ? e : (e * 7) % np_, q = 4 * k;
-      const X = pd[q] / 255 * 3 - 1.5, Y = pd[q + 1] / 255 * 2, Z = pd[q + 2] / 255 * 6 - 3, fl = pd[q + 3];
-      pe.rx[e] = X; pe.ry[e] = Y; pe.ez[e] = Z * sc; pe.wave[e] = fl === 1;
-      const r = Math.hypot(X - SX, Y - SY, Z - SZ); // range from the sensor: nearer is brighter
-      pe.cb[e] = fl === 2 ? (r < 5.2 ? 2 : 1) : r < 4.93 ? 5 : r < 5.05 ? 4 : 3;
-      pe.sz[e] = fl === 2 ? 1.6 : 1.8;
-    }
-    pe.pose = t => { // forearm swings about the elbow in the frontal plane: 3.5 swings, then rests
-      const a = 0.5 * Math.sin(t / pe.hold * 3.5 * 6.2832) * Math.min(1, t / 0.25) * Math.min(1, (pe.hold - t) / 0.25 + 0.0001);
-      const c = Math.cos(a), si = Math.sin(a);
-      for (let e = 0; e < N; e++) {
-        let x = pe.rx[e], y = pe.ry[e];
-        if (pe.wave[e]) { const dx = x - EX, dy = y - EY; x = EX + dx * c - dy * si; y = EY + dx * si + dy * c; }
-        pe.ex[e] = (x - 0.15) * sc; pe.ey[e] = (y - 0.95) * sc;
+    // ---- person (REAL): the owner waving at a 160x60 depth LiDAR, 2020, played at the sensor's 9 fps.
+    // Frames of M points in scan order, then the floor returns around the feet; x, y (feet at 0), z toward the sensor.
+    const M = u16(), nf_ = dv.getUint8(o), fps = dv.getUint8(o + 1); o += 2;
+    const pf = new Uint8Array(buf, o, nf_ * M * 3); o += nf_ * M * 3;
+    const nfl = u16(), fd = new Uint8Array(buf, o, nfl * 3); o += nfl * 3;
+    const pass = nf_ / fps + 0.5; // one wave, then a beat
+    const pe = mk({ ext: [0.8, 1.14], dist: 4, pitch: 0.12, hold: 2 * pass, read: 0 });
+    pe.yaw = t => -0.15 - 0.35 * ease(Math.min(1, t / pe.hold)); // turning shows it only measured the near side
+    const qx = v => v / 255 * 2.4 - 1.2, qy = v => v / 255 * 2 - 0.98;
+    for (let e = 0; e < nfl; e++) { pe.ex[e] = qx(fd[3 * e]); pe.ey[e] = qy(fd[3 * e + 1]); pe.ez[e] = qx(fd[3 * e + 2]); pe.cb[e] = pe.ez[e] > 0 ? 2 : 1; pe.sz[e] = 1.6; }
+    pe.stillT = 11 / fps; // the still is a frame with the hand up
+    pe.pose = t => {
+      const k = Math.min(nf_ - 1, Math.floor((t % pass) * fps)) * M * 3;
+      for (let e = nfl; e < N; e++) {
+        const q = k + ((e - nfl) % M) * 3, z = qx(pf[q + 2]);
+        pe.ex[e] = qx(pf[q]); pe.ey[e] = qy(pf[q + 1]); pe.ez[e] = z;
+        pe.cb[e] = z > 0.06 ? 5 : z > -0.04 ? 4 : 3; pe.sz[e] = 2.1;
       }
     };
-    pe.ann = annTag; pe.tag = 'Illustration, not a real scan';
+    pe.ann = annTag; pe.tag = 'Real capture, 2020';
     // ---- walks (SIMULATED). Same speed, same number of samples; Levy step lengths ~ l^-2.
-    const wk = mk({ ext: [1.14, 0.7], ann: annWalk, delay: new Float32Array(N) });
-    const half = N >> 1; wk.u = new Float32Array(N); wk.v = new Float32Array(N); wk.cov = [];
+    // Both walkers start in the middle of their box and draw their paths as they go; the share of
+    // the 20 x 20 grid each has visited counts up with them.
+    const WALK_T = 5;
+    const wk = mk({ ext: [1.14, 0.7], ann: annWalk, hold: WALK_T });
+    const half = N >> 1; wk.u = new Float32Array(N); wk.v = new Float32Array(N); wk.cov = [new Uint8Array(half), new Uint8Array(half)];
     for (let w = 0; w < 2; w++) {
       let x = 0.5, y = 0.5, dx = 0, dy = 0, rem = 0; const v0 = 0.0065, seen = new Set();
       for (let i = 0; i < half; i++) {
@@ -129,11 +133,20 @@ export function mountScene(fig) {
         x += dx * v0; y += dy * v0; rem -= v0;
         if (x < 0) { x = -x; dx = -dx; } if (x > 1) { x = 2 - x; dx = -dx; }
         if (y < 0) { y = -y; dy = -dy; } if (y > 1) { y = 2 - y; dy = -dy; }
-        const e = w * half + i; wk.u[e] = x; wk.v[e] = y; wk.delay[e] = i / half;
-        seen.add((x * 20 | 0) * 20 + (y * 20 | 0));
+        const e = w * half + i; wk.u[e] = x; wk.v[e] = y;
+        seen.add((x * 20 | 0) * 20 + (y * 20 | 0)); wk.cov[w][i] = Math.round(seen.size / 4);
       }
-      wk.cov.push(Math.round(seen.size / 4));
     }
+    wk.head = t => Math.min(half - 1, Math.floor(Math.min(1, t / WALK_T) * half)); // samples walked so far
+    wk.stillT = WALK_T;
+    wk.pose = t => {
+      const h = wk.head(t);
+      for (let e = 0; e < N; e++) {
+        const w = e >= half ? 1 : 0, i = e - w * half, [ox, oy] = wk.lay[w], walked = i <= h, k = w * half + (walked ? i : h);
+        wk.ex[e] = ox + wk.u[k]; wk.ey[e] = oy + wk.v[k];
+        wk.cb[e] = !walked || i > h - 40 ? 5 : w ? 4 : 3; wk.sz[e] = walked ? 1.6 : 3.4; // points not yet walked ride under the walker
+      }
+    };
     // ---- now (SYNTHETIC illustration): fig[data-variant] picks 'merge' (default) or 'plan'
     const nw = fig.dataset.variant === 'plan' ? planStage() : mergeStage();
     nw.ann = annNow; nw.tag = 'Illustration';
@@ -275,12 +288,12 @@ export function mountScene(fig) {
   const TX = new Float32Array(N), TY = new Float32Array(N), TS = new Float32Array(N), TB_ = new Uint8Array(N);
   const DX = new Float32Array(N), DY = new Float32Array(N), DS = new Float32Array(N), DB = new Uint8Array(N);
   const FX = new Float32Array(N), FY = new Float32Array(N), FS = new Float32Array(N), FB = new Uint8Array(N);
-  function fit(s) {
-    const g = s === S[3] && W / H < 1.25 ? 1.3 : 1; // keep room for the colour bar on square frames
+  function fit(s, t = 0) {
+    const g = (s === S[3] && W / H < 1.25 ? 1.3 : 1) * (s.zoom ? s.zoom(t) : 1); // room for the geoid's colour bar on square frames
     return (s.cover ? Math.max : Math.min)(W / (2 * s.ext[0] * g), H / (2 * s.ext[1] * g));
   }
   let ca = 1, sa = 0, cp = 1, sp = 0, kk = 1, dd = 0;
-  function cam(s, t) { if (s.pose && s.posed !== t) { s.pose(t); s.posed = t; } const a = s.yaw(t); ca = Math.cos(a); sa = Math.sin(a); const p = s.pt ? s.pt(t) : s.pitch; cp = Math.cos(p); sp = Math.sin(p); kk = fit(s); dd = s.dist; }
+  function cam(s, t) { if (s.pose && s.posed !== t) { s.pose(t); s.posed = t; } const a = s.yaw(t); ca = Math.cos(a); sa = Math.sin(a); const p = s.pt ? s.pt(t) : s.pitch; cp = Math.cos(p); sp = Math.sin(p); kk = fit(s, t); dd = s.dist; }
   function proj(s, t, e, out, warm) { // world -> screen for one element; returns depth
     if (!warm) cam(s, t);
     const x = s.ex[e], y = s.ey[e], z = s.ez[e];
@@ -306,10 +319,8 @@ export function mountScene(fig) {
   function layoutWalk() {
     const s = S[2], wide = W / H > 1.25;
     s.ext = wide ? [1.14, 0.66] : [0.62, 1.3];
-    for (let e = 0; e < N; e++) {
-      const w = e >= N >> 1 ? 1 : 0, ox = wide ? (w ? 0.04 : -1.04) : -0.5, oy = wide ? -0.5 : (w ? -1.08 : 0.2);
-      s.ex[e] = ox + s.u[e]; s.ey[e] = oy + s.v[e]; s.cb[e] = w ? 4 : 3;
-    }
+    s.lay = [0, 1].map(w => [wide ? (w ? 0.04 : -1.04) : -0.5, wide ? -0.5 : (w ? -1.08 : 0.2)]);
+    s.posed = null;
   }
   function hil(x, y) { let d = 0; for (let s = 512; s > 0; s >>= 1) { const rx = (x & s) > 0 ? 1 : 0, ry = (y & s) > 0 ? 1 : 0; d += s * s * ((3 * rx) ^ ry); if (!ry) { if (rx) { x = 1023 - x; y = 1023 - y; } const q = x; x = y; y = q; } } return d; }
   function ranks() { // point j takes the j-th element along a Hilbert curve in every stage, so morphs stay local
@@ -324,17 +335,17 @@ export function mountScene(fig) {
   // ---- annotations (only where they carry meaning)
   let fs = 13;
   function text(t, x, y, al, it) { ctx.font = `${it ? 'italic ' : ''}${fs}px "Libertinus Web", "DejaVu Serif", serif`; ctx.textAlign = al || 'left'; ctx.fillText(t, x, y); }
-  function annStars(s) {
-    proj(s, 0, 0, tmp); const [x, y] = tmp, r = 9 * dpr;
+  function annStars(s, t) {
+    proj(s, t, 0, tmp); const [x, y] = tmp, r = 9 * dpr;
     ctx.strokeStyle = LINK; ctx.lineWidth = dpr; ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832); ctx.stroke();
     ctx.fillStyle = LINK; text('J1519+5007', x + r + 5 * dpr, y + fs * 0.35);
-    const k = fit(s), m = 12 * dpr, len = 0.1 * k; // 0.1 degree scale bar
+    const k = fit(s, t), m = 12 * dpr, len = 0.1 * k; // 0.1 degree scale bar
     ctx.fillStyle = MUTED; ctx.fillRect(m, H - m - fs * 1.4, len, dpr); text('6′', m + len / 2, H - m, 'center');
     const ax = W - m - 4 * dpr, ay = H - m - fs * 1.4, al = 22 * dpr; // north up, east left
     ctx.fillRect(ax - al, ay, al, dpr); ctx.fillRect(ax - dpr, ay - al, dpr, al);
     text('N', ax, ay - al - 4 * dpr, 'center'); text('E', ax - al - 4 * dpr, ay + fs * 0.35, 'right');
   }
-  function annWalk(s) {
+  function annWalk(s, t) {
     const wide = W / H > 1.25, k = fit(s);
     ctx.strokeStyle = RULE; ctx.lineWidth = dpr; ctx.fillStyle = MUTED;
     const lab = ['Brownian', 'Lévy'];
@@ -342,7 +353,7 @@ export function mountScene(fig) {
       const ox = wide ? (w ? 0.04 : -1.04) : -0.5, oy = wide ? -0.5 : (w ? -1.08 : 0.2);
       const x = W / 2 + ox * k, y = H / 2 - (oy + 1) * k;
       ctx.strokeRect(x, y, k, k);
-      text(`${lab[w]}, ${s.cov[w]}%`, x, y + k + fs * 1.3);
+      text(`${lab[w]}, ${s.cov[w][s.head(t)]}%`, x, y + k + fs * 1.3);
     }
   }
   function annGeoid() {
@@ -360,13 +371,14 @@ export function mountScene(fig) {
   }
 
   // ---- state and loop
-  let cur = 0, P = 1, holdT = 0, raf = 0, last = 0, visible = true, D = 1.2;
+  let cur = 0, P = 1, holdT = 0, raf = 0, last = 0, visible = true, from = null;
+  const D = 1.2; // seconds per morph
   // Autoplay: after a stage's own motion ends, its caption stays up READ_S more seconds (at least
   // MIN_STAGE_S per stage in all) before the next morph. Time only counts while the figure is visible.
-  const READ_S = 3.5, MIN_STAGE_S = 5;
+  const READ_S = 3.5, MIN_STAGE_S = 5; // a stage's own `read` replaces READ_S when its motion already gives time to read
   let auto = STILL < 0;
   const lastStage = () => cur === S.length - 1;
-  const dwell = () => Math.max(S[cur].hold + READ_S, MIN_STAGE_S);
+  const dwell = () => Math.max(S[cur].hold + (S[cur].read ?? READ_S), MIN_STAGE_S);
   const stats = window.__sceneStats = { frames: 0, ms: 0, max: 0 };
   function draw(annA) {
     ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H);
@@ -389,24 +401,25 @@ export function mountScene(fig) {
         ctx.fill();
       }
     }
-    if (annA > 0 && S[cur].ann) { ctx.globalAlpha = annA; S[cur].ann(S[cur], Math.min(holdT, S[cur].hold)); ctx.globalAlpha = 1; }
+    if (P < 1 && from && from.s.ann) { ctx.globalAlpha = Math.max(0, 1 - P / 0.35); from.s.ann(from.s, from.t); } // the old labels fade as the points leave
+    if (annA > 0 && S[cur].ann) { ctx.globalAlpha = annA; S[cur].ann(S[cur], Math.min(holdT, S[cur].hold)); }
+    ctx.globalAlpha = 1;
   }
   function render() {
     const t0 = performance.now(), s = S[cur];
     project(s, Math.min(holdT, s.hold), TX, TY, TS, TB_);
     if (P < 1) {
-      const md = s.delay ? 0.62 : 0.3;
+      const md = 0.3;
       for (let j = 0; j < N; j++) {
-        const dl = s.delay ? s.delay[s.idx[j]] * md : j / N * md;
-        const q = ease(Math.max(0, Math.min(1, (P - dl) / (1 - md))));
+        const q = ease(Math.max(0, Math.min(1, (P - j / N * md) / (1 - md))));
         DX[j] = FX[j] + (TX[j] - FX[j]) * q; DY[j] = FY[j] + (TY[j] - FY[j]) * q;
         DS[j] = FS[j] + (TS[j] - FS[j]) * q; DB[j] = q < 0.5 ? FB[j] : TB_[j];
       }
     } else { DX.set(TX); DY.set(TY); DS.set(TS); DB.set(TB_); }
-    draw(P < 1 ? 0 : Math.min(1, holdT / 0.35));
+    draw(P < 1 ? 0 : Math.min(1, holdT / 0.5));
     const ms = performance.now() - t0; stats.frames++; stats.ms += ms; stats.max = Math.max(stats.max, ms);
   }
-  const busy = () => P < 1 || holdT < Math.max(S[cur].hold, 0.35) || (auto && !lastStage());
+  const busy = () => P < 1 || holdT < Math.max(S[cur].hold, 0.5) || (auto && !lastStage());
   function frame(now) {
     raf = 0;
     if (!visible || document.hidden) { last = 0; return; } // paused; resumes where it stopped
@@ -421,12 +434,17 @@ export function mountScene(fig) {
   function go(k) {
     if (k < 0 || k >= S.length || k === cur) return;
     FX.set(DX); FY.set(DY); FS.set(DS); FB.set(DB); // morph from whatever is on screen now
-    cur = k; P = 0; holdT = 0; D = S[k].delay ? 1.8 : 1.2; ui(); kick();
+    from = { s: S[cur], t: Math.min(holdT, S[cur].hold) };
+    cur = k; P = 0; holdT = 0; ui(); kick();
   }
   function ui() {
     prevB.disabled = cur === 0; nextB.disabled = cur === S.length - 1;
     playB.textContent = auto ? 'Pause' : lastStage() ? 'Play again' : 'Play';
-    countEl.textContent = `${cur + 1} of ${S.length}`; capEl.innerHTML = caps[cur];
+    countEl.textContent = `${cur + 1} of ${S.length}`;
+    if (capEl.dataset.k !== String(cur)) { // the caption fades across with the morph
+      capEl.dataset.k = String(cur); capEl.classList.add('swap');
+      clearTimeout(ui.t); ui.t = setTimeout(() => { capEl.innerHTML = caps[cur]; capEl.classList.remove('swap'); }, capEl.innerHTML ? 250 : 0);
+    }
   }
   function resize() {
     const r = cv.getBoundingClientRect(); if (!r.width) return;
@@ -439,7 +457,7 @@ export function mountScene(fig) {
   fetch('/about-scene/data.bin').then(r => { if (!r.ok) throw r.status; return r.arrayBuffer(); }).then(async buf => {
     build(buf);
     try { await Promise.race([document.fonts.load(`13px "Libertinus Web"`), new Promise(r => setTimeout(r, 1500))]); } catch { /* fonts optional */ }
-    if (STILL >= 0) { cur = STILL; holdT = STILL === 4 ? S[4].hold * 0.5 : 0.35; } // stage 5 still: mid-run, agents visible
+    if (STILL >= 0) { cur = STILL; holdT = S[cur].stillT ?? (STILL === 4 ? S[4].hold * 0.5 : 0.5); } // stage 5 still: mid-run, agents visible
     resize(); ui();
     if (stopped) return;
     resizeObs = new ResizeObserver(() => { cancelAnimationFrame(raf); raf = 0; resize(); });

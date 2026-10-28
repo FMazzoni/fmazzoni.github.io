@@ -1,7 +1,9 @@
 <script lang="ts">
 	import Seo from '$lib/components/Seo.svelte';
 	import AboutScene from '$lib/components/AboutScene.svelte';
+	import DatedList from '$lib/components/DatedList.svelte';
 	import { papers } from '$lib/config/papers';
+	import { paperEntries } from '$lib/utils/entries';
 	import { site } from '$lib/config/site';
 
 	let { data } = $props();
@@ -19,18 +21,5 @@
 
 <section aria-labelledby="papers">
 	<h2 class="sec" id="papers">Papers</h2>
-	<ul class="dated papers">
-		{#each papers as paper (paper.href)}
-			<li>
-				<span class="yr">{paper.year}</span>
-				<span>
-					<a href={paper.href}>{paper.title}</a>
-					<span class="by">
-						{paper.authors}. {paper.venue}.
-						{#if paper.preprint}<a href={paper.preprint}>arXiv</a>{/if}
-					</span>
-				</span>
-			</li>
-		{/each}
-	</ul>
+	<DatedList entries={paperEntries(papers, true)} years />
 </section>
