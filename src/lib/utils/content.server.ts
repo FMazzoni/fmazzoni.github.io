@@ -15,12 +15,14 @@ import toml from 'shiki/langs/toml.mjs';
 import typescript from 'shiki/langs/typescript.mjs';
 import yaml from 'shiki/langs/yaml.mjs';
 import { isOtherSite } from '$lib/config/site';
+import { siteLight } from './code-theme';
 
-// Code is highlighted at build time with Shiki (VS Code's grammars). The theme emits CSS variables,
-// so app.css sets the colours for both themes; pages ship no highlighting script.
-const theme = createCssVariablesTheme({ name: 'site', variablePrefix: '--shiki-' });
+// Code is highlighted at build time with Shiki (VS Code's grammars), in two themes at once: dark is
+// the site palette through CSS variables (app.css), light is ./code-theme. Each token carries both
+// colours and app.css picks one with the page theme; pages ship no highlighting script.
+const siteDark = createCssVariablesTheme({ name: 'site', variablePrefix: '--shiki-' });
 const highlighter = createHighlighterCoreSync({
-	themes: [theme],
+	themes: [siteDark, siteLight],
 	langs: [bash, docker, javascript, json, python, rust, sql, toml, typescript, yaml],
 	engine: createJavaScriptRegexEngine()
 });
@@ -29,7 +31,11 @@ const aliases: Record<string, string> = { dockerfile: 'docker', sh: 'bash', shel
 function highlight(code: string, lang: string | undefined): string {
 	const name = aliases[lang ?? ''] ?? lang ?? '';
 	const known = highlighter.getLoadedLanguages().includes(name);
-	return highlighter.codeToHtml(code, { lang: known ? name : 'text', theme: 'site' });
+	return highlighter.codeToHtml(code, {
+		lang: known ? name : 'text',
+		themes: { dark: 'site', light: 'site-light' },
+		defaultColor: false
+	});
 }
 
 // Markdown becomes HTML here, once, at build time; templates only render the fields this returns.

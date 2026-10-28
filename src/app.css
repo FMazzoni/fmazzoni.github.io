@@ -23,14 +23,14 @@
 @media (prefers-color-scheme: light) {
 	:root:not([data-theme='dark']) {
 		--bg: #fbfbf9; --ink: #191919; --muted: #595955; --link: #1e4e9c; --line: #dcdcd7;
-		--code: #f1f1ee; --lat: #cdd3d9; --latmaj: #a9b3bd; --path: #1e4e9c; --home: #191919;
+		--code: #f4f3ef; --lat: #cdd3d9; --latmaj: #a9b3bd; --path: #1e4e9c; --home: #191919;
 		--c-keyword: #1e4e9c; --c-string: #3b6a1f; --c-number: #9a520c; --c-type: #6a3e9e; --c-function: #1a6a61; --c-comment: #62625c;
 		color-scheme: light;
 	}
 }
 :root[data-theme='light'] {
 	--bg: #fbfbf9; --ink: #191919; --muted: #595955; --link: #1e4e9c; --line: #dcdcd7;
-	--code: #f1f1ee; --lat: #cdd3d9; --latmaj: #a9b3bd; --path: #1e4e9c; --home: #191919;
+	--code: #f4f3ef; --lat: #cdd3d9; --latmaj: #a9b3bd; --path: #1e4e9c; --home: #191919;
 	--c-keyword: #1e4e9c; --c-string: #3b6a1f; --c-number: #9a520c; --c-type: #6a3e9e; --c-function: #1a6a61; --c-comment: #62625c;
 	color-scheme: light;
 }
@@ -153,10 +153,18 @@ pre code { font-size: inherit; }
 	--shiki-token-parameter: var(--c-type); --shiki-token-punctuation: var(--muted); --shiki-token-link: var(--link);
 }
 .shiki span[style*='--shiki-token-comment'] { font-style: italic; }
+/* Each token carries both themes' colours; dark is the default, light follows the page theme. */
+.shiki, .shiki span { color: var(--shiki-dark); font-style: var(--shiki-dark-font-style, inherit); }
+@media (prefers-color-scheme: light) {
+	:root:not([data-theme='dark']) .shiki, :root:not([data-theme='dark']) .shiki span { color: var(--shiki-light); font-style: var(--shiki-light-font-style, inherit); }
+}
+:root[data-theme='light'] .shiki, :root[data-theme='light'] .shiki span { color: var(--shiki-light); font-style: var(--shiki-light-font-style, inherit); }
 .post-nav { display: flex; justify-content: space-between; gap: 22px; flex-wrap: wrap; max-width: var(--measure); border-top: 1px solid var(--line); padding-top: 18px; margin: 40px auto 0; font-size: 0.95rem; }
-/* On laptops and wider, posts set a size up: the column fills more of the screen at the same line length. */
+/* On laptops and wider, posts set a size up and a wider column (about 80 characters a line), so the
+   text uses the screen instead of leaving wide side margins. */
 @media (min-width: 1100px) {
-	article.post { font-size: 21.5px; }
+	article.post { font-size: 22px; --measure: 38em; }
+	.post-body { max-width: 64rem; }
 }
 
 /* About: the point-cloud scene. Its matte stays dark in both themes. */

@@ -28,5 +28,9 @@ export default defineConfig([
   { files: ["**/*.md"], plugins: { markdown }, language: "markdown/commonmark", extends: ["markdown/recommended"] },
   // text-wrap and hyphenation are progressive enhancements: browsers without them set the text plainly.
   { files: ["**/*.css"], plugins: { css }, language: "css/css", extends: ["css/recommended"],
-    rules: { "css/use-baseline": ["error", { allowProperties: ["text-wrap", "hyphens", "hyphenate-limit-chars"] }] } },
+    rules: {
+      "css/use-baseline": ["error", { allowProperties: ["text-wrap", "hyphens", "hyphenate-limit-chars"] }],
+      // Code colours come from variables Shiki writes inline on each token (--shiki-dark, --shiki-light).
+      "css/no-invalid-properties": ["error", { allowUnknownVariables: true }]
+    } },
 ]);
