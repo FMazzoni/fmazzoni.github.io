@@ -5,6 +5,8 @@ export interface Shot {
 	alt: string;
 	width: number;
 	height: number;
+	/** The same view in the project's light theme, where it has one; shown in this site's light mode. */
+	lightSrc?: string;
 	/** Pane letter for a multi-pane figure, cited in the caption. */
 	tag?: string;
 }
@@ -58,7 +60,7 @@ export const projects: Project[] = [
 			{ label: 'live', href: '/divisor-invariant/' },
 			{ label: 'code', href: 'https://github.com/FMazzoni/divisor-invariant' }
 		],
-		shots: [{ src: '/images/projects/divisor-invariant.webp', alt: 'A grid of numbers with the invariant ones marked in green', width: 1240, height: 775 }],
+		shots: [{ src: '/images/projects/divisor-invariant.webp', lightSrc: '/images/projects/divisor-invariant-light.webp', alt: 'A grid of numbers with the invariant ones marked in green', width: 1240, height: 775 }],
 		featured: true
 	},
 	{
@@ -70,7 +72,7 @@ export const projects: Project[] = [
 			{ label: 'docs', href: '/quipu/' },
 			{ label: 'code', href: 'https://github.com/FMazzoni/quipu' }
 		],
-		shots: [{ src: '/images/projects/quipu.webp', alt: 'The quipu documentation page with its install command', width: 1240, height: 775 }],
+		shots: [{ src: '/images/projects/quipu.webp', lightSrc: '/images/projects/quipu-light.webp', alt: 'The quipu documentation page with its install command', width: 1240, height: 775 }],
 		featured: true
 	},
 	{

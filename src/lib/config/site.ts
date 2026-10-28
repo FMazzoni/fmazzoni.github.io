@@ -5,6 +5,7 @@ export const site = {
 	name: 'Fernando',
 	url: 'https://fmazzoni.github.io',
 	intro: 'Hi, I’m Fernando. I work on machine learning and data engineering.',
+	background: 'I came to it from physics, with research on X-ray astronomy, LiDAR and how agents search.',
 	description: 'Fernando’s projects and writing on machine learning, data engineering and physics.',
 	social: [
 		{ name: 'GitHub', url: 'https://github.com/FMazzoni' },

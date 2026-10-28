@@ -14,6 +14,8 @@
 	--serif: 'Libertinus Web', 'Libertinus Serif', 'Linux Libertine O', 'DejaVu Serif', serif;
 	--mono: 'NCM Mono Web', 'Latin Modern Mono', 'DejaVu Sans Mono', monospace;
 	--measure: 31em;
+	/* The home page's two-column gap, shared by the project grid and the sections under it. */
+	--col-gap: 40px;
 	/* Side gutters clear a phone's notch or system bar when there is one. */
 	--gutter: 24px;
 	--gutter-left: max(var(--gutter), env(safe-area-inset-left));
@@ -75,22 +77,34 @@ footer.site a { color: var(--muted); padding-block: 10px; }
 /* Home: the intro sits beside one figure, set like a paper's Fig. 1. */
 .intro.with-figure { display: grid; grid-template-columns: 7fr 5fr; gap: 24px 56px; align-items: start; padding-block: 64px 72px; }
 .intro.with-figure h1 { margin-top: 0.4em; }
+.intro .background { color: var(--muted); font-size: 1.15rem; max-width: 30em; margin-top: 18px; }
 .hello { margin: 0; }
 .hello { max-width: 440px; justify-self: end; width: 100%; }
-.hello img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; background: var(--matte); box-shadow: 0 0 0 1px var(--line); filter: brightness(1.35); }
-.lower { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 56px; }
+.hello img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; }
+.hello .hello-light { display: none; }
+@media (prefers-color-scheme: light) {
+	:root:not([data-theme='dark']) .hello .hello-light { display: block; }
+	:root:not([data-theme='dark']) .hello .hello-dark { display: none; }
+}
+:root[data-theme='light'] .hello .hello-light { display: block; }
+:root[data-theme='light'] .hello .hello-dark { display: none; }
+.lower { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--col-gap); }
 .lower ul.dated { max-width: none; }
 .hello figcaption { font-size: 0.85rem; color: var(--muted); margin-top: 8px; text-wrap: pretty; }
-.projects + ul.more { margin-top: -40px; margin-bottom: 0; }
+/* The one-liners under the home figures take the first grid column, so their edges line up. */
+.projects + ul.more { margin-top: -40px; margin-bottom: 0; max-width: calc((100% - var(--col-gap)) / 2); }
 p.all { margin: 14px 0 104px; font-size: 0.95rem; }
 /* Caps and small caps, as a paper sets a section head: a full capital, then small caps. */
 h2.sec { font-size: 1.3rem; font-weight: 400; font-variant-caps: small-caps; letter-spacing: 0.02em; margin: 0 0 22px; }
 h2.sec a { color: inherit; text-decoration: none; }
 
 /* Projects: screenshot on a matte, label underneath */
-.projects { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 56px 40px; margin-bottom: 96px; }
+.projects { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 56px var(--col-gap); margin-bottom: 96px; }
 .frame { background: var(--frame); box-shadow: 0 0 0 1px var(--line); aspect-ratio: 16 / 10; overflow: hidden; display: flex; justify-content: center; align-items: center; padding: 5%; }
-.frame.single { padding: 3.5%; }
+/* Vertical padding is the horizontal times 10/16, so a 16:10 screenshot gets an even margin. */
+.frame.single { padding: 2.1875% 3.5%; }
+/* A screenshot with a light-theme twin shows the twin in light mode; the hidden one never loads. */
+.frame.single img.shot-light { display: none; }
 .frame.single img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .frame.phones { padding: 6% 6% 4%; gap: 5%; align-items: stretch; }
 .pane { position: relative; height: 100%; min-width: 0; }
@@ -174,6 +188,12 @@ pre code { font-size: inherit; }
 	--shiki-token-parameter: var(--c-type); --shiki-token-punctuation: var(--muted); --shiki-token-link: var(--link);
 }
 .shiki span[style*='--shiki-token-comment'] { font-style: italic; }
+@media (prefers-color-scheme: light) {
+	:root:not([data-theme='dark']) .frame.single img.shot-light { display: block; }
+	:root:not([data-theme='dark']) .frame.single img.shot-dark { display: none; }
+}
+:root[data-theme='light'] .frame.single img.shot-light { display: block; }
+:root[data-theme='light'] .frame.single img.shot-dark { display: none; }
 /* Each token carries both themes' colours; dark is the default, light follows the page theme. */
 .shiki, .shiki span { color: var(--shiki-dark); font-style: var(--shiki-dark-font-style, inherit); }
 @media (prefers-color-scheme: light) {
@@ -189,9 +209,10 @@ pre code { font-size: inherit; }
 	.post-body { max-width: 64rem; }
 }
 
-/* About: the point-cloud scene. Its matte stays dark in both themes. */
+/* About: the point-cloud scene. */
 .scene { margin: 0 0 96px; max-width: 960px; }
-.scene .frame { display: none; padding: 0; position: relative; }
+/* The figure sits straight on the page, like a figure in a paper; it draws in the page's own colours. */
+.scene .frame { display: none; padding: 0; position: relative; background: var(--bg); box-shadow: none; }
 .scene canvas { display: block; width: 100%; height: 100%; }
 .scene .ui { display: none; align-items: baseline; gap: 18px; margin-top: 10px; font-size: 0.95rem; }
 .scene .ui button { font: inherit; color: var(--link); background: none; border: 0; padding: 8px 0; cursor: pointer; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
@@ -218,7 +239,8 @@ pre code { font-size: inherit; }
 .lost button.again[disabled] { color: var(--muted); text-decoration: none; cursor: default; }
 
 @media (max-width: 980px) {
-	.projects { gap: 48px 28px; }
+	:root { --col-gap: 28px; }
+	.projects { row-gap: 48px; }
 }
 @media (max-width: 760px) {
 	body { font-size: 19px; }
@@ -231,6 +253,7 @@ pre code { font-size: inherit; }
 	.hello { max-width: 360px; justify-self: start; }
 	.hello img { aspect-ratio: 1; }
 	.lower { grid-template-columns: minmax(0, 1fr); }
+	.projects + ul.more { max-width: none; }
 	.projects { grid-template-columns: minmax(0, 1fr); gap: 44px; }
 	ul.dated li, ul.dated.papers li { grid-template-columns: minmax(0, 1fr); gap: 0; }
 	article.post header { padding-block: 40px 22px; }

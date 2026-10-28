@@ -12,7 +12,8 @@
  */
 /** Runs the scene inside `fig` (the About page's <figure class="scene">). Returns a function that stops it. */
 export function mountScene(fig) {
-  let stopped = false, resizeObs, seenObs;
+  let stopped = false, resizeObs, seenObs, themeObs, unpaint;
+  const lightScheme = matchMedia('(prefers-color-scheme: light)');
   const stillM = /[?&]still=(\d)/.exec(location.search);
   const STILL = stillM ? +stillM[1] - 1 : -1;
   const N = 4000;
@@ -22,11 +23,9 @@ export function mountScene(fig) {
   const countEl = fig.querySelector('.count'), capEl = fig.querySelector('.live');
   const caps = [...fig.querySelectorAll('.stills .c')].map(p => p.innerHTML);
 
-  // Colours on the dark matte (fixed in both themes, like the screenshot mattes).
-  const BG = '#0E1013', INK = [213, 217, 222], MUTED = '#8F949B', RULE = '#3A3E44', LINK = '#9DC4F2';
-  const mix = a => `rgb(${INK.map((c, i) => Math.round(c * a + [14, 16, 19][i] * (1 - a))).join()})`;
-  const COL = [0.2, 0.32, 0.46, 0.62, 0.8, 1].map(mix); // 0..5 ink levels
-  COL.push(LINK); // 6
+  // Colours come from the page's own tokens, so the figure sits on the page in either theme: points
+  // are the ink at several strengths over the background, labels the muted text, rules the line colour.
+  const hex = (v, fallback) => { const m = /^#([0-9a-f]{6})$/i.exec((v || '').trim()); const h = m ? m[1] : fallback; return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)); };
   const turbo = x => { // polynomial fit of Google's turbo; x clipped above the purple end
     x = 0.13 + 0.8 * x;
     const r = 0.1357 + x * (4.6154 + x * (-42.6603 + x * (132.1311 + x * (-152.9424 + x * 59.2864))));
@@ -34,9 +33,23 @@ export function mountScene(fig) {
     const b = 0.1067 + x * (12.6419 + x * (-60.582 + x * (110.3628 + x * (-89.9031 + x * 27.3482))));
     return `rgb(${[r, g, b].map(v => Math.round(255 * Math.min(1, Math.max(0, v)))).join()})`;
   };
-  const TB = 12; for (let i = 0; i < TB; i++) COL.push(turbo(i / (TB - 1))); // 7..18
-  COL.push('#2A2E33'); // 19: far side of the globe
-  COL.push(BG); // 20: bot eyes, drawn last as holes
+  const TB = 12;
+  let BG, MUTED, RULE, LINK;
+  const COL = [];
+  function paint() {
+    const css = getComputedStyle(fig);
+    const bg = hex(css.getPropertyValue('--bg'), '141516'), ink = hex(css.getPropertyValue('--ink'), 'e7e4dd');
+    const rgb = c => `rgb(${c.join()})`, mix = a => rgb(ink.map((c, i) => Math.round(c * a + bg[i] * (1 - a))));
+    BG = rgb(bg); MUTED = css.getPropertyValue('--muted').trim() || '#a29e96';
+    RULE = css.getPropertyValue('--line').trim() || '#2b2d31'; LINK = css.getPropertyValue('--link').trim() || '#9dc4f2';
+    COL.length = 0;
+    COL.push(...[0.2, 0.32, 0.46, 0.62, 0.8, 1].map(mix)); // 0..5 ink levels
+    COL.push(LINK); // 6
+    for (let i = 0; i < TB; i++) COL.push(turbo(i / (TB - 1))); // 7..18
+    COL.push(mix(0.12)); // 19: far side of the globe
+    COL.push(BG); // 20: bot eyes, drawn last as holes
+  }
+  paint();
   const NB = COL.length, ORDER = [19, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 0, 1, 2, 3, 4, 5, 6, 20]; // ink after turbo so outlines sit on top
 
   let rs = 7; // seeded generator, so the simulation and the illustration are the same on every load
@@ -347,7 +360,7 @@ export function mountScene(fig) {
   }
 
   // ---- state and loop
-  let cur = 0, P = 1, holdT = 0, raf = 0, last = 0, visible = true, D = 1.9;
+  let cur = 0, P = 1, holdT = 0, raf = 0, last = 0, visible = true, D = 1.2;
   // Autoplay: after a stage's own motion ends, its caption stays up READ_S more seconds (at least
   // MIN_STAGE_S per stage in all) before the next morph. Time only counts while the figure is visible.
   const READ_S = 3.5, MIN_STAGE_S = 5;
@@ -408,7 +421,7 @@ export function mountScene(fig) {
   function go(k) {
     if (k < 0 || k >= S.length || k === cur) return;
     FX.set(DX); FY.set(DY); FS.set(DS); FB.set(DB); // morph from whatever is on screen now
-    cur = k; P = 0; holdT = 0; D = S[k].delay ? 2.8 : 1.9; ui(); kick();
+    cur = k; P = 0; holdT = 0; D = S[k].delay ? 1.8 : 1.2; ui(); kick();
   }
   function ui() {
     prevB.disabled = cur === 0; nextB.disabled = cur === S.length - 1;
@@ -434,6 +447,12 @@ export function mountScene(fig) {
     seenObs = new IntersectionObserver(es => { visible = es[es.length - 1].isIntersecting; if (visible) kick(); });
     seenObs.observe(cv);
     document.addEventListener('visibilitychange', kick);
+    // The page theme can change under the figure (the toggle, or the system setting).
+    const repaint = () => { paint(); render(); };
+    themeObs = new MutationObserver(repaint);
+    themeObs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    lightScheme.addEventListener('change', repaint);
+    unpaint = () => lightScheme.removeEventListener('change', repaint);
     // Stepping by hand takes over from autoplay.
     prevB.addEventListener('click', () => { auto = false; go(cur - 1); ui(); });
     nextB.addEventListener('click', () => { auto = false; go(cur + 1); ui(); });
@@ -449,6 +468,8 @@ export function mountScene(fig) {
     cancelAnimationFrame(raf);
     resizeObs?.disconnect();
     seenObs?.disconnect();
+    themeObs?.disconnect();
+    unpaint?.();
     document.removeEventListener('visibilitychange', kick);
   };
 }

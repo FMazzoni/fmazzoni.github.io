@@ -18,7 +18,10 @@
 						{#if shot.tag}<span class="tag">{shot.tag}</span>{/if}
 					</span>
 				{:else}
-					<img src={shot.src} alt={shot.alt} width={shot.width} height={shot.height} loading="lazy" decoding="async" />
+					<img class:shot-dark={!!shot.lightSrc} src={shot.src} alt={shot.alt} width={shot.width} height={shot.height} loading="lazy" decoding="async" />
+					{#if shot.lightSrc}
+						<img class="shot-light" src={shot.lightSrc} alt={shot.alt} width={shot.width} height={shot.height} loading="lazy" decoding="async" />
+					{/if}
 				{/if}
 			{/each}
 		</div>

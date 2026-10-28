@@ -17,15 +17,25 @@
 <Seo />
 
 <section class="intro with-figure">
-	<h1>{site.intro}</h1>
+	<div>
+		<h1>{site.intro}</h1>
+		<p class="background">{site.background}</p>
+	</div>
 	<figure class="hello">
-		<!-- Waves once on load (an animated WebP that plays once), square on phones, a still under reduced motion. -->
+		<!-- Waves once on load (an animated WebP that plays once), drawn in each theme's colours on the
+		     page itself; square on phones, a still under reduced motion. The other theme's copy never loads. -->
 		<a href="/about"
-			><picture>
-				<source media="(prefers-reduced-motion: reduce) and (max-width: 760px)" srcset="/images/hello-wave-square-still.webp" />
-				<source media="(prefers-reduced-motion: reduce)" srcset="/images/hello-wave-still.webp" />
-				<source media="(max-width: 760px)" srcset="/images/hello-wave-square.webp" />
-				<img src="/images/hello-wave.webp" width="640" height="480" alt="A person drawn in rows of points, one arm raised in a wave, as a LiDAR sensor would see them" />
+			><picture class="hello-dark">
+				<source media="(prefers-reduced-motion: reduce) and (max-width: 760px)" srcset="/images/hello-wave-square-dark-still.webp" />
+				<source media="(prefers-reduced-motion: reduce)" srcset="/images/hello-wave-dark-still.webp" />
+				<source media="(max-width: 760px)" srcset="/images/hello-wave-square-dark.webp" />
+				<img src="/images/hello-wave-dark.webp" width="640" height="480" loading="lazy" alt="A person drawn in rows of points, one arm raised in a wave, as a LiDAR sensor would see them" />
+			</picture>
+			<picture class="hello-light">
+				<source media="(prefers-reduced-motion: reduce) and (max-width: 760px)" srcset="/images/hello-wave-square-light-still.webp" />
+				<source media="(prefers-reduced-motion: reduce)" srcset="/images/hello-wave-light-still.webp" />
+				<source media="(max-width: 760px)" srcset="/images/hello-wave-square-light.webp" />
+				<img src="/images/hello-wave-light.webp" width="640" height="480" loading="lazy" alt="A person drawn in rows of points, one arm raised in a wave, as a LiDAR sensor would see them" />
 			</picture></a
 		>
 		<figcaption><i>Fig. 1.</i> Hello, as a LiDAR scanner would see it (an illustration). <a href="/about">More of my work, in points</a>.</figcaption>
