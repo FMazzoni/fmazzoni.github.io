@@ -130,3 +130,18 @@ test('links to project sites leave the app', async ({ page }) => {
 	await link.click();
 	await documentRequest;
 });
+
+// The About figure plays through by itself once visible, and Pause holds it where it is.
+test('about figure autoplays and pauses', async ({ page }) => {
+	await page.goto('/about', { waitUntil: 'networkidle' });
+	const figure = page.locator('figure.scene');
+	await figure.scrollIntoViewIfNeeded();
+	await expect(figure).toHaveAttribute('data-ready', '1', { timeout: 10000 });
+	const count = figure.locator('.count');
+	await expect(count).toHaveText('2 of 5', { timeout: 12000 });
+	await figure.locator('button.play').click();
+	await expect(figure.locator('button.play')).toHaveText('Play');
+	const held = await count.textContent();
+	await page.waitForTimeout(8000);
+	await expect(count).toHaveText(held!);
+});

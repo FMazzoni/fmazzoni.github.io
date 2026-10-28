@@ -35,6 +35,7 @@
 		<button type="button" class="prev">Previous</button>
 		<span class="count" aria-hidden="true">1 of 5</span>
 		<button type="button" class="next">Next</button>
+		<button type="button" class="play">Pause</button>
 	</div>
 	<ol class="stills">
 		<li>

@@ -8,7 +8,7 @@ export default defineConfig({
 	// Chromium's screenshot capture fails now and then for no reason in the page; one retry absorbs it.
 	retries: 1,
 	// Many parallel full-page captures make Chromium fail some ("Unable to capture screenshot").
-	workers: 4,
+	workers: 2,
 	outputDir: 'test-results',
 	reporter: [['list']],
 	use: { baseURL: 'http://127.0.0.1:4179' },

@@ -1,14 +1,14 @@
 // @ts-nocheck -- plain JS ported from the About-scene prototype; its behaviour is checked by the Playwright run.
 /* About-page scene. One cloud of points re-forms through five stages of the owner's work.
- * Stepped with Previous / Next; nothing moves until the visitor asks.
- * Real data (data.bin, built by tools/prep.py):
- *   stars  Gaia DR3 field around SDSS J151905.90+500702.9 (target of ApJ 881, 49)
- *   geoid  EGM2008 undulation grid from FMazzoni/geoid-globe
+ * It plays through once when it comes into view, holding each stage long enough to read its
+ * caption, and stops on the last; Pause, Previous and Next take over at any point.
+ * data.bin (built outside this repo) holds:
+ *   stars   Gaia DR3 field around SDSS J151905.90+500702.9 (target of ApJ 881, 49)
+ *   geoid   EGM2008 undulation grid from FMazzoni/geoid-globe
+ *   person  SYNTHETIC LiDAR-style scan of a parametric body waving. Not a real scan.
  * Generated here:
- *   walks      SIMULATED Brownian and Levy walkers (a simulation, as in the paper, not measured data)
- *   person     SYNTHETIC LiDAR-style scan of a parametric body waving (tools/person.py). Not a real scan.
- *   now        SYNTHETIC illustration: agents on parallel lanes merging back (default), or agents
- *              working through a dependency graph (data-variant="plan", alt-task-graph.html).
+ *   walks   SIMULATED Brownian and Levy walkers (a simulation, as in the paper, not measured data)
+ *   now     SYNTHETIC illustration: agents on parallel lanes merging back.
  */
 /** Runs the scene inside `fig` (the About page's <figure class="scene">). Returns a function that stops it. */
 export function mountScene(fig) {
@@ -18,7 +18,7 @@ export function mountScene(fig) {
   const N = 4000;
   const cv = fig.querySelector('canvas');
   const ctx = cv.getContext('2d', { alpha: false });
-  const prevB = fig.querySelector('.prev'), nextB = fig.querySelector('.next');
+  const prevB = fig.querySelector('.prev'), nextB = fig.querySelector('.next'), playB = fig.querySelector('.play');
   const countEl = fig.querySelector('.count'), capEl = fig.querySelector('.live');
   const caps = [...fig.querySelectorAll('.stills .c')].map(p => p.innerHTML);
 
@@ -66,7 +66,7 @@ export function mountScene(fig) {
     const ng = u16(), gh = new Uint8Array(buf, o, ng); o += ng;
     const nb = u16(), bll = new Uint16Array(buf.slice(o, o + nb * 4)); o += nb * 4; // country outlines (geoid-globe repo)
     const bh = new Uint8Array(buf, o, nb); o += nb;
-    const ge = mk({ ext: [1.2, 1.2], dist: 4.5, pitch: 0.38, hold: 9, ann: annGeoid });
+    const ge = mk({ ext: [1.2, 1.2], dist: 4.5, pitch: 0.38, hold: 6.5, ann: annGeoid });
     const PHI = Math.PI * (3 - Math.sqrt(5)), K = 5000 / 6371000; // 5,000x exaggeration
     ge.h = new Float32Array(N);
     ge.out = new Uint8Array(N);
@@ -348,6 +348,12 @@ export function mountScene(fig) {
 
   // ---- state and loop
   let cur = 0, P = 1, holdT = 0, raf = 0, last = 0, visible = true, D = 1.9;
+  // Autoplay: after a stage's own motion ends, its caption stays up READ_S more seconds (at least
+  // MIN_STAGE_S per stage in all) before the next morph. Time only counts while the figure is visible.
+  const READ_S = 3.5, MIN_STAGE_S = 5;
+  let auto = STILL < 0;
+  const lastStage = () => cur === S.length - 1;
+  const dwell = () => Math.max(S[cur].hold + READ_S, MIN_STAGE_S);
   const stats = window.__sceneStats = { frames: 0, ms: 0, max: 0 };
   function draw(annA) {
     ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H);
@@ -387,12 +393,14 @@ export function mountScene(fig) {
     draw(P < 1 ? 0 : Math.min(1, holdT / 0.35));
     const ms = performance.now() - t0; stats.frames++; stats.ms += ms; stats.max = Math.max(stats.max, ms);
   }
-  const busy = () => P < 1 || holdT < Math.max(S[cur].hold, 0.35);
+  const busy = () => P < 1 || holdT < Math.max(S[cur].hold, 0.35) || (auto && !lastStage());
   function frame(now) {
     raf = 0;
     if (!visible || document.hidden) { last = 0; return; } // paused; resumes where it stopped
     const dt = last ? Math.min(0.05, (now - last) / 1000) : 0; last = now;
     if (P < 1) P = Math.min(1, P + dt / D); else holdT += dt;
+    if (auto && P >= 1 && !lastStage() && holdT >= dwell()) go(cur + 1);
+    else if (auto && lastStage() && holdT >= S[cur].hold) { auto = false; ui(); }
     render();
     if (busy()) raf = requestAnimationFrame(frame); else last = 0;
   }
@@ -404,6 +412,7 @@ export function mountScene(fig) {
   }
   function ui() {
     prevB.disabled = cur === 0; nextB.disabled = cur === S.length - 1;
+    playB.textContent = auto ? 'Pause' : lastStage() ? 'Play again' : 'Play';
     countEl.textContent = `${cur + 1} of ${S.length}`; capEl.innerHTML = caps[cur];
   }
   function resize() {
@@ -425,8 +434,14 @@ export function mountScene(fig) {
     seenObs = new IntersectionObserver(es => { visible = es[es.length - 1].isIntersecting; if (visible) kick(); });
     seenObs.observe(cv);
     document.addEventListener('visibilitychange', kick);
-    prevB.addEventListener('click', () => go(cur - 1));
-    nextB.addEventListener('click', () => go(cur + 1));
+    // Stepping by hand takes over from autoplay.
+    prevB.addEventListener('click', () => { auto = false; go(cur - 1); ui(); });
+    nextB.addEventListener('click', () => { auto = false; go(cur + 1); ui(); });
+    playB.addEventListener('click', () => {
+      auto = !auto;
+      if (auto && lastStage()) go(0);
+      ui(); kick();
+    });
     fig.dataset.ready = '1';
   }).catch(() => fig.classList.remove('js'));
   return () => {
