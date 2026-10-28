@@ -3,14 +3,15 @@
 	import ProjectFigure from '$lib/components/ProjectFigure.svelte';
 	import { isOtherSite, site } from '$lib/config/site';
 	import { projects } from '$lib/config/projects';
+	import { papers } from '$lib/config/papers';
 	import { shortDate } from '$lib/utils/dates';
 
 	let { data } = $props();
 
-	// Home shows the first two projects with their screenshots and the rest as one line each;
+	// Home shows the first two projects with screenshots and the next three as one line each;
 	// /projects is the full set.
 	const shown = projects.filter((p) => p.featured).slice(0, 2);
-	const listed = projects.filter((p) => !shown.includes(p));
+	const listed = projects.filter((p) => !shown.includes(p)).slice(0, 3);
 </script>
 
 <Seo />
@@ -46,6 +47,7 @@
 			</li>
 		{/each}
 	</ul>
+	<p class="all"><a href="/projects">All projects</a></p>
 </section>
 
 <section aria-labelledby="writing">
@@ -55,6 +57,18 @@
 			<li>
 				<time datetime={post.date}>{shortDate(post.date)}</time>
 				<a href="/{post.slug}">{post.title}</a>
+			</li>
+		{/each}
+	</ul>
+</section>
+
+<section aria-labelledby="papers">
+	<h2 class="sec" id="papers"><a href="/about#papers">Papers</a></h2>
+	<ul class="dated papers">
+		{#each papers as paper (paper.href)}
+			<li>
+				<span class="yr">{paper.year}</span>
+				<span><a href={paper.href}>{paper.title}</a><span class="by">{paper.venue}</span></span>
 			</li>
 		{/each}
 	</ul>

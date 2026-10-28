@@ -1,11 +1,11 @@
 import type { ThemeRegistration } from 'shiki/core';
 
 // The light theme for code blocks: softer tones than an editor theme, more token kinds than the
-// CSS-variables theme, every colour at least 4.5:1 on the light code background (#ebe5d7).
+// CSS-variables theme, every colour at least 4.5:1 on the light code background (#ede9df).
 export const siteLight: ThemeRegistration = {
 	name: 'site-light',
 	type: 'light',
-	colors: { 'editor.background': '#ebe5d7', 'editor.foreground': '#2e2a24' },
+	colors: { 'editor.background': '#ede9df', 'editor.foreground': '#2e2a24' },
 	tokenColors: [
 		{ scope: ['comment', 'punctuation.definition.comment'], settings: { foreground: '#655f55', fontStyle: 'italic' } },
 		{ scope: ['keyword', 'storage.type', 'storage.modifier', 'keyword.control', 'keyword.other'], settings: { foreground: '#743a96' } },
