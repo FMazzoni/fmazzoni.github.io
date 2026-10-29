@@ -4,9 +4,9 @@ import otherSites from './other-sites.json';
 export const site = {
 	name: 'Fernando',
 	url: 'https://fmazzoni.github.io',
-	intro: 'Hi, I’m Fernando. I work on machine learning and data engineering.',
-	background: 'I came to it from physics, with research on X-ray astronomy, LiDAR and how agents search.',
-	description: 'Fernando’s projects and writing on machine learning, data engineering and physics.',
+	intro: 'Hi, I’m Fernando. I work on machine learning and data engineering, and lately I build tools for working with AI agents.',
+	background: 'I came to data work from physics, with research on X-ray astronomy, LiDAR and how agents search.',
+	description: 'Fernando’s projects and writing on machine learning, data engineering, AI agents and physics.',
 	social: [
 		{ name: 'GitHub', url: 'https://github.com/FMazzoni' },
 		{ name: 'LinkedIn', url: 'https://www.linkedin.com/in/fernando-mazzoni' }
