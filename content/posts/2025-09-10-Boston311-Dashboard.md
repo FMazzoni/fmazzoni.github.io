@@ -17,7 +17,7 @@ The result is a basic geospatial dashboard using DuckDB for data queries, Panel 
 
 *Want to check out the dashboard on Hugging Face Spaces? [Try it here](https://huggingface.co/spaces/fmazzoni/boston311) or look at the [code](https://github.com/FMazzoni/boston311_paneldashboard) to see how it's built.*
 
-<p class="note">Editor’s note, October 2026: the hosted dashboard isn’t loading at the moment. The code is on <a href="https://github.com/FMazzoni/boston311_paneldashboard">GitHub</a>.</p>
+<p class="note">Editor’s note, October 2026: the hosted dashboard is no longer running. The code is on <a href="https://github.com/FMazzoni/boston311_paneldashboard">GitHub</a>.</p>
 
 ## Technical Choices
 
