@@ -5,14 +5,15 @@
 	import ProjectList from '$lib/components/ProjectList.svelte';
 	import DatedList from '$lib/components/DatedList.svelte';
 	import { home, site } from '$lib/config/site';
-	import { projects } from '$lib/config/projects';
+	import { withPosts } from '$lib/config/projects';
 	import { papers } from '$lib/config/papers';
 	import { paperEntries, postEntries } from '$lib/utils/entries';
 
 	let { data } = $props();
 
-	const shown = projects.filter((p) => p.featured).slice(0, home.figures);
-	const listed = projects.filter((p) => !shown.includes(p)).slice(0, home.lines);
+	const projects = $derived(withPosts(data.posts));
+	const shown = $derived(projects.filter((p) => p.featured).slice(0, home.figures));
+	const listed = $derived(projects.filter((p) => !shown.includes(p)).slice(0, home.lines));
 </script>
 
 <Seo />

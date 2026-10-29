@@ -1,4 +1,7 @@
 // Projects, in the order the owner chose to show them. Featured ones get a screenshot on the home page.
+// A post links itself to a project with `project: <name>` in its front matter; withPosts adds the link.
+
+import { postPath } from './site';
 
 export interface Shot {
 	src: string;
@@ -96,10 +99,18 @@ export const projects: Project[] = [
 		year: 2025,
 		stack: 'Python, DuckDB, Panel',
 		summary: 'Fourteen years of Boston’s 311 service requests on a map, in a weekend dashboard.',
-		links: [
-			{ label: 'post', href: '/blog/boston311-dashboard' },
-			{ label: 'code', href: 'https://github.com/FMazzoni/boston311_paneldashboard' }
-		],
+		links: [{ label: 'code', href: 'https://github.com/FMazzoni/boston311_paneldashboard' }],
 		featured: false
 	}
 ];
+
+/** The projects, each with a "post" link for every post whose front matter names it, placed before its code link. */
+export function withPosts(posts: { slug: string; project?: string }[]): Project[] {
+	return projects.map((project) => {
+		const own = posts.filter((post) => post.project === project.name).map((post) => ({ label: 'post', href: postPath(post.slug) }));
+		if (!own.length) return project;
+		const code = project.links.findIndex((link) => link.label === 'code');
+		const at = code < 0 ? project.links.length : code;
+		return { ...project, links: [...project.links.slice(0, at), ...own, ...project.links.slice(at)] };
+	});
+}

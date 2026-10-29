@@ -69,6 +69,8 @@ export interface Post {
 	date: string;
 	/** One plain-text sentence for lists, meta descriptions and link previews. */
 	excerpt: string;
+	/** The `name` of the project in projects.ts this post is about, if any; its card links here. */
+	project?: string;
 	html: string;
 }
 
@@ -109,6 +111,7 @@ function readPost(filename: string): Post {
 		title: smarten(String(data.title ?? '')),
 		date: isoDate(data.date),
 		excerpt: smarten(String(data.excerpt ?? '')),
+		project: data.project ? String(data.project) : undefined,
 		html
 	};
 }
