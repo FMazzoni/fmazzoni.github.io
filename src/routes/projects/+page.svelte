@@ -2,11 +2,14 @@
 	import Seo from '$lib/components/Seo.svelte';
 	import ProjectFigure from '$lib/components/ProjectFigure.svelte';
 	import ProjectList from '$lib/components/ProjectList.svelte';
-	import { projects } from '$lib/config/projects';
+	import { withPosts } from '$lib/config/projects';
 	import { site } from '$lib/config/site';
 
-	const featured = projects.filter((p) => p.featured);
-	const more = projects.filter((p) => !p.featured);
+	let { data } = $props();
+
+	const projects = $derived(withPosts(data.posts));
+	const featured = $derived(projects.filter((p) => p.featured));
+	const more = $derived(projects.filter((p) => !p.featured));
 </script>
 
 <Seo title="Projects" description="Things {site.name} has built: tools for AI agents, geospatial visualizations and data pipelines." />

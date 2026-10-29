@@ -1,6 +1,7 @@
 ---
 title: Handing my agents whole features
 date: 2026-10-29
+project: herdr-pwa
 category: misc
 tags: agents, herdr, python, phone
 excerpt: "Agents built herdr-pwa, a phone app for answering my coding agents, while I planned, reviewed and checked the work."

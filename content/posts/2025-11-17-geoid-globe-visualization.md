@@ -1,6 +1,7 @@
 ---
 title: Visualizing Earth's Geoid in 3D
 date: 2025-11-17
+project: geoid-globe
 category: misc
 tags: python, geospatial, visualization, threejs, geoid, gis
 excerpt: "An interactive 3D visualization of Earth's geoid—the shape of mean sea level—using Python, Three.js, and the EGM2008 gravity model. Explore how gravity shapes our planet's reference surface."

@@ -1,6 +1,7 @@
 ---
 title: Boston 311 Dashboard
 date: 2025-09-10
+project: Boston 311 dashboard
 category: misc
 tags: python, geospatial, dashboard, duckdb, panel, lonboard
 excerpt: "A weekend project exploring Boston's 311 service data with DuckDB, Panel, and Lonboard - building an interactive geospatial dashboard to visualize civic service requests."
