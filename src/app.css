@@ -75,12 +75,15 @@ footer.site a { color: var(--muted); padding-block: 10px; }
 .intro p { max-width: var(--measure); margin: 22px 0 0; text-wrap: pretty; }
 .intro p + p { margin-top: 14px; }
 /* Home: the intro sits beside one figure, set like a paper's Fig. 1. */
-.intro.with-figure { display: grid; grid-template-columns: 7fr 5fr; gap: 24px 56px; align-items: start; padding-block: 64px 72px; }
-.intro.with-figure h1 { margin-top: 0.4em; }
-.intro .background { color: var(--muted); font-size: 1.15rem; max-width: 30em; margin-top: 18px; }
-.hello { margin: 0; }
-.hello { max-width: 440px; justify-self: end; width: 100%; }
-.hello img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; }
+.intro.with-figure { display: grid; grid-template-columns: 7fr 5fr; gap: 24px 56px; align-items: start; padding-block: 48px 72px; }
+.intro.with-figure h1 { margin-top: 2.2em; } /* level with the figure's shoulders, not its head or its middle */
+.intro .background { color: var(--muted); font-size: inherit; max-width: 30em; margin-top: 18px; }
+.hello { margin: 0; max-width: 340px; justify-self: end; width: 100%; }
+.hello > a { display: block; position: relative; }
+.hello img, .hello canvas { display: block; width: 100%; height: auto; aspect-ratio: 3 / 4; }
+.hello canvas { position: absolute; inset: 0; height: 100%; visibility: hidden; }
+.hello.live canvas { visibility: visible; }
+.hello.live img { opacity: 0; } /* still read by screen readers, as the alt text */
 .hello .hello-light { display: none; }
 @media (prefers-color-scheme: light) {
 	:root:not([data-theme='dark']) .hello .hello-light { display: block; }
@@ -251,8 +254,7 @@ pre code { font-size: inherit; }
 	.mode { order: 2; }
 	.intro { padding-block: 44px; }
 	.intro.with-figure { grid-template-columns: minmax(0, 1fr); padding-block: 40px 48px; }
-	.hello { max-width: 360px; justify-self: start; }
-	.hello img { aspect-ratio: 1; }
+	.hello { max-width: 220px; justify-self: start; }
 	.lower { grid-template-columns: minmax(0, 1fr); }
 	ul.more { grid-template-columns: minmax(0, 1fr); }
 	.projects { grid-template-columns: minmax(0, 1fr); gap: 44px; }
