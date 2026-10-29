@@ -185,6 +185,26 @@ article.post .byline { color: var(--muted); margin: 0; }
 .post-body > .frame { margin: 30px 0 10px; }
 .post-body > .frame img { margin: 0; background: none; }
 .post-body > .frame.phones .pane img { height: 100%; width: auto; } /* the post image rule's height: auto would let a phone shot overflow its frame */
+/* An inline SVG diagram, coloured from the theme tokens so one drawing serves both themes. */
+.post-body > .frame.diagram { aspect-ratio: auto; padding: 6% 5%; }
+.frame.diagram svg { display: block; width: 100%; max-width: 440px; height: auto; margin: 0 auto; }
+.diagram .d-box { fill: var(--code); stroke: var(--latmaj); stroke-width: 1; }
+.diagram .d-ext { stroke-dasharray: 4 3; }
+.diagram .d-pane { fill: var(--bg); }
+.diagram .d-host { fill: none; stroke: var(--lat); stroke-width: 1.5; }
+.diagram .d-host-label { font: 12px var(--mono); fill: var(--muted); }
+.diagram .d-title { font: 15px var(--serif); fill: var(--ink); }
+.diagram .d-sub { font: 12px var(--serif); fill: var(--muted); }
+.diagram .d-ink { fill: var(--ink); }
+.diagram .d-label { font: 12px var(--mono); fill: var(--muted); }
+.diagram .d-label-push { fill: var(--accent); }
+.diagram .d-logo { fill: var(--ink); }
+.diagram .d-logo-2 { fill: var(--muted); }
+.diagram .d-wire { stroke: var(--muted); stroke-width: 1.2; fill: none; }
+.diagram .d-dash { stroke-dasharray: 3 3; }
+.diagram .d-push { stroke: var(--accent); }
+.diagram .d-head { fill: var(--muted); }
+.diagram .d-head-push { fill: var(--accent); }
 .post-body > .frame + p { font-size: 0.85rem; color: var(--muted); max-width: 36em; margin-top: 4px; }
 /* An editor's note set apart from the author's text, where an embed used to be. */
 .post-body > p.note { text-align: left; font-size: 0.9em; color: var(--muted); font-style: italic; border-left: 1px solid var(--line); padding-left: 14px; }
