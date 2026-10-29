@@ -13,6 +13,9 @@ export const site = {
 	]
 } as const;
 
+/** Where a post is served. Posts sit under /blog/ so they never share the root with other repos' Pages. */
+export const postPath = (slug: string): string => `/blog/${slug}`;
+
 /**
  * What the home page shows. Projects appear in the order of projects.ts: the first `figures`
  * featured ones get a screenshot, the next `lines` get a line each, then a link to the rest.
