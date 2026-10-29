@@ -1,3 +1,41 @@
-# Disallow all crawling/scraping
+# Search engines and link previews are welcome: the site is meant to be found.
 User-agent: *
+Allow: /
+
+# Crawlers that collect pages to train AI models. These are requests, honoured by the
+# companies that run them; robots.txt cannot stop a scraper that ignores it.
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: anthropic-ai
+User-agent: CCBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
+User-agent: Bytespider
+User-agent: meta-externalagent
+User-agent: cohere-ai
+User-agent: cohere-training-data-crawler
+User-agent: Diffbot
+User-agent: Omgilibot
+User-agent: ImagesiftBot
+User-agent: Timpibot
 Disallow: /
+
+# SEO and marketing crawlers that copy sites into commercial link and keyword databases.
+User-agent: AhrefsBot
+User-agent: SemrushBot
+User-agent: MJ12bot
+User-agent: DotBot
+User-agent: BLEXBot
+User-agent: DataForSeoBot
+User-agent: serpstatbot
+User-agent: barkrowler
+Disallow: /
+
+# Ad-network crawlers: the site shows no ads.
+User-agent: Mediapartners-Google
+User-agent: AdsBot-Google
+User-agent: AdsBot-Google-Mobile
+User-agent: adidxbot
+Disallow: /
+
+Sitemap: https://fmazzoni.github.io/sitemap.xml
