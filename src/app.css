@@ -7,10 +7,10 @@
 @font-face { font-family: 'NCM Mono Web'; src: url('/fonts/ncm-mono.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
 
 :root {
-	--bg: #141516; --ink: #e7e4dd; --muted: #a29e96; --link: #9dc4f2; --line: #2b2d31;
-	--matte: #0e1013; --frame: #0e1013; --code: #1a1b1e; --lat: #3c434c; --latmaj: #56606c; --path: var(--link); --home: var(--ink);
+	--bg: #121519; --ink: #e4e7ec; --muted: #9ba2ad; --link: #9cc2f2; --accent: #ec8a98; --line: #272c33;
+	--matte: #0c0f13; --frame: #0c0f13; --code: #181c21; --lat: #353d47; --latmaj: #4f5966; --path: var(--link); --home: var(--ink);
 	/* Code colours, each at least 4.5:1 on --code. */
-	--c-keyword: #9dc4f2; --c-string: #a8cc8c; --c-number: #e2b07a; --c-type: #c9a9ec; --c-function: #86d2c4; --c-comment: #9a968e;
+	--c-keyword: #9cc2f2; --c-string: #a9cf8f; --c-number: #ef9ba6; --c-type: #c9abec; --c-function: #86cfe0; --c-comment: #959ca7;
 	--serif: 'Libertinus Web', 'Libertinus Serif', 'Linux Libertine O', 'DejaVu Serif', serif;
 	--mono: 'NCM Mono Web', 'Latin Modern Mono', 'DejaVu Sans Mono', monospace;
 	--measure: 31em;
@@ -22,18 +22,19 @@
 	--gutter-right: max(var(--gutter), env(safe-area-inset-right));
 	color-scheme: dark;
 }
-/* Light: warm paper rather than cool grey, with screenshots on a paper-toned frame. Text colours
-   are at least 4.5:1 on --bg; code colours on --code. */
+/* "Slate carmine": slate paper, a cool blue-grey a step down from white, navy-black ink, and carmine
+   (a referee's red pen) for section heads, figure labels and dates; dark mode is a blue-graphite night. Text colours are at least 4.5:1 on --bg; code
+   colours on --code. */
 @media (prefers-color-scheme: light) {
 	:root:not([data-theme='dark']) {
-		--bg: #f6f3ec; --ink: #24211c; --muted: #5e584d; --link: #1d4c95; --line: #dedad1; --frame: #ebe6db;
-		--code: #ede9df; --lat: #d3cdbf; --latmaj: #b3ab9b;
+		--bg: #dde2e8; --ink: #1b2230; --muted: #4f5868; --link: #1d4a93; --accent: #9c2438; --line: #c4cad2; --frame: #d1d6dd;
+		--code: #d3d8df; --lat: #bfc5cd; --latmaj: #a1a8b2;
 		color-scheme: light;
 	}
 }
 :root[data-theme='light'] {
-	--bg: #f6f3ec; --ink: #24211c; --muted: #5e584d; --link: #1d4c95; --line: #dedad1; --frame: #ebe6db;
-	--code: #ede9df; --lat: #d3cdbf; --latmaj: #b3ab9b;
+	--bg: #dde2e8; --ink: #1b2230; --muted: #4f5868; --link: #1d4a93; --accent: #9c2438; --line: #c4cad2; --frame: #d1d6dd;
+	--code: #d3d8df; --lat: #bfc5cd; --latmaj: #a1a8b2;
 	color-scheme: light;
 }
 
@@ -99,6 +100,8 @@ footer.site a { color: var(--muted); padding-block: 10px; }
 /* Caps and small caps, as a paper sets a section head: a full capital, then small caps. */
 h2.sec { font-size: 1.3rem; font-weight: 400; font-variant-caps: small-caps; letter-spacing: 0.02em; margin: 0 0 22px; }
 h2.sec a { color: inherit; text-decoration: none; }
+/* The accent marks the paper's furniture: section heads, figure numbers and dates. */
+h2.sec, .post-body h2, .hello figcaption i, .label .meta i, ul.dated time, ul.dated .when { color: var(--accent); }
 
 /* Projects: screenshot on a matte, label underneath */
 .projects { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 56px var(--col-gap); margin-bottom: 96px; }

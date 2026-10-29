@@ -48,14 +48,14 @@ export function mountScene(fig) {
     COL.push(mix(0.12)); // 19: far side of the globe
     COL.push(BG); // 20: bot eyes, drawn last as holes
     // 21..45: star colours from Gaia BP-RP (hot blue to cool red), each at five brightnesses by G.
-    const rgbOf = h => `rgb(${h.join()})`, over = (c, a) => rgbOf(c.map((v, k) => Math.round(v * a + hex(css.getPropertyValue('--bg'), '141516')[k] * (1 - a))));
+    const rgbOf = h => `rgb(${h.join()})`, over = (c, a) => rgbOf(c.map((v, k) => Math.round(v * a + hex(css.getPropertyValue('--bg'), '121519')[k] * (1 - a))));
     const STAR = light ? [[47, 95, 174], [58, 53, 46], [154, 106, 20], [176, 86, 30], [168, 50, 42]] : [[169, 196, 255], [242, 239, 230], [255, 217, 154], [255, 176, 112], [255, 128, 96]];
     for (const c of STAR) for (const a of [0.32, 0.46, 0.62, 0.8, 1]) COL.push(over(c, a));
     // 46..50: LiDAR returns by range, near (warm) to far (cool), as point-cloud viewers colour them.
     const RANGE = light ? [[176, 71, 42], [166, 114, 26], [90, 85, 76], [59, 106, 168], [42, 79, 154]] : [[255, 138, 92], [244, 184, 96], [232, 226, 200], [143, 192, 232], [106, 143, 216]];
     for (const c of RANGE) COL.push(rgbOf(c));
     // 51..54: one colour per agent (and per walker: 51 Brownian, 52 Levy).
-    const CAT = light ? [[42, 90, 168], [176, 71, 42], [47, 122, 82], [154, 106, 20]] : [[111, 163, 240], [239, 125, 90], [108, 199, 154], [227, 178, 90]];
+    const CAT = light ? [[42, 90, 168], [156, 36, 56], [47, 122, 82], [154, 106, 20]] : [[111, 163, 240], [236, 138, 152], [108, 199, 154], [227, 178, 90]]; // the second in the carmine accent
     for (const c of CAT) COL.push(rgbOf(c));
     CATC = CAT.map(rgbOf);
     OUT_B = light ? 3 : 5; // coastlines: on paper, full ink would outweigh the data points

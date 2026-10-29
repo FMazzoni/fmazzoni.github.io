@@ -5,7 +5,7 @@
 export function inkOver(el) {
   const css = getComputedStyle(el);
   const hex = (v, fallback) => { const m = /^#([0-9a-f]{6})$/i.exec((v || '').trim()); const h = m ? m[1] : fallback; return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)); };
-  const bg = hex(css.getPropertyValue('--bg'), '141516'), ink = hex(css.getPropertyValue('--ink'), 'e7e4dd');
+  const bg = hex(css.getPropertyValue('--bg'), '121519'), ink = hex(css.getPropertyValue('--ink'), 'e4e7ec');
   const rgb = c => `rgb(${c.join()})`;
   const mixc = a => ink.map((c, i) => Math.round(c * a + bg[i] * (1 - a)));
   return { css, hex, light: bg[0] > 128, bg: rgb(bg), mixc, mix: a => rgb(mixc(a)) };
