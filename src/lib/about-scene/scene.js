@@ -50,12 +50,16 @@ export function mountScene(fig) {
     // 21..45: star colours from Gaia BP-RP (hot blue to cool red), each at five brightnesses by G.
     const rgbOf = h => `rgb(${h.join()})`, over = (c, a) => rgbOf(c.map((v, k) => Math.round(v * a + hex(css.getPropertyValue('--bg'), '121519')[k] * (1 - a))));
     const STAR = light ? [[47, 95, 174], [58, 53, 46], [154, 106, 20], [176, 86, 30], [168, 50, 42]] : [[169, 196, 255], [242, 239, 230], [255, 217, 154], [255, 176, 112], [255, 128, 96]];
-    for (const c of STAR) for (const a of [0.32, 0.46, 0.62, 0.8, 1]) COL.push(over(c, a));
+    const inkS = mixc(1); // on paper the G 15.5-17.5 tier goes halfway to ink, so faint colour does not read as specks
+    for (const c of STAR) for (const a of [0.32, 0.46, 0.62, 0.8, 1]) COL.push(over(light && a === 0.62 ? c.map((v, k) => Math.round((v + inkS[k]) / 2)) : c, a));
     // 46..50: LiDAR returns by range, near (warm) to far (cool), as point-cloud viewers colour them.
-    const RANGE = light ? [[176, 71, 42], [166, 114, 26], [90, 85, 76], [59, 106, 168], [42, 79, 154]] : [[255, 138, 92], [244, 184, 96], [232, 226, 200], [143, 192, 232], [106, 143, 216]];
-    for (const c of RANGE) COL.push(rgbOf(c));
+    // One ramp, carmine (near) through ink to the link blue (far), so it reads as depth, not as patches.
+    const acc = hex(css.getPropertyValue('--accent'), 'd96b78'), lnk = hex(css.getPropertyValue('--link'), '9cc2f2'), inkc = mixc(light ? 0.85 : 0.8);
+    const lerp = (a, b, w) => a.map((v, k) => Math.round(v + (b[k] - v) * w));
+    for (const w of [0, 0.5, 1, 1.5, 2]) COL.push(rgbOf(w <= 1 ? lerp(acc, inkc, w) : lerp(inkc, lnk, w - 1)));
     // 51..54: one colour per agent (and per walker: 51 Brownian, 52 Levy).
-    const CAT = light ? [[42, 90, 168], [156, 36, 56], [47, 122, 82], [154, 106, 20]] : [[111, 163, 240], [236, 138, 152], [108, 199, 154], [227, 178, 90]]; // the second in the carmine accent
+    // Walker or agent 1 in the link blue, 2 in carmine; agents 3 and 4 in ink, full and lighter.
+    const CAT = [lnk, acc, mixc(1), mixc(0.55)];
     for (const c of CAT) COL.push(rgbOf(c));
     CATC = CAT.map(rgbOf);
     OUT_B = light ? 3 : 5; // coastlines: on paper, full ink would outweigh the data points
@@ -90,7 +94,7 @@ export function mountScene(fig) {
       st.sz[e] = Math.max(1, 5 - (G - 10) * 0.42);
       const lv = G < 13 ? 4 : G < 15.5 ? 3 : G < 17.5 ? 2 : G < 19 ? 1 : 0, c = sc[k] === 255 ? 0.8 : sc[k] / 254 * 4.5 - 0.5;
       const hue = c < 0.5 ? 0 : c < 1 ? 1 : c < 1.5 ? 2 : c < 2.2 ? 3 : 4; // BP-RP bins: hot to cool
-      st.cb[e] = e === 0 ? 6 : 21 + hue * 5 + lv;
+      st.cb[e] = e === 0 ? 6 : G >= 17.5 ? lv + 1 : 21 + hue * 5 + lv; // faint stars in ink: Gaia's BP-RP is noisy for them
     }
     st.sz[0] = 3;
     // ---- geoid (real, EGM2008), on a Fibonacci sphere matching tools/prep.py

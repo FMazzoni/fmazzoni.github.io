@@ -7,7 +7,7 @@
 @font-face { font-family: 'NCM Mono Web'; src: url('/fonts/ncm-mono.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
 
 :root {
-	--bg: #121519; --ink: #e4e7ec; --muted: #9ba2ad; --link: #9cc2f2; --accent: #ec8a98; --line: #272c33;
+	--bg: #121519; --ink: #e4e7ec; --muted: #9ba2ad; --link: #9cc2f2; --accent: #d96b78; --line: #272c33;
 	--matte: #0c0f13; --frame: #0c0f13; --code: #181c21; --lat: #353d47; --latmaj: #4f5966; --path: var(--link); --home: var(--ink);
 	/* Code colours, each at least 4.5:1 on --code. */
 	--c-keyword: #9cc2f2; --c-string: #a9cf8f; --c-number: #ef9ba6; --c-type: #c9abec; --c-function: #86cfe0; --c-comment: #959ca7;
@@ -27,14 +27,14 @@
    colours on --code. */
 @media (prefers-color-scheme: light) {
 	:root:not([data-theme='dark']) {
-		--bg: #dde2e8; --ink: #1b2230; --muted: #4f5868; --link: #1d4a93; --accent: #9c2438; --line: #c4cad2; --frame: #d1d6dd;
-		--code: #d3d8df; --lat: #bfc5cd; --latmaj: #a1a8b2;
+		--bg: #e2e4e8; --ink: #1b2230; --muted: #4f5868; --link: #1d4a93; --accent: #9c2438; --line: #c8cbd0; --frame: #d3d5da;
+		--code: #d6d8dd; --lat: #c2c5cb; --latmaj: #a6aab1;
 		color-scheme: light;
 	}
 }
 :root[data-theme='light'] {
-	--bg: #dde2e8; --ink: #1b2230; --muted: #4f5868; --link: #1d4a93; --accent: #9c2438; --line: #c4cad2; --frame: #d1d6dd;
-	--code: #d3d8df; --lat: #bfc5cd; --latmaj: #a1a8b2;
+	--bg: #e2e4e8; --ink: #1b2230; --muted: #4f5868; --link: #1d4a93; --accent: #9c2438; --line: #c8cbd0; --frame: #d3d5da;
+	--code: #d6d8dd; --lat: #c2c5cb; --latmaj: #a6aab1;
 	color-scheme: light;
 }
 
@@ -80,7 +80,7 @@ footer.site a { color: var(--muted); padding-block: 10px; }
 .intro.with-figure h1 { margin-top: 2.2em; } /* level with the figure's shoulders, not its head or its middle */
 .intro .background { color: var(--muted); font-size: inherit; max-width: 30em; margin-top: 18px; }
 .hello { margin: 0; max-width: 340px; justify-self: end; width: 100%; }
-.hello > a { display: block; position: relative; }
+.hello > a { display: block; position: relative; cursor: pointer; }
 .hello img, .hello canvas { display: block; width: 100%; height: auto; aspect-ratio: 3 / 4; }
 .hello canvas { position: absolute; inset: 0; height: 100%; visibility: hidden; }
 .hello.live canvas { visibility: visible; }
