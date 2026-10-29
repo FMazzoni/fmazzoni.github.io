@@ -93,6 +93,7 @@ function isoDate(value: unknown): string {
 function smarten(text: string): string {
 	return text
 		.replace(/(^|\s)-(?=\s)/g, '$1–')
+		.replace(/\b((?:19|20)\d\d)-((?:19|20)\d\d)\b/g, '$1–$2') // a range of years takes an en dash
 		.replace(/(^|[\s(])-(?=\d)/g, '$1\u2212')
 		.replace(/(^|[\s([{\u2013\u2014])"(?=\S)/g, '$1\u201c')
 		.replace(/"/g, '\u201d')

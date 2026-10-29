@@ -16,8 +16,8 @@
 </section>
 
 <div class="projects">
-	{#each featured as project (project.name)}
-		<ProjectFigure {project} />
+	{#each featured as project, i (project.name)}
+		<ProjectFigure {project} fig={i + 1} />
 	{/each}
 </div>
 

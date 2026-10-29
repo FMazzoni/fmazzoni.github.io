@@ -48,7 +48,7 @@ export const projects: Project[] = [
 			{ label: 'live', href: '/geoid-globe/' },
 			{ label: 'code', href: 'https://github.com/FMazzoni/geoid-globe' }
 		],
-		shots: [{ src: '/images/projects/geoid-globe.webp', alt: 'The geoid as a deformed globe, coloured from −106 m to +85 m', width: 900, height: 562 }],
+		shots: [{ src: '/images/projects/geoid-globe.webp', alt: 'The geoid as a deformed globe, blue where it lies below the ellipsoid and red where it rises above', width: 900, height: 562 }],
 		featured: true
 	},
 	{

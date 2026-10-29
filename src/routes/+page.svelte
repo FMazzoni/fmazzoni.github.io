@@ -28,8 +28,8 @@
 <section aria-labelledby="projects">
 	<h2 class="sec" id="projects"><a href="/projects">Projects</a></h2>
 	<div class="projects">
-		{#each shown as project (project.name)}
-			<ProjectFigure {project} />
+		{#each shown as project, i (project.name)}
+			<ProjectFigure {project} fig={i + 2} /><!-- Fig. 1 is the wave above -->
 		{/each}
 	</div>
 	<ProjectList projects={listed} all={{ label: 'All projects', href: '/projects' }} />

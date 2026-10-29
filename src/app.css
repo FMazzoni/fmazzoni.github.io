@@ -102,58 +102,61 @@ h2.sec a { color: inherit; text-decoration: none; }
 
 /* Projects: screenshot on a matte, label underneath */
 .projects { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 56px var(--col-gap); margin-bottom: 96px; }
-.frame { background: var(--frame); box-shadow: 0 0 0 1px var(--line); aspect-ratio: 16 / 10; overflow: hidden; display: flex; justify-content: center; align-items: center; padding: 5%; }
-/* Vertical padding is the horizontal times 10/16, so a 16:10 screenshot gets an even margin. */
-.frame.single { padding: 2.1875% 3.5%; }
+/* A 16:10 picture plus an even 3.5% mount all round; phone panes share the same outer shape. */
+.frame { background: var(--frame); box-shadow: 0 0 0 1px var(--line); aspect-ratio: 1 / 0.65125; overflow: hidden; display: flex; justify-content: center; align-items: center; padding: 5%; }
+.frame.single { padding: 3.5%; }
 /* A screenshot with a light-theme twin shows the twin in light mode; the hidden one never loads. */
 .frame.single img.shot-light { display: none; }
 .frame.single img { width: 100%; height: 100%; object-fit: contain; display: block; }
+/* A white light-theme screenshot takes the paper's tone instead of glaring above it; a hairline keeps its edge. */
+.frame.single img.shot-light { mix-blend-mode: multiply; filter: contrast(1.06) brightness(1.03); box-shadow: 0 0 0 1px var(--line); }
 .frame.phones { padding: 6% 6% 4%; gap: 5%; align-items: stretch; }
 .pane { position: relative; height: 100%; min-width: 0; }
 .pane img { height: 100%; width: auto; max-width: 100%; object-fit: contain; display: block; }
 /* Pane letters sit in the matte above each screenshot, so they never cover it. */
 .pane .tag { position: absolute; left: 0; bottom: 100%; color: var(--muted); font-size: 0.8rem; line-height: 1; padding-bottom: 4px; }
 .label { margin-top: 14px; }
+.label .meta i { margin-right: 0.4em; } /* the figure number apart from the year */
 .label .meta { display: block; color: var(--muted); font-size: 0.85rem; font-variant-numeric: lining-nums tabular-nums; }
-.label p { margin: 6px 0 0; max-width: 52ch; text-wrap: pretty; }
+.label p { margin: 6px 0 0; text-wrap: pretty; }
 .label .subcap { display: block; color: var(--muted); font-size: 0.9rem; margin-top: 4px; max-width: 60ch; text-wrap: pretty; }
 .label .links { margin-top: 6px; display: flex; gap: 16px; font-size: 0.95rem; }
 .label .links a { padding-block: 6px; }
 /* Projects without a figure: two columns on the figures' grid, rules between rows. */
 ul.more { list-style: none; padding: 0; margin: 0 0 104px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--col-gap); }
 ul.more li { padding-block: 12px; border-block: 1px solid var(--line); margin-bottom: -1px; }
-ul.more li.all { display: flex; align-items: center; font-size: 0.95rem; }
+ul.more li.all { border-bottom-color: transparent; padding-top: calc(12px + 0.85rem * 1.5 + 2px); }
 ul.more .meta { display: block; color: var(--muted); font-size: 0.85rem; }
 ul.more p { margin: 2px 0 0; text-wrap: pretty; }
 ul.more .inline-links a { margin-left: 0.6em; }
 
 /* Dated lists: writing and papers */
 ul.dated { list-style: none; padding: 0; margin: 0 0 104px; max-width: var(--measure); }
-ul.dated li { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 16px; align-items: baseline; padding-block: 10px; border-top: 1px solid var(--line); }
+ul.dated li { display: grid; grid-template-columns: 6rem minmax(0, 1fr); gap: 16px; align-items: baseline; padding-block: 10px; border-top: 1px solid var(--line); }
 ul.dated li:last-child { border-bottom: 1px solid var(--line); }
 ul.dated time, ul.dated .when { color: var(--muted); font-size: 0.9rem; font-variant-numeric: lining-nums tabular-nums; }
 ul.dated .note { display: block; color: var(--muted); font-size: 0.9rem; margin-top: 2px; text-wrap: pretty; }
-ul.dated.years li { grid-template-columns: 4rem minmax(0, 1fr); padding-block: 12px; }
+ul.dated.years li { padding-block: 12px; }
 
 /* Posts */
 /* A post is one centred reading column; embeds and code may run wider than the text, centred on it. */
 article.post { margin-bottom: 104px; }
-article.post header { padding-block: 64px 30px; max-width: var(--measure); margin-inline: auto; }
-article.post h1 { font-weight: 400; font-size: clamp(1.65rem, 1.3rem + 1vw, 2.1rem); line-height: 1.2; margin: 0 0 6px; text-wrap: balance; }
+article.post header { padding-block: 64px 30px; max-width: var(--measure); }
+article.post h1 { font-weight: 400; font-size: clamp(1.7rem, 1.2rem + 1.6vw, 2.3rem); line-height: 1.2; margin: 0 0 6px; text-wrap: balance; }
 article.post .byline { color: var(--muted); margin: 0; }
-/* One centre column at the reading measure, sized from the post's text, so headings and paragraphs
-   share an edge; embeds, code and tables span the wider figure width around it. */
+/* One column at the reading measure on the site's left edge, so headings and paragraphs share an
+   edge with every other page; a live embed takes the wider figure width to its right. */
 .post-body {
-	display: grid; max-width: 60rem; margin-inline: auto;
-	grid-template-columns: 1fr min(var(--measure), 100%) 1fr;
+	display: grid; max-width: 60rem;
+	grid-template-columns: min(var(--measure), 100%) 1fr;
 }
-.post-body > * { grid-column: 2; min-width: 0; }
+.post-body > * { grid-column: 1; min-width: 0; }
 .post-body > .iframe-container { grid-column: 1 / -1; }
-.post-body > pre { grid-column: 2; margin-inline: -18px; }
-.post-body > table { grid-column: 2; }
+.post-body > pre { grid-column: 1; }
+.post-body > table { grid-column: 1; }
 .post-body > :first-child { margin-top: 0; }
-.post-body h2 { font-size: 1.35em; font-weight: 400; line-height: 1.25; margin: 2em 0 0.5em; text-wrap: balance; }
-.post-body h3 { font-size: 1.1em; font-weight: 400; font-style: italic; margin: 1.6em 0 0.35em; }
+.post-body h2 { font-size: 1.3rem; font-weight: 400; font-variant-caps: small-caps; letter-spacing: 0.02em; line-height: 1.25; margin: 2.8em 0 0.6em; text-wrap: balance; } /* as h2.sec */
+.post-body h3 { font-size: 1em; font-weight: 400; font-style: italic; margin: 1.8em 0 0.35em; } /* under h2: same size as the text, set apart by italic and space */
 .post-body h2 + h3 { margin-top: 0.5em; }
 /* A bold label opening a list item reads as a run-in head, as a paper sets it. */
 .post-body li > strong:first-child, .post-body p > strong:first-child { font-weight: 400; font-style: italic; }
@@ -170,10 +173,11 @@ article.post .byline { color: var(--muted); margin: 0; }
 .post-body .iframe-container iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 /* A still that links to an embedded app, shown instead of the embed where the app doesn't fit. */
 .post-body > .iframe-container.has-still { display: none; }
-.post-body > .embed-still { display: block; position: relative; grid-column: 2; margin: 30px 0 12px; }
-.post-body > .embed-still img { margin: 0; width: 100%; }
-.post-body > .embed-still span { position: absolute; left: 16px; bottom: 14px; font-size: 0.95rem; color: #d5d9de; text-decoration: underline; text-underline-offset: 0.18em; }
-.post-body > .embed-still img { box-shadow: 0 0 0 1px var(--line); }
+.post-body > .embed-still { display: block; position: relative; grid-column: 1; margin: 30px 0 12px; }
+.post-body > .embed-still img { margin: 0; width: 100%; box-sizing: border-box; background: var(--frame); padding: 3.5%; box-shadow: 0 0 0 1px var(--line); } /* the mount, as .frame */
+.post-body > .embed-still span { display: block; margin-top: 10px; font-size: 0.85rem; color: var(--link); text-decoration: underline; text-underline-offset: 0.18em; } /* a caption line under the mount */
+/* The paragraph that follows a post's figure is its caption: set at caption size, words unchanged. */
+.post-body > .embed-still + p { font-size: 0.85rem; color: var(--muted); max-width: 36em; margin-top: 4px; }
 /* An editor's note set apart from the author's text, where an embed used to be. */
 .post-body > p.note { text-align: left; font-size: 0.9em; color: var(--muted); font-style: italic; border-left: 1px solid var(--line); padding-left: 14px; }
 .post-body table { border-collapse: collapse; font-size: 0.9rem; margin: 0 0 14px; display: block; overflow-x: auto; }
@@ -203,12 +207,11 @@ pre code { font-size: inherit; }
 	:root:not([data-theme='dark']) .shiki, :root:not([data-theme='dark']) .shiki span { color: var(--shiki-light); font-style: var(--shiki-light-font-style, inherit); }
 }
 :root[data-theme='light'] .shiki, :root[data-theme='light'] .shiki span { color: var(--shiki-light); font-style: var(--shiki-light-font-style, inherit); }
-.post-nav { display: flex; justify-content: space-between; gap: 22px; flex-wrap: wrap; max-width: var(--measure); border-top: 1px solid var(--line); padding-top: 18px; margin: 40px auto 0; }
+.post-nav { display: flex; justify-content: space-between; gap: 22px; flex-wrap: wrap; max-width: var(--measure); border-top: 1px solid var(--line); padding-top: 18px; margin: 40px 0 0; }
 .post-nav span { font-size: 0.9em; }
-/* On laptops and wider, posts set a size up and a wider column (about 80 characters a line), so the
-   text uses the screen instead of leaving wide side margins. */
+/* On laptops and wider, posts take a wider column (about 80 characters a line) at the site's one body size. */
 @media (min-width: 1100px) {
-	article.post { font-size: 22px; --measure: 36em; }
+	article.post { --measure: 35em; }
 	.post-body { max-width: 64rem; }
 }
 

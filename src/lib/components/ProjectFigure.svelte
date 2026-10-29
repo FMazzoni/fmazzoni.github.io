@@ -2,7 +2,8 @@
 	import type { Project } from '$lib/config/projects';
 	import { isOtherSite } from '$lib/config/site';
 
-	let { project }: { project: Project } = $props();
+	// `fig` numbers it as a paper numbers its figures.
+	let { project, fig }: { project: Project; fig: number } = $props();
 
 	// Several shots are phone screens, set side by side as labelled panes; one shot fills the matte.
 	const phones = $derived((project.shots?.length ?? 0) > 1);
@@ -27,7 +28,7 @@
 		</div>
 	{/if}
 	<div class="label">
-		<span class="meta">{project.year} · {project.stack}</span>
+		<span class="meta"><i>Fig. {fig}.</i> {project.year} · {project.stack}</span>
 		<p><b>{project.name}.</b> {project.summary}</p>
 		{#if project.subcaption}<span class="subcap">{project.subcaption}</span>{/if}
 		<div class="links">
