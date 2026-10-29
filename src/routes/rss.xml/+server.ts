@@ -1,5 +1,5 @@
 import type { RequestHandler } from './$types';
-import { site } from '$lib/config/site';
+import { postPath, site } from '$lib/config/site';
 import { getPosts } from '$lib/utils/content.server';
 
 export const prerender = true;
@@ -11,8 +11,8 @@ export const GET: RequestHandler = () => {
 		.map(
 			(post) => `<item>
 <title>${escape(post.title)}</title>
-<link>${site.url}/${post.slug}</link>
-<guid>${site.url}/${post.slug}</guid>
+<link>${site.url}${postPath(post.slug)}</link>
+<guid>${site.url}${postPath(post.slug)}</guid>
 <pubDate>${new Date(`${post.date}T00:00:00Z`).toUTCString()}</pubDate>
 <description>${escape(post.excerpt)}</description>
 </item>`

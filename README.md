@@ -5,9 +5,9 @@ HTML and served by GitHub Pages.
 
 ## Writing a post
 
-Add `content/posts/YYYY-MM-DD-Slug.md`. The post is served at `/Slug`. Its front matter needs a
-`title`, a `date` that matches the file name, and a one-sentence `excerpt`, which is used in lists and
-link previews:
+Add `content/posts/YYYY-MM-DD-slug.md`, with the slug in lowercase kebab-case. The post is served at
+`/blog/slug`. Its front matter needs a `title`, a `date` that matches the file name, and a
+one-sentence `excerpt`, which is used in lists and link previews:
 
 ```yaml
 ---

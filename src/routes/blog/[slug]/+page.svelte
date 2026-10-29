@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Seo from '$lib/components/Seo.svelte';
+	import { postPath } from '$lib/config/site';
 	import { longDate } from '$lib/utils/dates';
 
 	let { data } = $props();
@@ -19,8 +20,8 @@
 	</div>
 	{#if data.newer || data.older}
 		<nav class="post-nav" aria-label="More posts">
-			<span>{#if data.older}Older: <a href="/{data.older.slug}">{data.older.title}</a>{/if}</span>
-			<span>{#if data.newer}Newer: <a href="/{data.newer.slug}">{data.newer.title}</a>{/if}</span>
+			<span>{#if data.older}Older: <a href={postPath(data.older.slug)}>{data.older.title}</a>{/if}</span>
+			<span>{#if data.newer}Newer: <a href={postPath(data.newer.slug)}>{data.newer.title}</a>{/if}</span>
 		</nav>
 	{/if}
 </article>

@@ -3,7 +3,7 @@ import { test, expect, type Page, type TestInfo } from '@playwright/test';
 // Visual loop: every page in each theme, at the sizes the config's projects set (desktop, phone).
 // Screenshots go to shots/<project>/; look at them after any visual change. Dark is the default;
 // THEMES=dark,light adds the light theme.
-const ROUTES = ['/', '/projects', '/blog', '/about', '/Geoid-Globe-Visualization', '/Boston311-Dashboard'];
+const ROUTES = ['/', '/projects', '/blog', '/about', '/blog/geoid-globe-visualization', '/blog/boston311-dashboard', '/blog/herding-agents'];
 const THEMES = (process.env.THEMES ?? 'dark').split(',') as ('dark' | 'light')[];
 
 const slugOf = (route: string) => (route === '/' ? 'home' : route.slice(1).replace(/\//g, '_'));

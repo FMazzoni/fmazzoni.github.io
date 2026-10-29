@@ -1,4 +1,5 @@
 import type { Paper } from '$lib/config/papers';
+import { postPath } from '$lib/config/site';
 import { shortDate } from './dates';
 
 /** A row of a DatedList. */
@@ -13,7 +14,7 @@ export interface Entry {
 }
 
 export const postEntries = (posts: { slug: string; title: string; date: string; excerpt?: string }[], excerpts = false): Entry[] =>
-	posts.map((p) => ({ when: shortDate(p.date), datetime: p.date, title: p.title, href: `/${p.slug}`, note: excerpts ? p.excerpt : undefined }));
+	posts.map((p) => ({ when: shortDate(p.date), datetime: p.date, title: p.title, href: postPath(p.slug), note: excerpts ? p.excerpt : undefined }));
 
 /** Papers with their venue; `full` adds the authors and the preprint link. */
 export const paperEntries = (papers: Paper[], full = false): Entry[] =>

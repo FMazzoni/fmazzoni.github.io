@@ -97,7 +97,7 @@ export const projects: Project[] = [
 		stack: 'Python, DuckDB, Panel',
 		summary: 'Fourteen years of Boston’s 311 service requests on a map, in a weekend dashboard.',
 		links: [
-			{ label: 'post', href: '/Boston311-Dashboard' },
+			{ label: 'post', href: '/blog/boston311-dashboard' },
 			{ label: 'code', href: 'https://github.com/FMazzoni/boston311_paneldashboard' }
 		],
 		featured: false
