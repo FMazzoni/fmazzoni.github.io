@@ -29,7 +29,7 @@ export function readPerson(buf, o) {
 export function personOffset(buf) {
   const dv = new DataView(buf); let o = 0;
   const u16 = () => { const v = dv.getUint16(o, true); o += 2; return v; };
-  const ns = u16(); o += ns * 5; // x, y, G
+  const ns = u16(); o += ns * 6; // x, y, G, BP-RP
   const ng = u16(); o += ng;
   const nb = u16(); o += nb * 5;
   return o;

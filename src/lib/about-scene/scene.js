@@ -11,6 +11,8 @@
  *   walks   SIMULATED Brownian and Levy walkers (a simulation, as in the paper, not measured data)
  *   now     SYNTHETIC illustration: agents on parallel lanes merging back.
  */
+import { inkOver, readPerson } from './points.js';
+
 /** Runs the scene inside `fig` (the About page's <figure class="scene">). Returns a function that stops it. */
 export function mountScene(fig) {
   let stopped = false, resizeObs, seenObs, themeObs, unpaint;
@@ -26,32 +28,41 @@ export function mountScene(fig) {
 
   // Colours come from the page's own tokens, so the figure sits on the page in either theme: points
   // are the ink at several strengths over the background, labels the muted text, rules the line colour.
-  const hex = (v, fallback) => { const m = /^#([0-9a-f]{6})$/i.exec((v || '').trim()); const h = m ? m[1] : fallback; return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)); };
-  const turbo = x => { // polynomial fit of Google's turbo; x clipped above the purple end
-    x = 0.13 + 0.8 * x;
-    const r = 0.1357 + x * (4.6154 + x * (-42.6603 + x * (132.1311 + x * (-152.9424 + x * 59.2864))));
-    const g = 0.0914 + x * (2.1942 + x * (4.843 + x * (-14.185 + x * (4.2773 + x * 2.8296))));
-    const b = 0.1067 + x * (12.6419 + x * (-60.582 + x * (110.3628 + x * (-89.9031 + x * 27.3482))));
-    return `rgb(${[r, g, b].map(v => Math.round(255 * Math.min(1, Math.max(0, v)))).join()})`;
-  };
   const TB = 12;
-  let BG, MUTED, RULE, LINK;
+  let BG, MUTED, RULE, LINK, CELL, CATC = [], OUT_B = 5;
   const COL = [];
   function paint() {
-    const css = getComputedStyle(fig);
-    const bg = hex(css.getPropertyValue('--bg'), '141516'), ink = hex(css.getPropertyValue('--ink'), 'e7e4dd');
-    const rgb = c => `rgb(${c.join()})`, mix = a => rgb(ink.map((c, i) => Math.round(c * a + bg[i] * (1 - a))));
-    BG = rgb(bg); MUTED = css.getPropertyValue('--muted').trim() || '#a29e96';
+    const { css, bg, mix, mixc, hex, light } = inkOver(fig);
+    BG = bg; MUTED = css.getPropertyValue('--muted').trim() || '#a29e96';
     RULE = css.getPropertyValue('--line').trim() || '#2b2d31'; LINK = css.getPropertyValue('--link').trim() || '#9dc4f2';
     COL.length = 0;
     COL.push(...[0.2, 0.32, 0.46, 0.62, 0.8, 1].map(mix)); // 0..5 ink levels
     COL.push(LINK); // 6
-    for (let i = 0; i < TB; i++) COL.push(turbo(i / (TB - 1))); // 7..18
+    // 7..18: the geoid's diverging ramp, below the ellipsoid in the link blue, above it in a warm red,
+    // through mid ink at 0 m; light and dark each get their own ends so both read on the page.
+    const lo = light ? [29, 76, 149] : [96, 156, 240], hi = light ? [178, 62, 34] : [240, 122, 82], mid = mixc(light ? 0.3 : 0.5); // on paper a lighter middle, so the coastlines stand clear of 0 m
+    for (let i = 0; i < TB; i++) {
+      const t = i / (TB - 1), a = t < 0.5 ? lo : hi, w = t < 0.5 ? 1 - t * 2 : t * 2 - 1;
+      COL.push(`rgb(${mid.map((c, k) => Math.round(c + (a[k] - c) * w)).join()})`);
+    }
     COL.push(mix(0.12)); // 19: far side of the globe
     COL.push(BG); // 20: bot eyes, drawn last as holes
+    // 21..45: star colours from Gaia BP-RP (hot blue to cool red), each at five brightnesses by G.
+    const rgbOf = h => `rgb(${h.join()})`, over = (c, a) => rgbOf(c.map((v, k) => Math.round(v * a + hex(css.getPropertyValue('--bg'), '141516')[k] * (1 - a))));
+    const STAR = light ? [[47, 95, 174], [58, 53, 46], [154, 106, 20], [176, 86, 30], [168, 50, 42]] : [[169, 196, 255], [242, 239, 230], [255, 217, 154], [255, 176, 112], [255, 128, 96]];
+    for (const c of STAR) for (const a of [0.32, 0.46, 0.62, 0.8, 1]) COL.push(over(c, a));
+    // 46..50: LiDAR returns by range, near (warm) to far (cool), as point-cloud viewers colour them.
+    const RANGE = light ? [[176, 71, 42], [166, 114, 26], [90, 85, 76], [59, 106, 168], [42, 79, 154]] : [[255, 138, 92], [244, 184, 96], [232, 226, 200], [143, 192, 232], [106, 143, 216]];
+    for (const c of RANGE) COL.push(rgbOf(c));
+    // 51..54: one colour per agent (and per walker: 51 Brownian, 52 Levy).
+    const CAT = light ? [[42, 90, 168], [176, 71, 42], [47, 122, 82], [154, 106, 20]] : [[111, 163, 240], [239, 125, 90], [108, 199, 154], [227, 178, 90]];
+    for (const c of CAT) COL.push(rgbOf(c));
+    CATC = CAT.map(rgbOf);
+    OUT_B = light ? 3 : 5; // coastlines: on paper, full ink would outweigh the data points
+    CELL = light ? RULE : mix(0.13); // visited cells: the line colour is too faint on the dark page
   }
   paint();
-  const NB = COL.length, ORDER = [19, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 0, 1, 2, 3, 4, 5, 6, 20]; // ink after turbo so outlines sit on top
+  const NB = COL.length, ORDER = [19, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, ...Array.from({ length: 30 }, (_, i) => 21 + i), 0, 1, 2, 3, 4, 5, 51, 52, 53, 54, 6, 20]; // ink after the ramps so outlines sit on top
 
   let rs = 7; // seeded generator, so the simulation and the illustration are the same on every load
   const rnd = () => { rs |= 0; rs = rs + 0x6D2B79F5 | 0; let t = Math.imul(rs ^ rs >>> 15, 1 | rs); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
@@ -66,6 +77,7 @@ export function mountScene(fig) {
     // ---- 1 stars (real, Gaia DR3). Element 0 is the target. Elements past the catalogue repeat faint stars.
     const ns = u16(), sxy = new Uint16Array(buf.slice(o, o + ns * 4)); o += ns * 4;
     const sg = new Uint8Array(buf, o, ns); o += ns;
+    const sc = new Uint8Array(buf, o, ns); o += ns; // BP-RP, 255 = not measured
     // The camera pushes in on the target while the caption is read: from 0.5 deg out to 0.3 deg.
     const st = mk({ ext: [0.5, 0.5], cover: true, ann: annStars, hold: 7, read: 1 });
     st.zoom = t => 1 - 0.4 * ease(Math.min(1, t / st.hold));
@@ -76,7 +88,9 @@ export function mountScene(fig) {
       st.ex[e] = -(sxy[2 * k] / 65535 * 1.2 - 0.6); // east to the left, as on the sky
       st.ey[e] = sxy[2 * k + 1] / 65535 * 1.2 - 0.6;
       st.sz[e] = Math.max(1, 5 - (G - 10) * 0.42);
-      st.cb[e] = e === 0 ? 6 : G < 13 ? 5 : G < 15.5 ? 4 : G < 17.5 ? 3 : G < 19 ? 2 : 1;
+      const lv = G < 13 ? 4 : G < 15.5 ? 3 : G < 17.5 ? 2 : G < 19 ? 1 : 0, c = sc[k] === 255 ? 0.8 : sc[k] / 254 * 4.5 - 0.5;
+      const hue = c < 0.5 ? 0 : c < 1 ? 1 : c < 1.5 ? 2 : c < 2.2 ? 3 : 4; // BP-RP bins: hot to cool
+      st.cb[e] = e === 0 ? 6 : 21 + hue * 5 + lv;
     }
     st.sz[0] = 3;
     // ---- geoid (real, EGM2008), on a Fibonacci sphere matching tools/prep.py
@@ -99,13 +113,10 @@ export function mountScene(fig) {
     ge.yaw = t => -(L0 + (L1 - L0) * ease(Math.min(1, t / ge.hold)));
     // ---- person (REAL): the owner waving at a 160x60 depth LiDAR, 2020, played at the sensor's 9 fps.
     // Frames of M points in scan order, then the floor returns around the feet; x, y (feet at 0), z toward the sensor.
-    const M = u16(), nf_ = dv.getUint8(o), fps = dv.getUint8(o + 1); o += 2;
-    const pf = new Uint8Array(buf, o, nf_ * M * 3); o += nf_ * M * 3;
-    const nfl = u16(), fd = new Uint8Array(buf, o, nfl * 3); o += nfl * 3;
+    const { M, frames: nf_, fps, pts: pf, nfl, floor: fd, qx, qy, end } = readPerson(buf, o); o = end;
     const pass = nf_ / fps + 0.5; // one wave, then a beat
     const pe = mk({ ext: [0.8, 1.14], dist: 4, pitch: 0.12, hold: 2 * pass, read: 0 });
     pe.yaw = t => -0.15 - 0.35 * ease(Math.min(1, t / pe.hold)); // turning shows it only measured the near side
-    const qx = v => v / 255 * 2.4 - 1.2, qy = v => v / 255 * 2 - 0.98;
     for (let e = 0; e < nfl; e++) { pe.ex[e] = qx(fd[3 * e]); pe.ey[e] = qy(fd[3 * e + 1]); pe.ez[e] = qx(fd[3 * e + 2]); pe.cb[e] = pe.ez[e] > 0 ? 2 : 1; pe.sz[e] = 1.6; }
     pe.stillT = 11 / fps; // the still is a frame with the hand up
     pe.pose = t => {
@@ -113,16 +124,17 @@ export function mountScene(fig) {
       for (let e = nfl; e < N; e++) {
         const q = k + ((e - nfl) % M) * 3, z = qx(pf[q + 2]);
         pe.ex[e] = qx(pf[q]); pe.ey[e] = qy(pf[q + 1]); pe.ez[e] = z;
-        pe.cb[e] = z > 0.06 ? 5 : z > -0.04 ? 4 : 3; pe.sz[e] = 2.1;
+        pe.cb[e] = 46 + (z > 0.1 ? 0 : z > 0.03 ? 1 : z > -0.04 ? 2 : z > -0.11 ? 3 : 4); pe.sz[e] = 2.1; // colour by range
       }
     };
     pe.ann = annTag; pe.tag = 'Real capture, 2020';
     // ---- walks (SIMULATED). Same speed, same number of samples; Levy step lengths ~ l^-2.
     // Both walkers start in the middle of their box and draw their paths as they go; the share of
     // the 20 x 20 grid each has visited counts up with them.
-    const WALK_T = 5;
+    const WALK_T = 5, IN = 0.025;
     const wk = mk({ ext: [1.14, 0.7], ann: annWalk, hold: WALK_T });
     const half = N >> 1; wk.u = new Float32Array(N); wk.v = new Float32Array(N); wk.cov = [new Uint8Array(half), new Uint8Array(half)];
+    wk.first = [new Int16Array(400).fill(-1), new Int16Array(400).fill(-1)]; // when each 20 x 20 cell was first visited
     for (let w = 0; w < 2; w++) {
       let x = 0.5, y = 0.5, dx = 0, dy = 0, rem = 0; const v0 = 0.0065, seen = new Set();
       for (let i = 0; i < half; i++) {
@@ -134,17 +146,31 @@ export function mountScene(fig) {
         if (x < 0) { x = -x; dx = -dx; } if (x > 1) { x = 2 - x; dx = -dx; }
         if (y < 0) { y = -y; dy = -dy; } if (y > 1) { y = 2 - y; dy = -dy; }
         const e = w * half + i; wk.u[e] = x; wk.v[e] = y;
-        seen.add((x * 20 | 0) * 20 + (y * 20 | 0)); wk.cov[w][i] = Math.round(seen.size / 4);
+        const c = Math.min(19, x * 20 | 0) * 20 + Math.min(19, y * 20 | 0); if (wk.first[w][c] < 0) wk.first[w][c] = i;
+        seen.add(c); wk.cov[w][i] = Math.round(seen.size / 4);
       }
     }
     wk.head = t => Math.min(half - 1, Math.floor(Math.min(1, t / WALK_T) * half)); // samples walked so far
     wk.stillT = WALK_T;
+    wk.under = t => { // the cells each walker has visited so far, shaded under its path
+      const k = fit(wk), h = wk.head(t), cs = k * (1 - 2 * IN) / 20, a = ctx.globalAlpha;
+      for (let w = 0; w < 2; w++) {
+        const [ox, oy] = wk.lay[w], x0 = W / 2 + (ox + IN) * k, y0 = H / 2 - (oy + 1 - IN) * k;
+        ctx.fillStyle = CELL; ctx.globalAlpha = a; // a neutral base, then the walker's colour over it
+        for (let c = 0; c < 400; c++) { const f = wk.first[w][c]; if (f >= 0 && f <= h) ctx.fillRect(x0 + (c / 20 | 0) * cs, y0 + (19 - c % 20) * cs, cs, cs); }
+        ctx.fillStyle = CATC[w]; ctx.globalAlpha = a * 0.12;
+        for (let c = 0; c < 400; c++) { const f = wk.first[w][c]; if (f >= 0 && f <= h) ctx.fillRect(x0 + (c / 20 | 0) * cs, y0 + (19 - c % 20) * cs, cs, cs); }
+        ctx.save(); ctx.globalAlpha = a * 0.45; ctx.fillStyle = RULE; // the 20 x 20 grid the percentage counts, as a faint lattice
+        for (let i = 1; i < 20; i++) { ctx.fillRect(x0 + i * cs, y0, Math.max(1, dpr / 2), 20 * cs); ctx.fillRect(x0, y0 + i * cs, 20 * cs, Math.max(1, dpr / 2)); }
+        ctx.restore();
+      }
+    };
     wk.pose = t => {
       const h = wk.head(t);
       for (let e = 0; e < N; e++) {
         const w = e >= half ? 1 : 0, i = e - w * half, [ox, oy] = wk.lay[w], walked = i <= h, k = w * half + (walked ? i : h);
-        wk.ex[e] = ox + wk.u[k]; wk.ey[e] = oy + wk.v[k];
-        wk.cb[e] = !walked || i > h - 40 ? 5 : w ? 4 : 3; wk.sz[e] = walked ? 1.6 : 3.4; // points not yet walked ride under the walker
+        wk.ex[e] = ox + IN + wk.u[k] * (1 - 2 * IN); wk.ey[e] = oy + IN + wk.v[k] * (1 - 2 * IN); // kept off the box's edge
+        wk.cb[e] = !walked || i > h - 40 ? 5 : 51 + w; // each walker's path in its own colour, its head in ink wk.sz[e] = walked ? 1.6 : 3.4; // points not yet walked ride under the walker
       }
     };
     // ---- now (SYNTHETIC illustration): fig[data-variant] picks 'merge' (default) or 'plan'
@@ -215,7 +241,7 @@ export function mountScene(fig) {
           let oy = s.oy[e]; if (mv && r === 2) oy += Math.max(0, ph) * 0.9; if (mv && r === 3) oy += Math.max(0, -ph) * 0.9;
           s.ex[e] = bx + s.ox[e] * p; s.ey[e] = by + (oy + 0.5) * p;
           const wt = waiting(i, t);
-          s.cb[e] = r === 1 ? 20 : r === 4 ? (wt && (t * 3.3 | 0) % 2 ? 0 : 5) : 5;
+          s.cb[e] = r === 1 ? 20 : r === 4 ? (wt && (t * 3.3 | 0) % 2 ? 0 : 51 + i) : 51 + i; // each agent its own colour
           s.sz[e] = r === 5 ? (wt ? bsz * 0.8 : 0) : r === 1 ? bsz * 0.9 : bsz;
           continue;
         }
@@ -225,7 +251,7 @@ export function mountScene(fig) {
         else if (kd === 3) { [x, y] = curve(u, 0, LY[i], XF, XL); lit = t > ARR[i] + TF * u; }
         else if (kd === 4) { x = XL + (XR - XL) * u; y = LY[i]; const a = botPos(i, t); lit = t > ARR[i] + TF && (a[0] >= x || t > fin[i]); }
         else { [x, y] = curve(u, LY[i], 0, XR, XM); lit = t > fin[i] + TM * u; }
-        s.ex[e] = x; s.ey[e] = y + s.oy[e]; s.cb[e] = lit ? 3 : 0; s.sz[e] = lit ? 1.9 : 0.9;
+        s.ex[e] = x; s.ey[e] = y + s.oy[e]; s.cb[e] = !lit ? 0 : kd >= 3 ? 51 + i : 3; s.sz[e] = lit ? 1.9 : 0.9; // a lane lights in its agent's colour
       }
     };
     return s;
@@ -311,13 +337,13 @@ export function mountScene(fig) {
       X[j] = tmp[0]; Y[j] = tmp[1];
       let sz = s.sz[e], b = s.cb[e];
       if (s === S[3]) { // geoid: colour by undulation, far side dark
-        if (d < -0.05) { b = 19; sz = 0.9; } else if (s.out[e]) { b = 5; sz = 2.2; } else { b = 7 + Math.round(Math.min(1, Math.max(0, (s.h[e] + 106.5) / 193.8)) * (TB - 1)); sz = 2.4; }
+        if (d < -0.05) { b = 19; sz = 0.9; } else if (s.out[e]) { b = OUT_B; sz = 2.2; } else { const h = s.h[e]; b = 7 + Math.round(Math.min(1, Math.max(0, 0.5 + 0.5 * Math.sign(h) * Math.sqrt(Math.abs(h) / (h < 0 ? 106.5 : 87.3)))) * (TB - 1)); sz = 2.4; } // 0 m in the middle; square root, so tens of metres still show
       }
       Z[j] = sz * u; B[j] = b;
     }
   }
   function layoutWalk() {
-    const s = S[2], wide = W / H > 1.25;
+    const s = S[2], wide = W / H > 0.9; // side by side unless the frame is taller than wide
     s.ext = wide ? [1.14, 0.66] : [0.62, 1.3];
     s.lay = [0, 1].map(w => [wide ? (w ? 0.04 : -1.04) : -0.5, wide ? -0.5 : (w ? -1.08 : 0.2)]);
     s.posed = null;
@@ -346,20 +372,19 @@ export function mountScene(fig) {
     text('N', ax, ay - al - 4 * dpr, 'center'); text('E', ax - al - 4 * dpr, ay + fs * 0.35, 'right');
   }
   function annWalk(s, t) {
-    const wide = W / H > 1.25, k = fit(s);
+    const k = fit(s);
     ctx.strokeStyle = RULE; ctx.lineWidth = dpr; ctx.fillStyle = MUTED;
     const lab = ['Brownian', 'Lévy'];
     for (let w = 0; w < 2; w++) {
-      const ox = wide ? (w ? 0.04 : -1.04) : -0.5, oy = wide ? -0.5 : (w ? -1.08 : 0.2);
-      const x = W / 2 + ox * k, y = H / 2 - (oy + 1) * k;
+      const [ox, oy] = s.lay[w], x = W / 2 + ox * k, y = H / 2 - (oy + 1) * k;
       ctx.strokeRect(x, y, k, k);
-      text(`${lab[w]}, ${s.cov[w][s.head(t)]}%`, x, y + k + fs * 1.3);
+      ctx.fillStyle = CATC[w]; text(`${lab[w]}, ${s.cov[w][s.head(t)]}%`, x, y + k + fs * 1.3); // the label is the legend
     }
   }
   function annGeoid() {
     const m = 12 * dpr, bw = Math.min(130 * dpr, W * 0.3), bh = 6 * dpr, y = H - m - fs * 1.5;
     for (let i = 0; i < TB; i++) { ctx.fillStyle = COL[7 + i]; ctx.fillRect(m + i * bw / TB, y, bw / TB + 0.5, bh); }
-    ctx.fillStyle = MUTED; text('−106 m', m, H - m); text('+87 m', m + bw, H - m, 'right');
+    ctx.fillStyle = MUTED; text('−106 m', m, H - m); text('0', m + bw / 2, H - m, 'center'); text('+87 m', m + bw, H - m, 'right');
   }
   function annTag(s) { ctx.fillStyle = MUTED; text(s.tag, W - 12 * dpr, 12 * dpr + fs, 'right', true); } // top right, clear of the figure
   function annNow(s) {
@@ -367,7 +392,7 @@ export function mountScene(fig) {
     if (!s.lanes) return;
     const k = fit(s), X = x => W / 2 + x * k, Y = y => H / 2 - y * k; ctx.fillStyle = MUTED;
     text('main', X(-1.45), Y(0) + fs * 1.25);
-    s.lanes.forEach((y, i) => text(`agent ${i + 1}`, X(-0.56), Y(y) + fs * 1.25)); // below the line, clear of the bots
+    s.lanes.forEach((y, i) => { ctx.fillStyle = CATC[i]; text(`agent ${i + 1}`, X(-0.56), Y(y) + fs * 1.25); }); // below the line, in the agent's colour
   }
 
   // ---- state and loop
@@ -382,6 +407,7 @@ export function mountScene(fig) {
   const stats = window.__sceneStats = { frames: 0, ms: 0, max: 0 };
   function draw(annA) {
     ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H);
+    if (annA > 0 && S[cur].under) { ctx.globalAlpha = annA * 0.8; S[cur].under(Math.min(holdT, S[cur].hold)); ctx.globalAlpha = 1; }
     const cnt = new Int32Array(NB + 1), ord = draw.ord || (draw.ord = new Uint16Array(N));
     const KJ = S[cur].keepJ, vis = j => step < 2 || !(j & 1) || KJ[j]; // phone: half the points, but whole bots
     for (let j = 0; j < N; j++) if (vis(j)) cnt[DB[j] + 1]++;
@@ -448,7 +474,7 @@ export function mountScene(fig) {
   }
   function resize() {
     const r = cv.getBoundingClientRect(); if (!r.width) return;
-    dpr = Math.min(2, window.devicePixelRatio || 1);
+    dpr = Math.min(3, window.devicePixelRatio || 1);
     W = cv.width = Math.round(r.width * dpr); H = cv.height = Math.round(r.height * dpr);
     step = r.width < 560 ? 2 : 1; fs = Math.round(Math.max(11, Math.min(13, r.width / 46)) * dpr);
     layoutWalk(); ranks(); P = 1; render(); kick();
