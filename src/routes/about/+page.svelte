@@ -9,7 +9,7 @@
 	let { data } = $props();
 </script>
 
-<Seo title="About" description="{site.name} works on machine learning, data engineering and tools for AI agents, after research in physics on X-ray astronomy, LiDAR and agent search." />
+<Seo title="About" description="{site.name} works in data science, machine learning and AI, after research in physics on X-ray astronomy, LiDAR and agent search." />
 
 <section class="intro">
 	<h1>About</h1>
