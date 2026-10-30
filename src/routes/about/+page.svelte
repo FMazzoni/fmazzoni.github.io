@@ -13,7 +13,7 @@
 
 <section class="intro">
 	<h1>{sections.about.title}</h1>
-	<!-- eslint-disable-next-line svelte/no-at-html-tags -- the owner's Markdown, rendered at build time (ruly: html-from-content-pipeline) -->
+	<!-- eslint-disable-next-line svelte/no-at-html-tags -- page Markdown, rendered once at build time in content.server.ts -->
 	{@html data.page.html}
 </section>
 
