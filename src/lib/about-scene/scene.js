@@ -33,8 +33,8 @@ export function mountScene(fig) {
   const COL = [];
   function paint() {
     const { css, bg, mix, mixc, hex, light } = inkOver(fig);
-    BG = bg; MUTED = css.getPropertyValue('--muted').trim() || '#a29e96';
-    RULE = css.getPropertyValue('--line').trim() || '#2b2d31'; LINK = css.getPropertyValue('--link').trim() || '#9dc4f2';
+    BG = bg; MUTED = css.getPropertyValue('--muted').trim();
+    RULE = css.getPropertyValue('--line').trim(); LINK = css.getPropertyValue('--link').trim();
     COL.length = 0;
     COL.push(...[0.2, 0.32, 0.46, 0.62, 0.8, 1].map(mix)); // 0..5 ink levels
     COL.push(LINK); // 6
