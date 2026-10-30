@@ -1,6 +1,6 @@
 # fmazzoni.github.io
 
-My personal site: projects, writing and an about page. It is a SvelteKit app, prerendered to static
+My personal site: projects, a blog and an about page. It is a SvelteKit app, prerendered to static
 HTML and served by GitHub Pages.
 
 ## Writing a post

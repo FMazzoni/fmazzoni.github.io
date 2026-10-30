@@ -1,5 +1,5 @@
 ---
-title: Visualizing Earth's Geoid in 3D
+title: Visualizing Earth's geoid in 3D
 date: 2025-11-17
 project: geoid-globe
 category: misc

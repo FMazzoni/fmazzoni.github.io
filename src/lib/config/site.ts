@@ -6,7 +6,7 @@ export const site = {
 	url: 'https://fmazzoni.github.io',
 	intro: 'I work in data science, machine learning and AI.',
 	background: 'These days I build things on\u00a0the side, mostly with coding agents.',
-	description: 'Fernando’s projects and writing on data science, machine learning, AI and physics.',
+	description: 'Fernando’s projects and blog posts on data science, machine learning, AI and physics.',
 	social: [
 		{ name: 'GitHub', url: 'https://github.com/FMazzoni' },
 		{ name: 'LinkedIn', url: 'https://www.linkedin.com/in/fernando-mazzoni' }
@@ -22,11 +22,18 @@ export const postPath = (slug: string): string => `/blog/${slug}`;
  */
 export const home = { figures: 2, lines: 3 } as const;
 
-export const nav = [
-	{ title: 'Projects', href: '/projects' },
-	{ title: 'Writing', href: '/blog' },
-	{ title: 'About', href: '/about' }
-] as const;
+/**
+ * The site's parts and the one name each goes by. The nav, the section headings and the page titles
+ * read these, so a part is called the same everywhere: the blog holds posts, and its address matches.
+ */
+export const sections = {
+	projects: { title: 'Projects', href: '/projects' },
+	blog: { title: 'Blog', href: '/blog' },
+	about: { title: 'About', href: '/about' },
+	papers: { title: 'Papers', href: '/about#papers' }
+} as const;
+
+export const nav = [sections.projects, sections.blog, sections.about] as const;
 
 /**
  * Paths on this domain that other repos' GitHub Pages serve (/geoid-globe/ and so on). SvelteKit's

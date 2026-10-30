@@ -1,5 +1,5 @@
 ---
-title: Boston 311 Dashboard
+title: Boston 311 dashboard
 date: 2025-09-10
 project: Boston 311 dashboard
 category: misc

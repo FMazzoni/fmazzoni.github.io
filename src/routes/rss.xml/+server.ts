@@ -1,5 +1,5 @@
 import type { RequestHandler } from './$types';
-import { postPath, site } from '$lib/config/site';
+import { postPath, sections, site } from '$lib/config/site';
 import { getPosts } from '$lib/utils/content.server';
 
 export const prerender = true;
@@ -22,8 +22,8 @@ export const GET: RequestHandler = () => {
 	const body = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
 <channel>
-<title>${escape(site.name)}</title>
-<link>${site.url}</link>
+<title>${escape(`${sections.blog.title} · ${site.name}`)}</title>
+<link>${site.url}${sections.blog.href}</link>
 <description>${escape(site.description)}</description>
 ${items}
 </channel>
