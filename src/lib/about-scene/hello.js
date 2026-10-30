@@ -7,7 +7,10 @@ import { inkOver, personOffset, readPerson } from './points.js';
 
 const YAW = -0.3, PITCH = 0.12, DIST = 4, EXT = [0.62, 1.04], REST_S = 3, STILL_FRAME = 11, WAVES = 3;
 
-/** Draws into `fig`'s canvas. Resolves once the first frame is up; returns a function that stops it. */
+/**
+ * Draws into `fig`'s canvas. Resolves once the first frame is up; returns a function that stops it.
+ * @public HelloFigure.svelte loads this with import(), which knip does not follow.
+ */
 export async function mountHello(fig) {
   const cv = fig.querySelector('canvas'), ctx = cv.getContext('2d', { alpha: false });
   const buf = await fetch('/about-scene/data.bin').then(r => { if (!r.ok) throw r.status; return r.arrayBuffer(); });

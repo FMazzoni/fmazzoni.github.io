@@ -34,6 +34,7 @@ npm ci
 npm run dev       # http://localhost:5173
 npm run check     # svelte-check and TypeScript
 npm run lint
+npm run knip      # unused files, exports and dependencies
 npm run shots     # build, then screenshot every page at desktop and phone size into shots/
 ```
 

@@ -13,7 +13,10 @@
  */
 import { inkOver, readPerson } from './points.js';
 
-/** Runs the scene inside `fig` (the About page's <figure class="scene">). Returns a function that stops it. */
+/**
+ * Runs the scene inside `fig` (the About page's <figure class="scene">). Returns a function that stops it.
+ * @public AboutScene.svelte loads this with import(), which knip does not follow.
+ */
 export function mountScene(fig) {
   let stopped = false, resizeObs, seenObs, themeObs, unpaint;
   const lightScheme = matchMedia('(prefers-color-scheme: light)');
