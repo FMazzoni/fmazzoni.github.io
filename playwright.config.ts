@@ -1,5 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
 
+// Its own port, so it never collides with a dev server or another preview.
+const port = 4179;
+const url = `http://127.0.0.1:${port}`;
+
 // Visual loop: builds the static site, serves it with `vite preview`, and drives it
 // in Chromium at desktop and phone sizes. Screenshots land in shots/ (gitignored).
 export default defineConfig({
@@ -11,11 +15,11 @@ export default defineConfig({
 	workers: 2,
 	outputDir: 'test-results',
 	reporter: [['list']],
-	use: { baseURL: 'http://127.0.0.1:4179' },
+	use: { baseURL: url },
 	webServer: {
-		// Its own port and always a fresh server: a preview started before a build serves stale assets.
-		command: 'npm run build && npm run preview -- --host 127.0.0.1 --port 4179 --strictPort',
-		url: 'http://127.0.0.1:4179',
+		// Always a fresh server: a preview started before a build serves stale assets.
+		command: `npm run build && npm run preview -- --host 127.0.0.1 --port ${port} --strictPort`,
+		url,
 		reuseExistingServer: false,
 		timeout: 120_000
 	},
