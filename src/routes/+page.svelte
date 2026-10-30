@@ -4,7 +4,7 @@
 	import ProjectFigure from '$lib/components/ProjectFigure.svelte';
 	import ProjectList from '$lib/components/ProjectList.svelte';
 	import DatedList from '$lib/components/DatedList.svelte';
-	import { home, site } from '$lib/config/site';
+	import { home, sections, site } from '$lib/config/site';
 	import { withPosts } from '$lib/config/projects';
 	import { papers } from '$lib/config/papers';
 	import { paperEntries, postEntries } from '$lib/utils/entries';
@@ -27,23 +27,23 @@
 </section>
 
 <section aria-labelledby="projects">
-	<h2 class="sec" id="projects"><a href="/projects">Projects</a></h2>
+	<h2 class="sec" id="projects"><a href={sections.projects.href}>{sections.projects.title}</a></h2>
 	<div class="projects">
 		{#each shown as project, i (project.name)}
 			<ProjectFigure {project} fig={i + 2} /><!-- Fig. 1 is the wave above -->
 		{/each}
 	</div>
-	<ProjectList projects={listed} all={{ label: 'All projects', href: '/projects' }} />
+	<ProjectList projects={listed} all={{ label: `All ${sections.projects.title.toLowerCase()}`, href: sections.projects.href }} />
 </section>
 
 <div class="lower">
-<section aria-labelledby="writing">
-	<h2 class="sec" id="writing"><a href="/blog">Writing</a></h2>
+<section aria-labelledby="blog">
+	<h2 class="sec" id="blog"><a href={sections.blog.href}>{sections.blog.title}</a></h2>
 	<DatedList entries={postEntries(data.posts)} />
 </section>
 
 <section aria-labelledby="papers">
-	<h2 class="sec" id="papers"><a href="/about#papers">Papers</a></h2>
+	<h2 class="sec" id="papers"><a href={sections.papers.href}>{sections.papers.title}</a></h2>
 	<DatedList entries={paperEntries(papers)} years />
 </section>
 </div>

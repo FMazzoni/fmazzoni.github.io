@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Entry } from '$lib/utils/entries';
 
-	// One row per entry: the date in a gutter, then the title and an optional note. Writing and
+	// One row per entry: the date in a gutter, then the title and an optional note. Blog posts and
 	// papers both use it, on the home page and on their own pages.
 	let { entries, years = false }: { entries: Entry[]; years?: boolean } = $props();
 </script>

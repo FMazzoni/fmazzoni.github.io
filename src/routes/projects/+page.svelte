@@ -3,7 +3,7 @@
 	import ProjectFigure from '$lib/components/ProjectFigure.svelte';
 	import ProjectList from '$lib/components/ProjectList.svelte';
 	import { withPosts } from '$lib/config/projects';
-	import { site } from '$lib/config/site';
+	import { sections, site } from '$lib/config/site';
 
 	let { data } = $props();
 
@@ -12,10 +12,10 @@
 	const more = $derived(projects.filter((p) => !p.featured));
 </script>
 
-<Seo title="Projects" description="Things {site.name} has built: tools for AI agents, geospatial visualizations and data pipelines." />
+<Seo title={sections.projects.title} description="Things {site.name} has built: tools for AI agents, geospatial visualizations and data pipelines." />
 
 <section class="intro">
-	<h1>Projects</h1>
+	<h1>{sections.projects.title}</h1>
 </section>
 
 <div class="projects">
