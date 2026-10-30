@@ -33,7 +33,7 @@
 		{#if project.subcaption}<span class="subcap">{project.subcaption}</span>{/if}
 		<div class="links">
 			{#each project.links as link (link.href)}
-				<a href={link.href} data-sveltekit-reload={isOtherSite(link.href) || undefined}>{link.label}</a>
+				<a href={link.href} aria-label="{project.name} {link.label}" data-sveltekit-reload={isOtherSite(link.href) || undefined}>{link.label}</a>
 			{/each}
 		</div>
 	</div>

@@ -15,7 +15,7 @@
 				<b>{project.name}.</b>
 				{project.summary}
 				<span class="inline-links">
-					{#each project.links as link (link.href)}<a href={link.href} data-sveltekit-reload={isOtherSite(link.href) || undefined}>{link.label}</a>{/each}
+					{#each project.links as link (link.href)}<a href={link.href} aria-label="{project.name} {link.label}" data-sveltekit-reload={isOtherSite(link.href) || undefined}>{link.label}</a>{/each}
 				</span>
 			</p>
 		</li>
